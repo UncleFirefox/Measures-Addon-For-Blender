@@ -17,7 +17,7 @@ The plugin requires the following tools to run:
 Follow the instructions of the Blender Development plugin setup to connect to your instance of Blender.
 
 ## Installing in Blender
-If you simply want to test how the addon works, get the latest version of the addon from the releases page. 
+If you simply want to test how the addon works, get the latest version of the addon from the [releases page](https://github.com/UncleFirefox/Measures-Addon-For-Blender/releases).
 
 Inside Blender go to: `Edit > Preferences`, go the the `Add-ons` section in the left menu, hit the `Install...` button and select the file you donwloaded.
 

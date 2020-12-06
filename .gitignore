@@ -123,7 +123,7 @@ pythonenv*
 .spyproject
 
 # Rope project settings
-.ropeproject
+#.ropeproject
 
 # mkdocs documentation
 /site

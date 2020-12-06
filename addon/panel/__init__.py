@@ -1,6 +1,6 @@
-from .measures_panel import MeasuresMainPanel
+from .measures_panel import MEASURES_PT_MAINPANEL
 
-classes = [MeasuresMainPanel]
+classes = [MEASURES_PT_MAINPANEL]
 
 
 def register_panels():

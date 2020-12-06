@@ -1,7 +1,7 @@
 import bpy
 
 
-class MeasuresMainPanel(bpy.types.Panel):
+class MEASURES_PT_MAINPANEL(bpy.types.Panel):
     """Creates a Panel in the 3D view for Measures"""
     bl_label = "Measures Library"
     bl_idname = "MEASURES_PT_MAINPANEL"

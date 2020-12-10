@@ -1,5 +1,6 @@
 import bpy
 import bmesh
+from ..utility.ray import mouse_raycast_to_scene
 
 
 class MEASURES_OT(bpy.types.Operator):
@@ -41,13 +42,14 @@ class MEASURES_OT(bpy.types.Operator):
 
         # Adjust
         elif event.type == 'MOUSEMOVE':
-            delta = event.mouse_y - event.mouse_prev_y
-            delta /= 100
-            self.height += delta
 
-            bisect_obj = bpy.data.objects.get("Bisect")
-            if bisect_obj is not None:
-                bpy.data.objects.remove(bisect_obj, do_unlink=True)
+            hit, location, normal, index, object, matrix = mouse_raycast_to_scene(context, event)
+
+            if hit:
+                self.height = location.z
+            # delta = event.mouse_y - event.mouse_prev_y
+            # delta /= 100
+            # self.height += delta
             self.execute(context)
 
         return {'RUNNING_MODAL'}
@@ -86,6 +88,10 @@ class MEASURES_OT(bpy.types.Operator):
                 )
 
         # new object
+        bisect_obj = bpy.data.objects.get("Bisect")
+        if bisect_obj is not None:
+            bpy.data.objects.remove(bisect_obj, do_unlink=True)
+
         me = bpy.data.meshes.new("Bisect")
         bm.to_mesh(me)
         ob = bpy.data.objects.new("Bisect", me)

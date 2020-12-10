@@ -18,20 +18,20 @@ class MEASURES_PT_MAINPANEL(bpy.types.Panel):
         row = layout.row()
         row.label(text="Adjust the plane to the Avatar", icon="MOD_TINT")
 
-        plane = bpy.context.scene.objects.get("Plane")
-        row = layout.row()
-        col = layout.column()
-        col.prop(plane, "location")
+        # plane = bpy.context.scene.objects.get("Plane")
+        # row = layout.row()
+        # col = layout.column()
+        # col.prop(plane, "location")
 
         # TODO:
         # https://blender.stackexchange.com/questions/123044/how-to-scale-an-object-via-a-slider-in-python
-        row = layout.row()
-        col = layout.column()
-        col.prop(plane, "scale")
+        # row = layout.row()
+        # col = layout.column()
+        # col.prop(plane, "scale")
 
-        row = layout.row()
-        col = layout.column()
-        col.prop(plane, "rotation_euler")
+        # row = layout.row()
+        # col = layout.column()
+        # col.prop(plane, "rotation_euler")
 
         row = layout.row()
         row.operator('measures.create')

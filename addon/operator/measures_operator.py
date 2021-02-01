@@ -1,4 +1,3 @@
-from bl_operators.bmesh.find_adjacent import other_edges_over_edge
 from bmesh.types import BMesh
 import bpy
 import bmesh
@@ -45,7 +44,8 @@ class MEASURES_OT(bpy.types.Operator):
         # Adjust
         elif event.type == 'MOUSEMOVE':
 
-            hit, location, normal, index, object, matrix = mouse_raycast_to_scene(context, event)
+            hit, location, normal, index, object, matrix = \
+                mouse_raycast_to_scene(context, event)
 
             if hit:
                 self.height = location.z
@@ -66,45 +66,50 @@ class MEASURES_OT(bpy.types.Operator):
         dg = context.evaluated_depsgraph_get()
         scene = context.scene
         ob = scene.objects.get("Avatar")
-        # plane = scene.objects.get("Plane")
         plane = self.create_plane()
 
         if plane and ob:
+
+            # Get plane data
             pmw = plane.matrix_world
             face = plane.data.polygons[0]
             plane_co = pmw @ face.center
             plane_no = pmw @ (face.center + face.normal) - plane_co
             bm = bmesh.new()
             bm.from_object(ob, dg)
-            bmesh.ops.transform(bm,
+            bmesh.ops.transform(
+                bm,
                 verts=bm.verts,
-                matrix=ob.matrix_world)
+                matrix=ob.matrix_world
+            )
 
-            x = bmesh.ops.bisect_plane(bm,
+            # Perform bisection
+            bmesh.ops.bisect_plane(
+                bm,
                 geom=bm.faces[:] + bm.edges[:] + bm.verts[:],
                 clear_inner=True,
                 clear_outer=True,
                 plane_co=plane_co,
-                plane_no=plane_no)
+                plane_no=plane_no
+            )
 
+            # Bisection cleanup
             closest_edge = self.find_closest_edge(bm)
             vertex_list = self.get_reachable_vertices(closest_edge)
-            
             for v in [v for v in bm.verts if v not in vertex_list]:
-                bm.verts.remove(v)      
+                bm.verts.remove(v)
 
-        # new object
-        bisect_obj = bpy.data.objects.get("Bisect")
-        if bisect_obj is not None:
-            bpy.data.objects.remove(bisect_obj, do_unlink=True)
+            # Object creation and addition to scene
+            bisect_obj = bpy.data.objects.get("Bisect")
+            if bisect_obj is not None:
+                bpy.data.objects.remove(bisect_obj, do_unlink=True)
 
-        me = bpy.data.meshes.new("Bisect")
-        bm.to_mesh(me)
-        ob = bpy.data.objects.new("Bisect", me)
-        context.collection.objects.link(ob)
-
-        #bpy.ops.object.select_all(action='DESELECT')
-        ob.select_set(True)
+            me = bpy.data.meshes.new("Bisect")
+            bm.to_mesh(me)
+            ob = bpy.data.objects.new("Bisect", me)
+            context.collection.objects.link(ob)
+            
+            ob.select_set(True)
 
         return {'FINISHED'}
 
@@ -120,6 +125,7 @@ class MEASURES_OT(bpy.types.Operator):
         return vertex_list
 
     def find_closest_edge(self, bm: BMesh):
+        result = None
         min_dist = 9999.99
         for e in bm.edges:
             for v in e.verts:
@@ -128,7 +134,7 @@ class MEASURES_OT(bpy.types.Operator):
                     result = e
                     min_dist = dist
                     if min_dist < 0.01:
-                        return e # If its close enough dont continue iterating
+                        return e  # If its close enough dont continue iterating
 
         return result
 

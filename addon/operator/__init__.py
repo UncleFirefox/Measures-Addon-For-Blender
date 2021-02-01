@@ -1,7 +1,7 @@
-from .measures_operator import MEASURES_OT
+from .measures_circular_operator import MEASURES_CIRCULAR_OT
 
 classes = (
-    MEASURES_OT,
+    MEASURES_CIRCULAR_OT,
 )
 
 

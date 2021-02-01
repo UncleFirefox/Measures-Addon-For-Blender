@@ -15,8 +15,8 @@ class MEASURES_PT_MAINPANEL(bpy.types.Panel):
         layout = self.layout
         layout.scale_y = 1.2
 
-        row = layout.row()
-        row.label(text="Adjust the plane to the Avatar", icon="MOD_TINT")
+        # row = layout.row()
+        # row.label(text="Adjust the plane to the Avatar", icon="MOD_TINT")
 
         # plane = bpy.context.scene.objects.get("Plane")
         # row = layout.row()
@@ -33,8 +33,8 @@ class MEASURES_PT_MAINPANEL(bpy.types.Panel):
         # col = layout.column()
         # col.prop(plane, "rotation_euler")
 
-        row = layout.row()
-        row.operator('measures.create')
+        # row = layout.row()
+        # row.operator('measures.create')
 
         # row = layout.row()
         # row.label(text="Active object is: " + obj.name)

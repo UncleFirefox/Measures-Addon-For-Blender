@@ -4,9 +4,9 @@ import bmesh
 from ..utility.ray import mouse_raycast_to_scene
 
 
-class MEASURES_OT(bpy.types.Operator):
-    bl_label = "Create Measure"
-    bl_idname = 'measures.create'
+class MEASURES_CIRCULAR_OT(bpy.types.Operator):
+    bl_label = "Create Circular Measure"
+    bl_idname = 'measures.create_circular'
     bl_options = {"REGISTER", "UNDO", "BLOCKING"}
 
     height: bpy.props.FloatProperty(name="Height", default=0, min=0)
@@ -50,9 +50,6 @@ class MEASURES_OT(bpy.types.Operator):
             if hit:
                 self.height = location.z
                 self.hit_point = location
-                # delta = event.mouse_y - event.mouse_prev_y
-                # delta /= 100
-                # self.height += delta
                 self.execute(context)
 
         return {'RUNNING_MODAL'}
@@ -108,7 +105,7 @@ class MEASURES_OT(bpy.types.Operator):
             bm.to_mesh(me)
             ob = bpy.data.objects.new("Bisect", me)
             context.collection.objects.link(ob)
-            
+
             ob.select_set(True)
 
         return {'FINISHED'}
@@ -149,7 +146,7 @@ class MEASURES_OT(bpy.types.Operator):
 
         s = self.plane_scale
         bm.verts.new((s, s, self.height))
-        bm.verts.new((s, -s, self. height))
+        bm.verts.new((s, -s, self.height))
         bm.verts.new((-s, s, self.height))
         bm.verts.new((-s, -s, self.height))
 

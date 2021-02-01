@@ -1,3 +1,5 @@
+from bl_operators.bmesh.find_adjacent import other_edges_over_edge
+from bmesh.types import BMesh
 import bpy
 import bmesh
 from ..utility.ray import mouse_raycast_to_scene
@@ -47,10 +49,11 @@ class MEASURES_OT(bpy.types.Operator):
 
             if hit:
                 self.height = location.z
-            # delta = event.mouse_y - event.mouse_prev_y
-            # delta /= 100
-            # self.height += delta
-            self.execute(context)
+                self.hit_point = location
+                # delta = event.mouse_y - event.mouse_prev_y
+                # delta /= 100
+                # self.height += delta
+                self.execute(context)
 
         return {'RUNNING_MODAL'}
 
@@ -60,8 +63,6 @@ class MEASURES_OT(bpy.types.Operator):
         layout.prop(self, 'plane_scale')
 
     def execute(self, context):
-        #print('Measures Operator executed')
-
         dg = context.evaluated_depsgraph_get()
         scene = context.scene
         ob = scene.objects.get("Avatar")
@@ -84,8 +85,13 @@ class MEASURES_OT(bpy.types.Operator):
                 clear_inner=True,
                 clear_outer=True,
                 plane_co=plane_co,
-                plane_no=plane_no
-                )
+                plane_no=plane_no)
+
+            closest_edge = self.find_closest_edge(bm)
+            vertex_list = self.get_reachable_vertices(closest_edge)
+            
+            for v in [v for v in bm.verts if v not in vertex_list]:
+                bm.verts.remove(v)      
 
         # new object
         bisect_obj = bpy.data.objects.get("Bisect")
@@ -101,6 +107,30 @@ class MEASURES_OT(bpy.types.Operator):
         ob.select_set(True)
 
         return {'FINISHED'}
+
+    def get_reachable_vertices(self, closest_edge):
+        edge_list = [closest_edge]
+        vertex_list = [v for v in closest_edge.verts]
+        for v in vertex_list:
+            for e in [edge for edge in v.link_edges if edge not in edge_list]:
+                edge_list.append(e)
+                if (e.other_vert(v) not in vertex_list):
+                    vertex_list.append(e.other_vert(v))
+
+        return vertex_list
+
+    def find_closest_edge(self, bm: BMesh):
+        min_dist = 9999.99
+        for e in bm.edges:
+            for v in e.verts:
+                dist = (v.co - self.hit_point).magnitude
+                if dist < min_dist:
+                    result = e
+                    min_dist = dist
+                    if min_dist < 0.01:
+                        return e # If its close enough dont continue iterating
+
+        return result
 
     def create_plane(self):
         mesh = bpy.data.meshes.new("Plane")

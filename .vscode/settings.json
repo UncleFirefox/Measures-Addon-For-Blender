@@ -9,4 +9,7 @@
         "--init-hook",
         "import sys; sys.path.append('blender_autocomplete')"
     ],
+    "python.analysis.extraPaths": [
+        "blender_autocomplete"
+    ],
 }

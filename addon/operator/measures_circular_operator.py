@@ -1,7 +1,11 @@
 from bmesh.types import BMesh
 import bpy
 import bmesh
+import traceback
+from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
+from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
+from functools import reduce
 
 
 class MEASURES_CIRCULAR_OT(bpy.types.Operator):
@@ -21,8 +25,11 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     # Called after poll
     def invoke(self, context, event):
         # Initialize some props
-
+        self.hit_point = None
+        self.total_length = 0
         # Do some setup
+        self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
+            self.safe_draw_shader_2d, (context,), 'WINDOW', 'POST_PIXEL')
 
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
@@ -35,10 +42,12 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
         # Confirm
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self.remove_shaders(context)
             return {'FINISHED'}
 
         # Cancel
         elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
+            self.remove_shaders(context)
             return {'CANCELLED'}
 
         # Adjust
@@ -51,7 +60,11 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
                 self.height = location.z
                 self.hit_point = location
                 self.execute(context)
-
+            # else:
+            #     self.hit_point = None
+            #     # self.height = None
+            
+        context.area.tag_redraw()
         return {'RUNNING_MODAL'}
 
     def draw(self, context):
@@ -119,6 +132,8 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
                 if (e.other_vert(v) not in vertex_list):
                     vertex_list.append(e.other_vert(v))
 
+        self.total_length = reduce(lambda a, b: a + b.calc_length(), edge_list, 0)
+
         return vertex_list
 
     def find_closest_edge(self, bm: BMesh):
@@ -154,3 +169,69 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
         bm.to_mesh(mesh)
         return obj
+
+    def remove_shaders(self, context):
+        '''Remove shader handle.'''
+
+        if self.draw_handle is not None:
+            self.draw_handle = bpy.types.SpaceView3D.draw_handler_remove(
+                self.draw_handle, "WINDOW"
+            )
+            context.area.tag_redraw()
+
+    def safe_draw_shader_2d(self, context):
+
+        try:
+            self.draw_shaders_2d(context)
+        except Exception:
+            print("2D Shader Failed in Ray Caster")
+            traceback.print_exc()
+            self.remove_shaders(context)
+
+    def draw_shaders_2d(self, context):
+
+        if (self.hit_point is None):
+            return
+
+        prefs = get_prefs()
+
+        # Props
+        text = "X : {:.3f}, Y : {:.3f}, Z : {:.3f}".format(
+            self.hit_point.x, self.hit_point.y, self.hit_point.z
+        )
+
+        font_size = prefs.settings.font_size
+        dims = get_blf_text_dims(text, font_size)
+        area_width = context.area.width
+        padding = 8
+
+        over_all_width = dims[0] + padding * 2
+        over_all_height = dims[1] + padding * 2
+
+        left_offset = abs((area_width - over_all_width) * .5)
+        bottom_offset = 20
+
+        top_left = (left_offset                 , bottom_offset + over_all_height)
+        bot_left = (left_offset                 , bottom_offset)
+        top_right = (left_offset + over_all_width, bottom_offset + over_all_height)
+        bot_right = (left_offset + over_all_width, bottom_offset)
+
+        # Draw Quad
+        verts = [top_left, bot_left, top_right, bot_right]
+        draw_quad(vertices=verts, color=prefs.color.bg_color)
+
+        # Draw Text
+        x = left_offset + padding
+        y = bottom_offset + padding
+        draw_text(
+            text=text, x=x, y=y, size=font_size,
+            color=prefs.color.font_color
+        )
+
+        # Draw measurement length
+        if self.total_length != 0:
+            text = "LENGTH: {:.3f}".format(self.total_length)
+            draw_text(
+                text=text, x=x, y=y + over_all_height + padding, size=font_size,
+                color=prefs.color.font_color
+            )

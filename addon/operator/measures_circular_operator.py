@@ -2,6 +2,8 @@ from bmesh.types import BMesh
 import bpy
 import bmesh
 import traceback
+import math
+
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
 from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
@@ -15,6 +17,11 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
     height: bpy.props.FloatProperty(name="Height", default=0, min=0)
     plane_scale: bpy.props.FloatProperty(name="Plane Scale", default=1, min=1)
+    plane_rotation: bpy.props.FloatVectorProperty(
+        name="Plane Rotation",
+        # subtype='EULER',
+        min=0, max=2*math.pi
+    )
 
     @classmethod
     def poll(cls, context):
@@ -30,7 +37,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
             self.safe_draw_shader_2d, (context,), 'WINDOW', 'POST_PIXEL')
-
+        self.plane_rotation = (0, 0, 0)
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
 
@@ -60,23 +67,22 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
                 self.height = location.z
                 self.hit_point = location
                 self.execute(context)
-            # else:
-            #     self.hit_point = None
-            #     # self.height = None
-            
+
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
 
     def draw(self, context):
         layout = self.layout
+        layout.use_property_split = True
         layout.prop(self, 'height')
-        layout.prop(self, 'plane_scale')
+        layout.prop(self, 'plane_rotation')
 
     def execute(self, context):
         dg = context.evaluated_depsgraph_get()
         scene = context.scene
         ob = scene.objects.get("Avatar")
         plane = self.create_plane()
+        plane.rotation_euler = self.plane_rotation
 
         if plane and ob:
 
@@ -116,6 +122,9 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
             me = bpy.data.meshes.new("Bisect")
             bm.to_mesh(me)
+
+            bm.free()
+
             ob = bpy.data.objects.new("Bisect", me)
             context.collection.objects.link(ob)
 
@@ -168,6 +177,8 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         bmesh.ops.contextual_create(bm, geom=bm.verts)
 
         bm.to_mesh(mesh)
+        bm.free()
+
         return obj
 
     def remove_shaders(self, context):

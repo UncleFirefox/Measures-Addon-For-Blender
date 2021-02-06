@@ -1,6 +1,7 @@
-from .measures_panel import MEASURES_PT_MAINPANEL
+from .measures_main_panel import MEASURES_PT_MAINPANEL
+from .measures_circular_panel import MEASURES_PT_CIRCULAR_PANEL
 
-classes = [MEASURES_PT_MAINPANEL]
+classes = [MEASURES_PT_MAINPANEL, MEASURES_PT_CIRCULAR_PANEL]
 
 
 def register_panels():

@@ -4,6 +4,7 @@ import bmesh
 import traceback
 import math
 
+from mathutils import Euler
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
 from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
@@ -19,7 +20,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     plane_scale: bpy.props.FloatProperty(name="Plane Scale", default=1, min=1)
     plane_rotation: bpy.props.FloatVectorProperty(
         name="Plane Rotation",
-        # subtype='EULER',
+        subtype='EULER',
         min=0, max=2*math.pi
     )
 
@@ -82,12 +83,16 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         scene = context.scene
         ob = scene.objects.get("Avatar")
         plane = self.create_plane()
-        plane.rotation_euler = self.plane_rotation
 
         if plane and ob:
 
             # Get plane data
             pmw = plane.matrix_world
+
+            if self.plane_rotation != Euler():
+                rotation_matrix = self.plane_rotation.to_matrix().to_4x4()
+                pmw = pmw @ rotation_matrix
+
             face = plane.data.polygons[0]
             plane_co = pmw @ face.center
             plane_no = pmw @ (face.center + face.normal) - plane_co
@@ -111,24 +116,25 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
             # Bisection cleanup
             closest_edge = self.find_closest_edge(bm)
-            vertex_list = self.get_reachable_vertices(closest_edge)
-            for v in [v for v in bm.verts if v not in vertex_list]:
-                bm.verts.remove(v)
 
-            # Object creation and addition to scene
-            bisect_obj = bpy.data.objects.get("Bisect")
-            if bisect_obj is not None:
-                bpy.data.objects.remove(bisect_obj, do_unlink=True)
+            # Could be that the angle of plane finds no vertices after bisection
+            if closest_edge is not None:
+                vertex_list = self.get_reachable_vertices(closest_edge)
+                for v in [v for v in bm.verts if v not in vertex_list]:
+                    bm.verts.remove(v)
 
-            me = bpy.data.meshes.new("Bisect")
-            bm.to_mesh(me)
+                # Object creation and addition to scene
+                bisect_obj = bpy.data.objects.get("Bisect")
+                if bisect_obj is not None:
+                    bpy.data.objects.remove(bisect_obj, do_unlink=True)
+
+                me = bpy.data.meshes.new("Bisect")
+                bm.to_mesh(me)
+                ob = bpy.data.objects.new("Bisect", me)
+                context.collection.objects.link(ob)
+                ob.select_set(True)
 
             bm.free()
-
-            ob = bpy.data.objects.new("Bisect", me)
-            context.collection.objects.link(ob)
-
-            ob.select_set(True)
 
         return {'FINISHED'}
 

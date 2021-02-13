@@ -2,7 +2,7 @@ import bpy
 
 
 class MEASURES_PT_CIRCULAR_PANEL(bpy.types.Panel):
-    """Creates a Panel in the 3D view for Measures"""
+    """Creates a subpanel for circular in the 3D view for Measures"""
     bl_label = "Circular Measure"
     bl_idname = "MEASURES_PT_CIRCULAR_PANEL"
     bl_space_type = 'VIEW_3D'

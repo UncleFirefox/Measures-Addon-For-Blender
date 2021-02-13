@@ -1,7 +1,12 @@
+from .measures_geodesic_panel import MEASURES_PT_GEODESIC_PANEL
 from .measures_main_panel import MEASURES_PT_MAINPANEL
 from .measures_circular_panel import MEASURES_PT_CIRCULAR_PANEL
 
-classes = [MEASURES_PT_MAINPANEL, MEASURES_PT_CIRCULAR_PANEL]
+classes = [
+    MEASURES_PT_MAINPANEL,
+    MEASURES_PT_CIRCULAR_PANEL,
+    MEASURES_PT_GEODESIC_PANEL
+]
 
 
 def register_panels():

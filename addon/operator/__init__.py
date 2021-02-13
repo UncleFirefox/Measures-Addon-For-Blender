@@ -1,7 +1,9 @@
+from .measures_geodesic_operator import MEASURES_GEODESIC_OT
 from .measures_circular_operator import MEASURES_CIRCULAR_OT
 
 classes = (
     MEASURES_CIRCULAR_OT,
+    MEASURES_GEODESIC_OT
 )
 
 

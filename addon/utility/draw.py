@@ -59,15 +59,15 @@ def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
 
     points = [
         location_3d_to_region_2d(context.region,
-                                 context.space_data.region_3d, loc).to_3d()
+                                 context.space_data.region_3d, loc)
         for loc in points_3d
     ]
 
-    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINES', {"pos": points})
 
     bgl.glEnable(bgl.GL_BLEND)
-    bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
+    # bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
     bgl.glLineWidth(thickness)
 
     shader.bind()
@@ -112,11 +112,11 @@ def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
         vector3d = (coord.x, coord.y, coord.z)
         vector2d = location_3d_to_region_2d(region, rv3d, vector3d)
         if vector2d and vector3d:
-            vertices.append((vector2d.x, vector2d.y, 0))
+            vertices.append(vector2d)
 
     # Drawing using new api
     # https://www.youtube.com/watch?v=EgrgEoNFNsA
-    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'POINTS', {"pos": vertices})
 
     bgl.glPointSize(size)

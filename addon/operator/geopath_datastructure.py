@@ -4,6 +4,7 @@ from bpy_extras import view3d_utils
 
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
+
 from ..utility import draw
 
 
@@ -66,7 +67,7 @@ class GeoPath(object):
         imx = mx.inverted()
 
         res, loc, no, face_ind = self.cut_ob.ray_cast(
-            imx * ray_origin, imx * ray_target - imx * ray_origin)
+            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
 
         if not res:
             self.grab_cancel()

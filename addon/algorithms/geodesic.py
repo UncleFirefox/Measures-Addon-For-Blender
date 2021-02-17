@@ -537,7 +537,7 @@ def continue_geodesic_walk(bme, seed, seed_location,
         T[1][0], T[1][1], T[1][2] = U[1], V[1],  W[1]
         T[2][0], T[2][1], T[2][2] = U[2], V[2],  W[2]
 
-        v3p = T.transposed() * c
+        v3p = T.transposed() @ c
         # print('converted vector to coordinates on Vo so Z should be 0')
         # print(v3p)
         # solution to the intersection of the 2 circles

@@ -43,8 +43,12 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     # Handles events in main mode
     def handle_main(self, context, event):
+
         # Free navigation
-        if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'WHEELINMOUSE', 'WHEELOUTMOUSE'}:
+        if event.type in {
+            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
+            'WHEELINMOUSE', 'WHEELOUTMOUSE'
+        }:
             return {'PASS_THROUGH'}
 
         # Grab initiating
@@ -74,17 +78,27 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def handle_grab(self, context, event):
+
+        # Free navigation
+        if event.type in {
+            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
+            'WHEELINMOUSE', 'WHEELOUTMOUSE'
+        }:
+            return {'PASS_THROUGH'}
+
+        # confirm location
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
-            # confirm location
             self.geopath.grab_confirm()
             self.state = 'main'
+
+        # put it back!
         elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
-            # put it back!
             self.geopath.grab_cancel()
             self.state = 'main'
-        if event.type == 'LEFTMOUSE':
-            # update the b_pt location
-            x, y = event['mouse']
+
+        # update the b_pt location
+        if event.type == 'MOUSEMOVE':
+            x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
             self.state = 'grab'
 

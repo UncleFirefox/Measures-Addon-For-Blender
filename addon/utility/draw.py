@@ -59,37 +59,72 @@ def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
 
     points = [
         location_3d_to_region_2d(context.region,
-                                 context.space_data.region_3d, loc)
+                                 context.space_data.region_3d, loc).to_3d()
         for loc in points_3d
     ]
 
-    if LINE_TYPE == "GL_LINE_STIPPLE":
-        bgl.glLineStipple(4, 0x5555)  # play with this later
-        bgl.glEnable(bgl.GL_LINE_STIPPLE)
+    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    batch = batch_for_shader(shader, 'LINES', {"pos": points})
+
     bgl.glEnable(bgl.GL_BLEND)
-
-    bgl.glColor4f(*color)
+    bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
     bgl.glLineWidth(thickness)
-    bgl.glBegin(bgl.GL_LINE_STRIP)
-    for coord in points:
-        if coord:
-            bgl.glVertex2f(*coord)
 
-    bgl.glEnd()
+    shader.bind()
+    shader.uniform_float("color", color)
+    batch.draw(shader)
 
-    if LINE_TYPE == "GL_LINE_STIPPLE":
-        bgl.glDisable(bgl.GL_LINE_STIPPLE)
-        bgl.glEnable(bgl.GL_BLEND)  # back to uninterupted lines
-        bgl.glLineWidth(1)
+    bgl.glDisable(bgl.GL_BLEND)
+
+    del shader
+    del batch
+
+    # if LINE_TYPE == "GL_LINE_STIPPLE":
+    #     bgl.glLineStipple(4, 0x5555)  # play with this later
+    #     bgl.glEnable(bgl.GL_LINE_STIPPLE)
+    # bgl.glEnable(bgl.GL_BLEND)
+
+    # bgl.glColor4f(*color)
+    # bgl.glLineWidth(thickness)
+    # bgl.glBegin(bgl.GL_LINE_STRIP)
+    # for coord in points:
+    #     if coord:
+    #         bgl.glVertex2f(*coord)
+
+    # bgl.glEnd()
+
+    # if LINE_TYPE == "GL_LINE_STIPPLE":
+    #     bgl.glDisable(bgl.GL_LINE_STIPPLE)
+    #     bgl.glEnable(bgl.GL_BLEND)  # back to uninterupted lines
+    #     bgl.glLineWidth(1)
+
     return
 
 
-def draw3d_points(context, points, color, size):
-    bgl.glColor4f(*color)
-    bgl.glPointSize(size)
-    bgl.glDepthRange(0.0, 0.997)
-    bgl.glBegin(bgl.GL_POINTS)
+def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
+    region = context.region
+    rv3d = context.space_data.region_3d
+
+    bgl.glEnable(bgl.GL_BLEND)
+    bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
+    vertices = []
     for coord in points:
-        bgl.glVertex3f(*coord)
-    bgl.glEnd()
-    bgl.glPointSize(1.0)
+        vector3d = (coord.x, coord.y, coord.z)
+        vector2d = location_3d_to_region_2d(region, rv3d, vector3d)
+        if vector2d and vector3d:
+            vertices.append((vector2d.x, vector2d.y, 0))
+
+    # Drawing using new api
+    # https://www.youtube.com/watch?v=EgrgEoNFNsA
+    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    batch = batch_for_shader(shader, 'POINTS', {"pos": vertices})
+
+    bgl.glPointSize(size)
+    shader.bind()
+    shader.uniform_float("color", color)
+    batch.draw(shader)
+
+    del shader
+    del batch
+
+    return

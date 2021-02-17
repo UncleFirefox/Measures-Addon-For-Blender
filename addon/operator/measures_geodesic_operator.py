@@ -29,23 +29,22 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
             self.safe_draw_shader_2d, (context,), 'WINDOW', 'POST_PIXEL')
-        self.plane_rotation = (0, 0, 0)
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
 
     # Running in loop until we leave the modal
     def modal(self, context, event):
         if self.state == 'main':
-            return self.handle_main(self, context, event)
+            return self.handle_main(context, event)
         elif self.state == 'grab':
-            return self.handle_grab(self, context, event)
+            return self.handle_grab(context, event)
 
         return {"RUNNING_MODAL"}  # Should not get here but you never know
 
     # Handles events in main mode
     def handle_main(self, context, event):
         # Free navigation
-        if event.type == 'MIDDLEMOUSE':
+        if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'WHEELINMOUSE', 'WHEELOUTMOUSE'}:
             return {'PASS_THROUGH'}
 
         # Grab initiating
@@ -55,7 +54,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
-            x, y = event['mouse']
+            x, y = (event.mouse_region_x, event.mouse_region_y)
             if self.geopath.seed is not None:
                 self.geopath.click_add_target(context, x, y)
             else:

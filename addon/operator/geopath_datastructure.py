@@ -22,8 +22,7 @@ class GeoPath(object):
         self.bme.faces.ensure_lookup_table()
 
         non_tris = [f for f in self.bme.faces if len(f.verts) > 3]
-        bmesh.ops.triangulate(self.bme, faces=non_tris,
-                              quad_method=0, ngon_method=0)
+        bmesh.ops.triangulate(self.bme, faces=non_tris)
         self.bvh = BVHTree.FromBMesh(self.bme)
 
         self.seed = None
@@ -130,7 +129,7 @@ class GeoPath(object):
         imx = mx.inverted()
 
         res, loc, no, face_ind = self.cut_ob.ray_cast(
-            imx * ray_origin, imx * ray_target - imx * ray_origin)
+            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
 
         if not res:
             self.selected = -1
@@ -153,7 +152,7 @@ class GeoPath(object):
         imx = mx.inverted()
 
         res, loc, no, face_ind = self.cut_ob.ray_cast(
-            imx * ray_origin, imx * ray_target - imx * ray_origin)
+            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
 
         if not res:
             return
@@ -176,16 +175,16 @@ class GeoPath(object):
     def draw(self, context):
         if len(self.path):
             mx = self.cut_ob.matrix_world
-            pts = [mx * v for v in self.path]
+            pts = [mx @ v for v in self.path]
             draw.draw_polyline_from_3dpoints(
                 context, pts, (.2, .1, .8, 1), 3, 'GL_LINE')
 
         if self.seed_loc is not None:
             mx = self.cut_ob.matrix_world
             draw.draw_3d_points(
-                context, [mx * self.seed_loc], 8, color=(1, 0, 0, 1))
+                context, [mx @ self.seed_loc], 8, color=(1, 0, 0, 1))
 
         if self.target_loc is not None:
             mx = self.cut_ob.matrix_world
             draw.draw_3d_points(
-                context, [mx * self.target_loc], 8, color=(0, 1, 0, 1))
+                context, [mx @ self.target_loc], 8, color=(0, 1, 0, 1))

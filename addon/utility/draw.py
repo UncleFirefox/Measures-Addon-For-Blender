@@ -63,43 +63,23 @@ def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
         for loc in points_3d
     ]
 
+    # indices = [(i, i+1) for i in range(len(points))]
     shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
-    batch = batch_for_shader(shader, 'LINES', {"pos": points})
+    batch = batch_for_shader(shader, 'LINE_STRIP', {"pos": points})
 
     bgl.glEnable(bgl.GL_BLEND)
-    # bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
     bgl.glLineWidth(thickness)
 
     shader.bind()
     shader.uniform_float("color", color)
     batch.draw(shader)
 
-    bgl.glDisable(bgl.GL_BLEND)
+    # bgl.glDisable(bgl.GL_BLEND)
 
     del shader
     del batch
 
-    # if LINE_TYPE == "GL_LINE_STIPPLE":
-    #     bgl.glLineStipple(4, 0x5555)  # play with this later
-    #     bgl.glEnable(bgl.GL_LINE_STIPPLE)
-    # bgl.glEnable(bgl.GL_BLEND)
-
-    # bgl.glColor4f(*color)
-    # bgl.glLineWidth(thickness)
-    # bgl.glBegin(bgl.GL_LINE_STRIP)
-    # for coord in points:
-    #     if coord:
-    #         bgl.glVertex2f(*coord)
-
-    # bgl.glEnd()
-
-    # if LINE_TYPE == "GL_LINE_STIPPLE":
-    #     bgl.glDisable(bgl.GL_LINE_STIPPLE)
-    #     bgl.glEnable(bgl.GL_BLEND)  # back to uninterupted lines
-    #     bgl.glLineWidth(1)
-
     return
-
 
 def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
     region = context.region

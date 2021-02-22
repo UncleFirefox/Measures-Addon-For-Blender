@@ -8,7 +8,7 @@ https://math.berkeley.edu/~sethian/2006/Papers/sethian.kimmel.geodesics.pdf
 http://saturno.ge.imati.cnr.it/ima/personal-old/attene/PersonalPage/pdf/steepest-descent-paper.pdf
 '''
 # python imports
-import time
+# import time
 
 # blender imports
 import bmesh
@@ -69,15 +69,15 @@ def unwrap_tri_fan(bme, vcenter, ed_split, face_ref, max_folds=None):
 
     # this allows us to sort them
 
-    l = vcenter.link_loops[0]
-    edges = [l.edge]
+    loop = vcenter.link_loops[0]
+    edges = [loop.edge]
 
     for i in range(0, len(vcenter.link_edges)-1):
-        l = l.link_loop_prev.link_loop_radial_next
-        if l.edge in edges:
+        loop = loop.link_loop_prev.link_loop_radial_next
+        if loop.edge in edges:
             print('bad indexing dummy')
             continue
-        edges += [l.edge]
+        edges += [loop.edge]
 
     verts = [ed.other_vert(vcenter) for ed in edges]
 
@@ -187,22 +187,27 @@ def unwrap_tri_obtuse(vcenter, vobtuse, face):
         for v in face.verts:
             print(v.index)
 
-    ed_base = [e for e in face.edges if vcenter in e.verts and vobtuse in e.verts][0]
-    ed_unfold = [e for e in face.edges if e in vcenter.link_edges and e != ed_base][0]
+    ed_base = [
+        e for e in face.edges if vcenter in e.verts and vobtuse in e.verts
+    ][0]
+
+    ed_unfold = [
+        e for e in face.edges if e in vcenter.link_edges and e != ed_base
+    ][0]
 
     print(ed_base.index)
     print(ed_unfold.index)
     # this allows us to sort them
 
-    l = vcenter.link_loops[0]
-    edges = [l.edge]
+    loop = vcenter.link_loops[0]
+    edges = [loop.edge]
 
     for i in range(0, len(vcenter.link_edges)-1):
-        l = l.link_loop_prev.link_loop_radial_next
-        if l.edge in edges:
+        loop = loop.link_loop_prev.link_loop_radial_next
+        if loop.edge in edges:
             print('bad indexing dummy')
             continue
-        edges += [l.edge]
+        edges += [loop.edge]
 
     verts = [ed.other_vert(vcenter) for ed in edges]
     v_cos = [v.co for v in verts]
@@ -248,7 +253,7 @@ def unwrap_tri_obtuse(vcenter, vobtuse, face):
         q = Quaternion(axis.normalized(), rev2 * reverse * angle)
         for j in range(i+1, len(edges)):
             print('changing vert %i with index %i' % (j, verts[j].index))
-            v_cos[j] = q * (v_cos[j] - v_cos[i]) + v_cos[i]   
+            v_cos[j] = q * (v_cos[j] - v_cos[i]) + v_cos[i]
 
         acute = test_accute(vobtuse.co, v_cos[i+1], vcenter.co)
         if acute:
@@ -262,12 +267,24 @@ def geodesic_walk(bme, seed, seed_location, targets=[],
                   subset=None, max_iters=10000, min_dist=None):
     '''
     bme - BMesh
+
     seed - a vertex or a face
-    seed_location - mathutils.Vector.  vertex.location or a point on the seed face (eg, from ray_cast)
-    targets - list of BMVerts or BMFaces.  If targets != [], algo will stop when all targets have been found
-    subset - set(BMVerts) or None.  limit the marching/growth to just a subset of verts
+
+    seed_location - mathutils.Vector.
+                    vertex.location or a point on the seed face
+                    (eg, from ray_cast)
+
+    targets - list of BMVerts or BMFaces.
+              If targets != [], algo will stop when all targets have been found
+
+    subset - set(BMVerts) or None.
+             limit the marching/growth to just a subset of verts
+
     max_iters - limits number of marching steps
-    min_distance - float.  Algo will stop when all the nearby verts in the expanding front are > min distance away (good for brush limits)
+
+    min_distance - float.
+                   Algo will stop when all the nearby verts in the expanding
+                   front are > min distance away (good for brush limits)
     '''
 
     geos = dict()
@@ -472,13 +489,19 @@ def geodesic_walk(bme, seed, seed_location, targets=[],
                 if cv in geos:
                     # print('close vert already calced before')
                     if T != geos[cv]:
-                        # print('and the distance value is changing! %f, %f' % (geos[cv],T))
+                        # print('and the distance value is changing! %f, %f' \
+                        #  % (geos[cv],T))
                         geos[cv] = min(geos[cv], T)  # maybe min?
                 else:
                     geos[cv] = T
 
     iters = 0
-    while len(far) and len(close) and ((max_iters and iters < max_iters) or max_iters is None) and (len(stop_targets) or targets == []):
+    while (
+            len(far) and
+            len(close) and
+            ((max_iters and iters < max_iters) or max_iters is None) and
+            (len(stop_targets) or targets == [])
+          ):
 
         if min_dist:
             max_fixed = max(fixed_verts, key=geos.get)
@@ -614,14 +637,20 @@ def continue_geodesic_walk(bme, seed, seed_location,
                 if cv in geos:
                     # print('close vert already calced before')
                     if T != geos[cv]:
-                        # print('and the distance value is changing! %f, %f' % (geos[cv],T))
+                        # print('and the distance value is changing! %f, %f' \
+                        #  % (geos[cv],T))
                         geos[cv] = min(geos[cv], T)  # maybe min?
                 else:
                     geos[cv] = T
 
     iters = 0
 
-    while len(far) and len(close) and ((max_iters and iters < max_iters) or max_iters is None) and (len(stop_targets) != 0 or targets == []):
+    while (
+            len(far) and
+            len(close) and
+            ((max_iters and iters < max_iters) or max_iters is None) and
+            (len(stop_targets) != 0 or targets == [])
+          ):
 
         begin_loop()
         iters += 1
@@ -629,7 +658,7 @@ def continue_geodesic_walk(bme, seed, seed_location,
     if len(far) and len(stop_targets) == 0 and len(targets) != 0:
         print('stopped when we found the new target')
 
-    print('continuued walking in %i additional iters' % iters)      
+    print('continuued walking in %i additional iters' % iters)
     return
 
 
@@ -659,9 +688,6 @@ def gradient_face(f, geos):
 
 def gradient_descent(bme, geos, start_element,
                      start_location, epsilon=.0000001):
-
-    def ring_neighbors(v):
-        return [e.other_vert(v) for e in v.link_edges]
 
     def grad_v(v):
         '''
@@ -735,7 +761,8 @@ def gradient_descent(bme, geos, start_element,
         tests = [e for e in f.edges if e != ed]
 
         for e in tests:
-            v0, v1 = intersect_line_line(e.verts[0].co, e.verts[1].co, p, p-L*g)
+            v0, v1 = intersect_line_line(
+                e.verts[0].co, e.verts[1].co, p, p-L*g)
 
             V = v0 - e.verts[0].co
             edV = e.verts[1].co - e.verts[0].co
@@ -806,7 +833,8 @@ def gradient_descent(bme, geos, start_element,
     path_coords = []
 
     if isinstance(start_element, bmesh.types.BMVert):
-        # f_start = min(start_vert.link_faces, key=lambda f: sum([geos[v] for v in f.verts]))
+        # f_start = min(
+        # start_vert.link_faces, key=lambda f: sum([geos[v] for v in f.verts]))
         new_ele = start_element
         new_coord = start_element.co
         last_face = None
@@ -814,7 +842,9 @@ def gradient_descent(bme, geos, start_element,
     elif isinstance(start_element, bmesh.types.BMFace):
         f = start_element
         p = start_location
-        # f_start = min(start_vert.link_faces, key = lambda f: sum([geos[v] for v in f.verts]))
+        # f_start = min(
+        # start_vert.link_faces,
+        # key = lambda f: sum([geos[v] for v in f.verts]))
 
         new_coord, new_ele, last_face = start_grad_f(f, p)
 
@@ -834,69 +864,7 @@ def gradient_descent(bme, geos, start_element,
                 path_elements[-1], path_coords[-1], last_face)
 
         if new_coord is None:
-            print('stopped walking at %i' % iters)    
+            print('stopped walking at %i' % iters)
         iters += 1
 
     return path_elements, path_coords
-
-
-def prepare_bmesh_for_geodesic(bme, qmeth=0):
-    '''
-    will triangulate any quads
-    will bisect any obtuse triangles
-    '''
-    start = time.time()
-
-    bme.faces.ensure_lookup_table()
-
-    not_tris = [f for f in bme.faces if len(f.verts) > 3]
-    bmesh.ops.triangulate(bme, faces=not_tris, quad_method=qmeth)
-
-    bme.faces.ensure_lookup_table()
-    bme.edges.ensure_lookup_table()
-    bme.verts.ensure_lookup_table()
-
-    '''
-    bisect_edges = []
-    bisect_inds = []
-    bisect_locations = dict()
-
-    for f in bme.faces:
-        obtuse, v_ind, e_ind, bisect = test_obtuse(f)
-        if obtuse:
-            if e_ind in bisect_locations:
-                print('found twice!')
-                bisect_locations[e_ind] += [bisect]
-
-            else:
-                bisect_edges += [bme.edges[e_ind]]
-                bisect_locations[e_ind] = [bisect]
-                bisect_inds += [e_ind]  #this keeps the order in which we bisec the edge
-
-    geom = bmesh.ops.bisect_edges(bme, edges = bisect_edges, cuts = 1)
-    new_bmverts = [ele for ele in geom['geom_split'] if isinstance(ele, bmesh.types.BMVert)]
-
-    #assign new verts their locations
-    for v, e_ind in zip(new_bmverts, bisect_inds):
-
-        #do this very explicity for error detection
-        co = Vector((0,0,0))
-        n = 0
-        for b_loc in bisect_locations[e_ind]:
-            if not isinstance(b_loc, Vector):
-                print('not a vector')
-            co += b_loc
-            n += 1
-        co = 1/n * co
-
-        v.co = co
-
-    #now, triangulate those faces which because quads due to bissection    
-    bme.faces.ensure_lookup_table()    
-    not_tris = [f for f in bme.faces if len(f.verts)>3]
-    bmesh.ops.triangulate(bme, faces = not_tris)
-    '''
-
-    finish = time.time()
-    elapsed = finish - start
-    print('took %f seconds to preprocess triangles' % elapsed)

@@ -178,7 +178,7 @@ class GeoPath(object):
             mx = self.cut_ob.matrix_world
             pts = [mx @ v for v in self.path]
             draw.draw_polyline_from_3dpoints(
-                context, pts, (.2, .1, .8, 1), 3, 'GL_LINE')
+                context, pts, (.2, .1, .8, 1), 3)
 
         if self.seed_loc is not None:
             mx = self.cut_ob.matrix_world

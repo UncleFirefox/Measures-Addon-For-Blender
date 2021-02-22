@@ -42,8 +42,7 @@ def get_blf_text_dims(text, size):
     return blf.dimensions(0, str(text))
 
 
-def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
-                                LINE_TYPE):
+def draw_polyline_from_3dpoints(context, points_3d, color, thickness):
     '''
     a simple way to draw a line
     slow...becuase it must convert to screen every time
@@ -54,7 +53,6 @@ def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
         eg [(10,30),(11,31),...]
         color: tuple (r,g,b,a)
         thickness: integer? maybe a float
-        LINE_TYPE:  eg...bgl.GL_LINE_STIPPLE or
     '''
 
     points = [
@@ -63,7 +61,6 @@ def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
         for loc in points_3d
     ]
 
-    # indices = [(i, i+1) for i in range(len(points))]
     shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINE_STRIP', {"pos": points})
 
@@ -74,12 +71,11 @@ def draw_polyline_from_3dpoints(context, points_3d, color, thickness,
     shader.uniform_float("color", color)
     batch.draw(shader)
 
-    # bgl.glDisable(bgl.GL_BLEND)
-
     del shader
     del batch
 
     return
+
 
 def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
     region = context.region

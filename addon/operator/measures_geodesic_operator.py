@@ -1,6 +1,10 @@
-from .geopath_datastructure import GeoPath
 import bpy
 import traceback
+
+from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
+from ..utility.addon import get_prefs
+from ..utility.ray import mouse_raycast_to_scene
+from .geopath_datastructure import GeoPath
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):
@@ -23,17 +27,22 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     # Called after poll
     def invoke(self, context, event):
         # Initialize some props
+        self.hit_point = None
         self.geopath = GeoPath(context, context.object)
         self.state = 'main'
 
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
-            self.safe_draw_shader_2d, (context,), 'WINDOW', 'POST_PIXEL')
+            self.draw_custom_controls, (context,), 'WINDOW', 'POST_PIXEL')
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
 
     # Running in loop until we leave the modal
     def modal(self, context, event):
+
+        if event.type == 'MOUSEMOVE':
+            self.detect_collision(context, event)
+
         if self.state == 'main':
             return self.handle_main(context, event)
         elif self.state == 'grab':
@@ -105,6 +114,14 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
 
+    def detect_collision(self, context, event):
+        if event.type == 'MOUSEMOVE':
+            self.hit_point = None
+            hit, location, normal, index, object, matrix = \
+                mouse_raycast_to_scene(context, event)
+            if hit:
+                self.hit_point = location
+
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
@@ -125,10 +142,74 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             )
             context.area.tag_redraw()
 
-    def safe_draw_shader_2d(self, context):
+    def draw_custom_controls(self, context):
         try:
             self.geopath.draw(context)
+            self.draw_debug_panel(context)
         except Exception:
             print("Failed to draw geopath")
             traceback.print_exc()
             self.remove_shaders(context)
+
+    def draw_debug_panel(self, context):
+
+        if (self.hit_point is None):
+            return
+
+        prefs = get_prefs()
+
+        # Props
+        text = "X : {:.3f}, Y : {:.3f}, Z : {:.3f}".format(
+            self.hit_point.x, self.hit_point.y, self.hit_point.z
+        )
+
+        font_size = prefs.settings.font_size
+        dims = get_blf_text_dims(text, font_size)
+        area_width = context.area.width
+        padding = 8
+
+        over_all_width = dims[0] + padding * 2
+        over_all_height = dims[1] + padding * 2
+
+        left_offset = abs((area_width - over_all_width) * .5)
+        bottom_offset = 20
+
+        top_left = (left_offset, bottom_offset + over_all_height)
+        bot_left = (left_offset, bottom_offset)
+        top_right = (left_offset + over_all_width,
+                     bottom_offset + over_all_height)
+        bot_right = (left_offset + over_all_width, bottom_offset)
+
+        # Draw Quad
+        verts = [top_left, bot_left, top_right, bot_right]
+        draw_quad(vertices=verts, color=prefs.color.bg_color)
+
+        # Draw Text
+        x = left_offset + padding
+        y = bottom_offset + padding
+        draw_text(
+            text=text, x=x, y=y, size=font_size,
+            color=prefs.color.font_color
+        )
+
+        # Draw path
+        text = ""
+
+        if self.geopath.seed_loc is not None:
+            text += "START: ({:.3f}, {:.3f}, {:.3f}) ".format(
+                    self.geopath.seed_loc.x,
+                    self.geopath.seed_loc.y,
+                    self.geopath.seed_loc.z)
+
+        if self.geopath.target_loc is not None:
+            text += "END: ({:.3f}, {:.3f}, {:.3f})".format(
+                    self.geopath.target_loc.x,
+                    self.geopath.target_loc.y,
+                    self.geopath.target_loc.z)
+
+        if len(text) != 0:
+            draw_text(
+                text=text, x=x, y=y + over_all_height + padding,
+                size=font_size,
+                color=prefs.color.font_color
+            )

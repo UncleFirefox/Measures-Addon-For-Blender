@@ -117,7 +117,8 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
             # Bisection cleanup
             closest_edge = self.find_closest_edge(bm)
 
-            # Could be that the angle of plane finds no vertices after bisection
+            # Could be that the angle of plane finds 
+            # no vertices after bisection
             if closest_edge is not None:
                 vertex_list = self.get_reachable_vertices(closest_edge)
                 for v in [v for v in bm.verts if v not in vertex_list]:
@@ -147,7 +148,8 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
                 if (e.other_vert(v) not in vertex_list):
                     vertex_list.append(e.other_vert(v))
 
-        self.total_length = reduce(lambda a, b: a + b.calc_length(), edge_list, 0)
+        self.total_length = reduce(
+            lambda a, b: a + b.calc_length(), edge_list, 0)
 
         return vertex_list
 
@@ -228,9 +230,10 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         left_offset = abs((area_width - over_all_width) * .5)
         bottom_offset = 20
 
-        top_left = (left_offset                 , bottom_offset + over_all_height)
-        bot_left = (left_offset                 , bottom_offset)
-        top_right = (left_offset + over_all_width, bottom_offset + over_all_height)
+        top_left = (left_offset, bottom_offset + over_all_height)
+        bot_left = (left_offset, bottom_offset)
+        top_right = (left_offset + over_all_width, 
+                     bottom_offset + over_all_height)
         bot_right = (left_offset + over_all_width, bottom_offset)
 
         # Draw Quad
@@ -249,6 +252,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         if self.total_length != 0:
             text = "LENGTH: {:.3f}".format(self.total_length)
             draw_text(
-                text=text, x=x, y=y + over_all_height + padding, size=font_size,
+                text=text, x=x, y=y + over_all_height + padding,
+                size=font_size,
                 color=prefs.color.font_color
             )

@@ -171,6 +171,9 @@ class GeoPath(object):
             self.target_loc, epsilon=.0000001)
 
         self.geo_data = [geos, fixed, close, far]
+
+        print(self.path)
+
         return
 
     def draw(self, context):

@@ -2,12 +2,14 @@ bl_info = {
     "name": "Measures Library",
     "author": "Albert Rodriguez",
     "description": "Tools to take measures for Avatar",
-    "blender": (2, 80, 0),
-    "version": (0, 0, 1),
+    "blender": (2, 90, 0),
+    "version": (0, 3, 0),
     "location": "View3D > Toolshelf",
-    "warning": "",
+    "warning": "This plugin is only compatible with Blender 2.90",
     "category": "Add measures",
-    "wiki_url": ""
+    "wiki_url": "https://github.com/UncleFirefox/Measures-Addon-For-Blender/wiki",
+    "support": "COMMUNITY",
+    "tracker_url": "https://github.com/UncleFirefox/Measures-Addon-For-Blender/issues"
 }
 
 

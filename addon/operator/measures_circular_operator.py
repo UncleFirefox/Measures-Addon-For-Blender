@@ -16,6 +16,14 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     bl_idname = 'measures.create_circular'
     bl_options = {"REGISTER", "UNDO", "BLOCKING"}
 
+    height: bpy.props.FloatProperty(
+        name="Height",
+        default=0,
+        min=-3,
+        max=3,
+        step=0.1,
+        precision=3
+    )
     normal_rotation: bpy.props.FloatVectorProperty(
         name="Normal Rotation",
         subtype='EULER',
@@ -31,6 +39,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     # Called after poll
     def invoke(self, context, event):
         # Initialize some props
+        self.height = 0
         self.hit_point = None
         self.total_length = 0
         # Do some setup
@@ -63,6 +72,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
                 mouse_raycast_to_scene(context, event)
 
             if hit:
+                self.height = location.z
                 self.hit_point = location
                 self.execute(context)
 
@@ -72,6 +82,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
+        layout.prop(self, 'height')
         layout.prop(self, 'normal_rotation')
 
     def execute(self, context):
@@ -85,6 +96,9 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
                 rotation = self.normal_rotation.to_matrix().to_4x4()
 
             plane_co = self.hit_point
+            if self.height != 0:
+                plane_co.z = self.height
+
             plane_no = rotation @ Vector((0, 0, 1))
             bm = bmesh.new()
             bm.from_object(ob, dg)

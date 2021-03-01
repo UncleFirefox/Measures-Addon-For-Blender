@@ -4,7 +4,7 @@ import bmesh
 import traceback
 import math
 
-from mathutils import Euler
+from mathutils import Euler, Matrix, Vector
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
 from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
@@ -16,12 +16,18 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     bl_idname = 'measures.create_circular'
     bl_options = {"REGISTER", "UNDO", "BLOCKING"}
 
-    height: bpy.props.FloatProperty(name="Height", default=0, min=0)
-    plane_scale: bpy.props.FloatProperty(name="Plane Scale", default=1, min=1)
-    plane_rotation: bpy.props.FloatVectorProperty(
-        name="Plane Rotation",
+    height: bpy.props.FloatProperty(
+        name="Height",
+        default=0,
+        min=-3,
+        max=3,
+        step=0.1,
+        precision=3
+    )
+    normal_rotation: bpy.props.FloatVectorProperty(
+        name="Normal Rotation",
         subtype='EULER',
-        min=0, max=2*math.pi
+        min=-2*math.pi, max=2*math.pi
     )
 
     @classmethod
@@ -33,12 +39,13 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     # Called after poll
     def invoke(self, context, event):
         # Initialize some props
+        self.height = 0
         self.hit_point = None
         self.total_length = 0
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
             self.safe_draw_shader_2d, (context,), 'WINDOW', 'POST_PIXEL')
-        self.plane_rotation = (0, 0, 0)
+        self.normal_rotation = (0, 0, 0)
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
 
@@ -76,26 +83,23 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         layout = self.layout
         layout.use_property_split = True
         layout.prop(self, 'height')
-        layout.prop(self, 'plane_rotation')
+        layout.prop(self, 'normal_rotation')
 
     def execute(self, context):
         dg = context.evaluated_depsgraph_get()
-        scene = context.scene
-        ob = scene.objects.get("Avatar")
-        plane = self.create_plane()
+        ob = context.object  # default to selected object
 
-        if plane and ob:
+        if ob:
+            rotation = Matrix()
 
-            # Get plane data
-            pmw = plane.matrix_world
+            if self.normal_rotation != Euler():
+                rotation = self.normal_rotation.to_matrix().to_4x4()
 
-            if self.plane_rotation != Euler():
-                rotation_matrix = self.plane_rotation.to_matrix().to_4x4()
-                pmw = pmw @ rotation_matrix
+            plane_co = self.hit_point
+            if self.height != 0:
+                plane_co.z = self.height
 
-            face = plane.data.polygons[0]
-            plane_co = pmw @ face.center
-            plane_no = pmw @ (face.center + face.normal) - plane_co
+            plane_no = rotation @ Vector((0, 0, 1))
             bm = bmesh.new()
             bm.from_object(ob, dg)
             bmesh.ops.transform(
@@ -117,7 +121,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
             # Bisection cleanup
             closest_edge = self.find_closest_edge(bm)
 
-            # Could be that the angle of plane finds 
+            # Could be that the angle of plane finds
             # no vertices after bisection
             if closest_edge is not None:
                 vertex_list = self.get_reachable_vertices(closest_edge)
@@ -167,28 +171,6 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
         return result
 
-    def create_plane(self):
-        mesh = bpy.data.meshes.new("Plane")
-        obj = bpy.data.objects.new("Plane", mesh)
-
-        # bpy.context.collection.objects.link(obj)
-
-        bm = bmesh.new()
-        bm.from_object(obj, bpy.context.view_layer.depsgraph)
-
-        s = self.plane_scale
-        bm.verts.new((s, s, self.height))
-        bm.verts.new((s, -s, self.height))
-        bm.verts.new((-s, s, self.height))
-        bm.verts.new((-s, -s, self.height))
-
-        bmesh.ops.contextual_create(bm, geom=bm.verts)
-
-        bm.to_mesh(mesh)
-        bm.free()
-
-        return obj
-
     def remove_shaders(self, context):
         '''Remove shader handle.'''
 
@@ -232,7 +214,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
         top_left = (left_offset, bottom_offset + over_all_height)
         bot_left = (left_offset, bottom_offset)
-        top_right = (left_offset + over_all_width, 
+        top_right = (left_offset + over_all_width,
                      bottom_offset + over_all_height)
         bot_right = (left_offset + over_all_width, bottom_offset)
 

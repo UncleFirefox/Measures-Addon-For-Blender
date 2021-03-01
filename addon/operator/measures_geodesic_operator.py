@@ -19,7 +19,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         if context.mode != 'OBJECT':
             return False
 
-        if context.object.type != 'MESH':
+        if context.object is not None and context.object.type != 'MESH':
             return False
 
         return True

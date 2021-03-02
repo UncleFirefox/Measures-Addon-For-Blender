@@ -1,4 +1,5 @@
 import bpy
+import bmesh
 import traceback
 
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
@@ -75,6 +76,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         # Confirm path an exit gracefully
         elif event.type == 'RET' and event.value == 'PRESS':
+            self.execute(context)
             self.remove_shaders(context)
             return {'FINISHED'}
 
@@ -129,8 +131,30 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # layout.prop(self, 'plane_rotation')
 
     def execute(self, context):
-        # scene = context.scene
-        # ob = scene.objects.get("Avatar")
+
+        mx = context.object.matrix_world
+        path = [mx @ v for v in self.geopath.get_whole_path()]
+
+        if len(path) == 0:
+            return {'FINISHED'}
+
+        bm = bmesh.new()
+        vertices = []
+
+        for vert in path:
+            vertices.append(bm.verts.new(vert))
+
+        for i in range(1, len(path)-1):
+            bm.edges.new((vertices[i-1], vertices[i]))
+
+        me = bpy.data.meshes.new("GeodesicPath")
+        bm.to_mesh(me)
+        obj = bpy.data.objects.new("GeodesicPath", me)
+        context.collection.objects.link(obj)
+        obj.select_set(True)
+
+        bm.free()
+
         return {'FINISHED'}
 
     def remove_shaders(self, context):

@@ -192,3 +192,11 @@ class GeoPath(object):
             mx = self.cut_ob.matrix_world
             draw.draw_3d_points(
                 context, [mx @ self.target_loc], 8, color=(0, 1, 0, 1))
+
+    def get_whole_path(self):
+        pts = []
+        pts.append(self.target_loc)
+        pts.extend(self.path)
+        pts.append(self.seed_loc)
+        pts.reverse()
+        return pts

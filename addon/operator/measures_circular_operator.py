@@ -52,7 +52,10 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     # Running in loop until we leave the modal
     def modal(self, context, event):
         # Free navigation
-        if event.type == 'MIDDLEMOUSE':
+        if event.type in {
+            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
+            'WHEELINMOUSE', 'WHEELOUTMOUSE'
+        }:
             return {'PASS_THROUGH'}
 
         # Confirm

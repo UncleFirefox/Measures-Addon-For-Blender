@@ -172,7 +172,7 @@ class GeoPath(object):
 
         self.geo_data = [geos, fixed, close, far]
 
-        print(self.path)
+        # print(self.path)
 
         return
 
@@ -197,6 +197,11 @@ class GeoPath(object):
         pts = []
         pts.append(self.target_loc)
         pts.extend(self.path)
+        pts.remove(pts[1])
+        # This will remove what will end up being
+        # the first element of the path which is not where you clicked
+        # deleting for now
+        #pts.pop()
         pts.append(self.seed_loc)
         pts.reverse()
         return pts

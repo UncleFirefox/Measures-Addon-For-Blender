@@ -13,7 +13,7 @@ This Blender addon is intended to accelearate the creation of measures for an Av
 ## Developing the plugin
 Install the following tools:
 
-- [Blender 2.90](https://www.blender.org/download/) **Other verions won't work**
+- [Blender 2.90](https://www.blender.org/download/) **Other versions won't work**
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [Blender Development](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development)
@@ -31,6 +31,12 @@ Now at the top of the section in the search box if you type `Measures` the plugi
 
 <div style="text-align: center">
   <img src="screenshots/plugininstalled.jpg" width="80%">
+</div>
+
+You can install different versions of the plugin and activate the one you want to try.
+
+<div style="text-align: center">
+  <img src="screenshots/versioncoexist.jpg" width="80%">
 </div>
 
 ## Useful Links:

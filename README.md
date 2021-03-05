@@ -13,7 +13,7 @@ This Blender addon is intended to accelearate the creation of measures for an Av
 ## Developing the plugin
 Install the following tools:
 
-- [Blender 2.90](https://www.blender.org/download/) **Other versions won't work**
+- [Blender 2.90](https://download.blender.org/release/Blender2.90/) **Other versions won't work**
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [Blender Development](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development)

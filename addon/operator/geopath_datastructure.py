@@ -172,7 +172,7 @@ class GeoPath(object):
 
         self.geo_data = [geos, fixed, close, far]
 
-        print(self.path)
+        # print(self.path)
 
         return
 
@@ -192,3 +192,16 @@ class GeoPath(object):
             mx = self.cut_ob.matrix_world
             draw.draw_3d_points(
                 context, [mx @ self.target_loc], 8, color=(0, 1, 0, 1))
+
+    def get_whole_path(self):
+        pts = []
+        pts.append(self.target_loc)
+        pts.extend(self.path)
+        pts.remove(pts[1])
+        # This will remove what will end up being
+        # the first element of the path which is not where you clicked
+        # deleting for now
+        #pts.pop()
+        pts.append(self.seed_loc)
+        pts.reverse()
+        return pts

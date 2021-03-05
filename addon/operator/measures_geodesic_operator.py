@@ -1,4 +1,5 @@
 import bpy
+import bmesh
 import traceback
 
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
@@ -75,6 +76,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         # Confirm path an exit gracefully
         elif event.type == 'RET' and event.value == 'PRESS':
+            self.execute(context)
             self.remove_shaders(context)
             return {'FINISHED'}
 
@@ -129,8 +131,31 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # layout.prop(self, 'plane_rotation')
 
     def execute(self, context):
-        # scene = context.scene
-        # ob = scene.objects.get("Avatar")
+
+        mx = context.object.matrix_world
+        path = [mx @ v for v in self.geopath.get_whole_path()]
+
+        if len(path) == 0:
+            return {'FINISHED'}
+
+        bm = bmesh.new()
+        vertices = []
+        edges = []
+        for vert in path:
+            vertices.append(bm.verts.new(vert))
+
+        for i in range(1, len(path)):
+            edges.append(bm.edges.new((vertices[i-1], vertices[i])))
+            # print("adding {:3f} - {:3f}".format(i-1, i))
+
+        me = bpy.data.meshes.new("GeodesicPath")
+        bm.to_mesh(me)
+        obj = bpy.data.objects.new("GeodesicPath", me)
+        context.collection.objects.link(obj)
+        obj.select_set(True)
+
+        bm.free()
+
         return {'FINISHED'}
 
     def remove_shaders(self, context):
@@ -195,17 +220,21 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Draw path
         text = ""
 
+        mx = context.object.matrix_world
+
         if self.geopath.seed_loc is not None:
+            seed = mx @ self.geopath.seed_loc
             text += "START: ({:.3f}, {:.3f}, {:.3f}) ".format(
-                    self.geopath.seed_loc.x,
-                    self.geopath.seed_loc.y,
-                    self.geopath.seed_loc.z)
+                    seed.x,
+                    seed.y,
+                    seed.z)
 
         if self.geopath.target_loc is not None:
+            target = mx @ self.geopath.target_loc
             text += "END: ({:.3f}, {:.3f}, {:.3f})".format(
-                    self.geopath.target_loc.x,
-                    self.geopath.target_loc.y,
-                    self.geopath.target_loc.z)
+                    target.x,
+                    target.y,
+                    target.z)
 
         if len(text) != 0:
             draw_text(

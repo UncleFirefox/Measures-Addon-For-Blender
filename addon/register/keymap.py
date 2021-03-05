@@ -1,4 +1,4 @@
-#import bpy
+# import bpy
 
 # TODO: Register keymaps here when necessary, left an example just in case
 

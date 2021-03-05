@@ -13,7 +13,6 @@ class MEASURES_Props(bpy.types.AddonPreferences):
     color: PointerProperty(type=MEASURES_Color)
     settings: PointerProperty(type=MEASURES_Settings)
 
-
     def draw(self, context):
 
         prefs = get_prefs()

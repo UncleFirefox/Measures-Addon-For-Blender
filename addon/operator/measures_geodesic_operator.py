@@ -2,10 +2,16 @@ import bpy
 import bmesh
 import traceback
 
+from enum import Enum
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
 from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
 from .geopath_datastructure import GeoPath
+
+
+class Geodesic_State(Enum):
+    MAIN = 1
+    GRAB = 2
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):
@@ -20,7 +26,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         if context.mode != 'OBJECT':
             return False
 
-        if context.object is not None and context.object.type != 'MESH':
+        if context.object is None or context.object.type != 'MESH':
             return False
 
         return True
@@ -30,7 +36,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Initialize some props
         self.hit_point = None
         self.geopath = GeoPath(context, context.object)
-        self.state = 'main'
+        self.state = Geodesic_State.MAIN
 
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
@@ -44,9 +50,9 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         if event.type == 'MOUSEMOVE':
             self.detect_collision(context, event)
 
-        if self.state == 'main':
+        if self.state == Geodesic_State.MAIN:
             return self.handle_main(context, event)
-        elif self.state == 'grab':
+        elif self.state == Geodesic_State.GRAB:
             return self.handle_grab(context, event)
 
         return {"RUNNING_MODAL"}  # Should not get here but you never know
@@ -64,7 +70,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Grab initiating
         elif event.type == 'G' and event.value == 'PRESS':
             if self.geopath.grab_initiate():
-                self.state = 'grab'  # Do grab mode
+                self.state = Geodesic_State.GRAB  # Do grab mode
 
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
@@ -100,18 +106,18 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # confirm location
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.geopath.grab_confirm()
-            self.state = 'main'
+            self.state = Geodesic_State.MAIN
 
         # put it back!
         elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
             self.geopath.grab_cancel()
-            self.state = 'main'
+            self.state = Geodesic_State.MAIN
 
         # update the b_pt location
         if event.type == 'MOUSEMOVE':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
-            self.state = 'grab'
+            self.state = Geodesic_State.GRAB
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}

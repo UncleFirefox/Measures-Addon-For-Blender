@@ -5,14 +5,14 @@ from bpy.props import FloatVectorProperty
 class MEASURES_Color(bpy.types.PropertyGroup):
 
     font_color: FloatVectorProperty(
-        name = 'Font Color', description = 'Color of the modal font',
-        size = 4, min = 0, max = 1,
-        subtype='COLOR', default = (1, 1, 1, 1))
+        name='Font Color', description='Color of the modal font',
+        size=4, min=0, max=1,
+        subtype='COLOR', default=(1, 1, 1, 1))
 
     bg_color: FloatVectorProperty(
-        name = 'BG Color', description = 'Color of the background',
-        size = 4, min = 0, max = 1,
-        subtype='COLOR', default = (0, 0, 0, .75))
+        name='BG Color', description='Color of the background',
+        size=4, min=0, max=1,
+        subtype='COLOR', default=(0, 0, 0, .75))
 
 
 def draw_color(prefs, layout):

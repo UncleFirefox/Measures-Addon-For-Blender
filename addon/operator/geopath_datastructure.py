@@ -79,27 +79,18 @@ class GeoPath(object):
         self.target = self.bme.faces[face_ind]
         self.target_loc = loc
 
-        if all([v in fixed for v in self.target.verts]):
-            path_elements, self.path = gradient_descent(
-                                    self.bme, geos,
-                                    self.target, self.target_loc,
-                                    epsilon=.0000001
-            )
+        if not all([v in fixed for v in self.target.verts]):
+            print('continue geo walk until we find it, then get it')
+            continue_geodesic_walk(geos, fixed, close, far,
+                                   target_location=self.bme.faces[face_ind],
+                                   max_iters=100000)
+        else:
             print('great we have already waked the geodesic this far')
 
-        else:
-            print('continue geo walk until we find it, then get it')
-            continue_geodesic_walk(self.bme, self.seed, self.seed_loc,
-                                   geos, fixed, close, far,
-                                   targets=[self.bme.faces[face_ind]],
-                                   subset=None, max_iters=100000,
-                                   min_dist=None)
-
-            path_elements, self.path = gradient_descent(
-                                self.bme, geos,
-                                self.target, self.target_loc,
-                                epsilon=.0000001
-            )
+        path_elements, self.path = gradient_descent(geos,
+                                                    self.target,
+                                                    self.target_loc,
+                                                    epsilon=.0000001)
 
     def grab_cancel(self):
         self.target_loc = self.grab_undo_loc
@@ -162,18 +153,14 @@ class GeoPath(object):
         self.target_loc = loc
 
         geos, fixed, close, far = geodesic_walk(
-            self.bme, self.seed, self.seed_loc,
-            targets=[self.target], subset=None, max_iters=100000,
-            min_dist=None)
+            self.bme.verts, self.seed, self.seed_loc,
+            self.target, max_iters=100000)
 
-        path_elements, self.path = gradient_descent(
-            self.bme, geos, self.target,
-            self.target_loc, epsilon=.0000001)
+        path_elements, self.path = gradient_descent(geos, self.target,
+                                                    self.target_loc,
+                                                    epsilon=.0000001)
 
         self.geo_data = [geos, fixed, close, far]
-
-        # print(self.path)
-
         return
 
     def draw(self, context):
@@ -195,13 +182,12 @@ class GeoPath(object):
 
     def get_whole_path(self):
         pts = []
+
         pts.append(self.target_loc)
         pts.extend(self.path)
-        pts.remove(pts[1])
-        # This will remove what will end up being
-        # the first element of the path which is not where you clicked
-        # deleting for now
-        # pts.pop()
+        pts.remove(self.path[0])
+        pts.remove(self.path[1])
         pts.append(self.seed_loc)
         pts.reverse()
+
         return pts

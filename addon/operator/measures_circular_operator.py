@@ -122,7 +122,7 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
             )
 
             # Bisection cleanup
-            closest_edge = self.find_closest_edge(bm)
+            closest_edge = self.find_closest_edge(bm, self.hit_point)
 
             # Could be that the angle of plane finds
             # no vertices after bisection
@@ -160,12 +160,12 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
 
         return vertex_list
 
-    def find_closest_edge(self, bm: BMesh):
+    def find_closest_edge(self, bm: BMesh, hit_point: Vector):
         result = None
         min_dist = 9999.99
         for e in bm.edges:
             for v in e.verts:
-                dist = (v.co - self.hit_point).magnitude
+                dist = (v.co - hit_point).magnitude
                 if dist < min_dist:
                     result = e
                     min_dist = dist

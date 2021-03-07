@@ -201,7 +201,7 @@ class GeoPath(object):
         # This will remove what will end up being
         # the first element of the path which is not where you clicked
         # deleting for now
-        #pts.pop()
+        # pts.pop()
         pts.append(self.seed_loc)
         pts.reverse()
         return pts

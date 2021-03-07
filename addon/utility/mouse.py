@@ -1,6 +1,7 @@
 
 PADDING = 80
 
+
 def mouse_warp(context, event):
     '''Warp the mouse in the screen region.'''
 

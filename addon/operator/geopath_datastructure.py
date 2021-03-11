@@ -134,13 +134,8 @@ class GeoPath(object):
     def get_whole_path(self):
         pts = []
 
-        for i in range(len(self.path_segments)-1):
-            segment = self.path_segments[i]
-            segment.pop()
+        for segment in self.path_segments:
             pts.extend(segment)
-
-        last_segment = self.path_segments[-1]
-        last_segment.pop()
 
         return pts
 

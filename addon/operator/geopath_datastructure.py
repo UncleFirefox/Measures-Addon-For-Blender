@@ -89,12 +89,12 @@ class GeoPath(object):
         self.key_points[-1] = (hit_loc, hit_face)
 
         if not all([v in fixed for v in hit_face.verts]):
-            print('continue geo walk until we find it, then get it')
+            # print('continue geo walk until we find it, then get it')
             continue_geodesic_walk(geos, fixed, close, far,
                                    target_location=hit_face,
                                    max_iters=100000)
-        else:
-            print('great we have already waked the geodesic this far')
+        # else:
+        #     print('great we have already waked the geodesic this far')
 
         path_elements, path = gradient_descent(geos,
                                                hit_face, hit_loc,

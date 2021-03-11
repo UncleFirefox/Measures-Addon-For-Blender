@@ -126,7 +126,7 @@ def geodesic_walk(vertices, seed, seed_location, target_location,
 def continue_geodesic_walk(geos, fixed_verts, close, far,
                            target_location, max_iters=500):
 
-    print('continuing geodesic where we left off')
+    # print('continuing geodesic where we left off')
 
     stop_targets = set()
 
@@ -134,13 +134,13 @@ def continue_geodesic_walk(geos, fixed_verts, close, far,
         for v in target_location.verts:
             if v not in fixed_verts:
                 stop_targets.add(v)
-                print(stop_targets)
+                # print(stop_targets)
 
     elif isinstance(target_location, bmesh.types.BMVert):
         if target_location not in fixed_verts:
             stop_targets.add(target_location)
 
-    print('there are %i stop targets' % len(stop_targets))
+    # print('there are %i stop targets' % len(stop_targets))
 
     iters = 0
 
@@ -150,10 +150,10 @@ def continue_geodesic_walk(geos, fixed_verts, close, far,
         begin_loop(close, far, geos, fixed_verts, stop_targets)
         iters += 1
 
-    if len(far) and len(stop_targets) == 0:
-        print('stopped when we found the new target')
+    # if len(far) and len(stop_targets) == 0:
+    #     print('stopped when we found the new target')
 
-    print('continuued walking in %i additional iters' % iters)
+    # print('continuued walking in %i additional iters' % iters)
     return
 
 
@@ -202,13 +202,13 @@ def calc_T(v3, v2, v1, f, geos, ignore_obtuse=False):
     x = 1/2 * (v2x**2 + Tv1**2 - Tv2**2)/(v2x)
     y = 1/2 * ((A-B)**.5)/v2x
 
-    if isinstance(x, complex):
-        print('x is complex')
-        print(x)
-    elif isinstance(y, complex):
-        print('y is complex, setting to 0')
-        print(A-B)
-        print(y)
+    # if isinstance(x, complex):
+    #     # print('x is complex')
+    #     # print(x)
+    if isinstance(y, complex):
+        # print('y is complex, setting to 0')
+        # print(A-B)
+        # print(y)
         y = 0
 
     T3a = v3p - Vector((x, y, 0))
@@ -276,7 +276,7 @@ def gradient_descent(geos, start_element,
         eds = [ed for ed in v.link_edges if geos[ed.other_vert(v)] <= geos[v]]
 
         if len(eds) == 0:
-            print('lowest vert or local minima')
+            # print('lowest vert or local minima')
             return None, None, None
 
         fs = set()
@@ -309,7 +309,7 @@ def gradient_descent(geos, start_element,
                     return v0, ed, minf
 
         # we were not able to walk through a face
-        print('must walk on edge')
+        # print('must walk on edge')
         vs = [ed.other_vert(v) for ed in eds]
         minv = min(vs, key=geos.get)
 
@@ -335,7 +335,7 @@ def gradient_descent(geos, start_element,
 
             delta = v.co - v_inter
             if delta.length < epsilon:
-                print('intersect vert')
+                # print('intersect vert')
                 return v.co, v, None
 
         tests = [e for e in f.edges if e != ed]
@@ -378,7 +378,7 @@ def gradient_descent(geos, start_element,
             delta = v.co - v_inter
 
             if delta.length < epsilon:
-                print('intersects vert')
+                # print('intersects vert')
                 return v, v.co, None
 
         for e in f.edges:
@@ -433,8 +433,8 @@ def gradient_descent(geos, start_element,
             path_elements += [new_ele]
             path_coords += [new_coord]
         else:
-            print('uh oh we reversed')
-            print('stopped walking at %i' % iters)
+            # print('uh oh we reversed')
+            # print('stopped walking at %i' % iters)
             return path_elements, path_coords
 
         if isinstance(path_elements[-1], bmesh.types.BMVert):
@@ -443,8 +443,9 @@ def gradient_descent(geos, start_element,
             new_coord, new_ele, last_face = grad_f_ed(
                 path_elements[-1], path_coords[-1], last_face)
 
-        if new_coord is None:
-            print('stopped walking at %i' % iters)
+        # if new_coord is None:
+            # print('stopped walking at %i' % iters)
+
         iters += 1
 
     return path_elements, path_coords

@@ -75,10 +75,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             x, y = (event.mouse_region_x, event.mouse_region_y)
-            if self.geopath.seed is not None:
-                self.geopath.click_add_target(context, x, y)
-            else:
-                self.geopath.click_add_seed(context, x, y)
+            self.geopath.click_add_point(context, x, y)
 
         # Confirm path an exit gracefully
         elif event.type == 'RET' and event.value == 'PRESS':
@@ -133,8 +130,6 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
-        # layout.prop(self, 'height')
-        # layout.prop(self, 'plane_rotation')
 
     def execute(self, context):
 
@@ -228,15 +223,15 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         mx = context.object.matrix_world
 
-        if self.geopath.seed_loc is not None:
-            seed = mx @ self.geopath.seed_loc
+        if len(self.geopath.key_points) > 0:
+            seed = mx @ self.geopath.key_points[0][0]
             text += "START: ({:.3f}, {:.3f}, {:.3f}) ".format(
                     seed.x,
                     seed.y,
                     seed.z)
 
-        if self.geopath.target_loc is not None:
-            target = mx @ self.geopath.target_loc
+        if len(self.geopath.key_points) > 1:
+            target = mx @ self.geopath.key_points[-1][0]
             text += "END: ({:.3f}, {:.3f}, {:.3f})".format(
                     target.x,
                     target.y,

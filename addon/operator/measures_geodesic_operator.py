@@ -1,3 +1,4 @@
+from functools import reduce
 import bpy
 import bmesh
 import traceback
@@ -114,7 +115,6 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         if event.type == 'MOUSEMOVE':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
-            self.state = Geodesic_State.GRAB
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
@@ -221,21 +221,16 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Draw path
         text = ""
 
-        mx = context.object.matrix_world
+        if len(self.geopath.path_segments) > 0:
 
-        if len(self.geopath.key_points) > 0:
-            seed = mx @ self.geopath.key_points[0][0]
-            text += "START: ({:.3f}, {:.3f}, {:.3f}) ".format(
-                    seed.x,
-                    seed.y,
-                    seed.z)
+            total_path_length = reduce(lambda a, b:
+                                       a + self.get_segment_length(b),
+                                       self.geopath.path_segments, 0)
 
-        if len(self.geopath.key_points) > 1:
-            target = mx @ self.geopath.key_points[-1][0]
-            text += "END: ({:.3f}, {:.3f}, {:.3f})".format(
-                    target.x,
-                    target.y,
-                    target.z)
+            text += "#SEGMENTS: {}, LENGTH: {:.3f}".format(
+                len(self.geopath.path_segments),
+                total_path_length
+            )
 
         if len(text) != 0:
             draw_text(
@@ -243,3 +238,11 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
                 size=font_size,
                 color=prefs.color.font_color
             )
+
+    def get_segment_length(self, segment):
+        result = 0
+
+        for i in range(1, len(segment)-1):
+            result += (segment[i-1] - segment[i]).length
+
+        return result

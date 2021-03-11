@@ -61,14 +61,19 @@ class GeoPath(object):
                                                    hit_face, hit_location,
                                                    epsilon=.0000001)
 
-            # Add new segment
-            path.reverse()  # It goes backwards for some reason
-            path.insert(0, start_loc)
-            path.append(hit_location)
+            self.cleanup_path(start_loc, hit_location, path)
 
             self.path_segments.append(path)
 
             self.geo_data = [geos, fixed, close, far]
+
+    def cleanup_path(self, start_location, target_location, path):
+        # It goes backwards for some reason
+        path.reverse()
+        path.pop(0)
+        path.pop(0)
+        path.insert(0, start_location)
+        path.append(target_location)
 
     def grab_mouse_move(self, context, x, y):
         hit, hit_loc, face_ind = self.raycast(context, x, y)
@@ -95,7 +100,9 @@ class GeoPath(object):
                                                hit_face, hit_loc,
                                                epsilon=.0000001)
 
-        path.reverse()
+        previous_loc, previous_face = self.key_points[-2]
+        self.cleanup_path(previous_loc, hit_loc, path)
+
         self.path_segments[-1] = path
 
     def grab_initiate(self):

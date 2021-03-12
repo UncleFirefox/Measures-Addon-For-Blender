@@ -1,12 +1,10 @@
 import bmesh
 
 from bpy_extras import view3d_utils
-
+from functools import reduce
 from enum import Enum
-
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
-
 from ..utility import draw
 
 
@@ -29,6 +27,11 @@ class GeoPath(object):
 
         self.key_points = []
         self.path_segments = []
+        self.point_size = 8
+        self.circle_radius = 8
+        self.point_color = (1, 0, 0, 1)
+        self.line_color = (.2, .1, .8, 1)
+        self.line_thickness = 3
 
         # geos, fixed, close, far
         self.geo_data = [dict(), set(), set(), set()]
@@ -92,12 +95,9 @@ class GeoPath(object):
         self.key_points[-1] = (hit_loc, hit_face)
 
         if not all([v in fixed for v in hit_face.verts]):
-            # print('continue geo walk until we find it, then get it')
             continue_geodesic_walk(geos, fixed, close, far,
                                    target_location=hit_face,
                                    max_iters=100000)
-        # else:
-        #     print('great we have already waked the geodesic this far')
 
         path_elements, path = gradient_descent(geos,
                                                hit_face, hit_loc,
@@ -127,27 +127,29 @@ class GeoPath(object):
         self.grab_undo_segment = []
         return
 
-    # TODO: Pass point size and segment size
     def draw(self, context, plugin_state):
-        # Draw Keypoints
+
         mx = self.selected_obj.matrix_world
-        size = 8
-        color = (1, 0, 0, 1)
-        for (location, face) in self.key_points:
-            draw.draw_3d_points(
-                context, [mx @ location],
-                size, color)
-            if plugin_state == Geodesic_State.GRAB:
-                draw.draw_3d_circles(
-                    context, size, color, [mx @ location]
-                )
+
+        locations = [mx @ location for (location, face) in self.key_points]
+
+        # Draw Keypoints
+        draw.draw_3d_points(context, locations,
+                            self.point_size, self.point_color)
+
+        if plugin_state == Geodesic_State.GRAB:
+            draw.draw_3d_circles(context, locations,
+                                 self.circle_radius, self.point_color)
 
         # Draw segments
         if len(self.path_segments):
-            for segment in self.path_segments:
-                pts = [mx @ v for v in segment]
-                draw.draw_polyline_from_3dpoints(
-                    context, pts, (.2, .1, .8, 1), 3)
+            # Flattenning the segment list into a single array of points
+            points = reduce(lambda a, b: a + [mx @ point for point in b],
+                            self.path_segments, [])
+
+            draw.draw_polyline_from_3dpoints(context, points,
+                                             self.line_color,
+                                             self.line_thickness)
 
     def get_whole_path(self):
         pts = []

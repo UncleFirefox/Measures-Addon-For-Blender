@@ -94,7 +94,7 @@ def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
     return
 
 
-def draw_3d_circles(context, radius, color, points):
+def draw_3d_circles(context, points, radius, color):
 
     projected_points = get_2d_points(context, points)
 

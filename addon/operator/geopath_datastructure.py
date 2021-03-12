@@ -33,6 +33,9 @@ class GeoPath(object):
         self.line_color = (.2, .1, .8, 1)
         self.line_thickness = 3
 
+        self.epsilon = .0000001
+        self.max_iters = 100000
+
         # geos, fixed, close, far
         self.geo_data = [dict(), set(), set(), set()]
 
@@ -61,11 +64,11 @@ class GeoPath(object):
 
             geos, fixed, close, far = geodesic_walk(
                 self.bme.verts, start_face, start_loc,
-                hit_face, max_iters=100000)
+                hit_face, self.max_iters)
 
             path_elements, path = gradient_descent(geos,
                                                    hit_face, hit_location,
-                                                   epsilon=.0000001)
+                                                   self.epsilon)
 
             self.cleanup_path(start_loc, hit_location, path)
 
@@ -96,12 +99,11 @@ class GeoPath(object):
 
         if not all([v in fixed for v in hit_face.verts]):
             continue_geodesic_walk(geos, fixed, close, far,
-                                   target_location=hit_face,
-                                   max_iters=100000)
+                                   hit_face, self.max_iters)
 
         path_elements, path = gradient_descent(geos,
                                                hit_face, hit_loc,
-                                               epsilon=.0000001)
+                                               self.epsilon)
 
         previous_loc, previous_face = self.key_points[-2]
         self.cleanup_path(previous_loc, hit_loc, path)
@@ -143,21 +145,14 @@ class GeoPath(object):
 
         # Draw segments
         if len(self.path_segments):
-            # Flattenning the segment list into a single array of points
-            points = reduce(lambda a, b: a + [mx @ point for point in b],
-                            self.path_segments, [])
-
-            draw.draw_polyline_from_3dpoints(context, points,
+            draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
                                              self.line_color,
                                              self.line_thickness)
 
     def get_whole_path(self):
-        pts = []
-
-        for segment in self.path_segments:
-            pts.extend(segment)
-
-        return pts
+        mx = self.selected_obj.matrix_world
+        return reduce(lambda a, b: a + [mx @ point for point in b],
+                      self.path_segments, [])
 
     def raycast(self, context, x, y):
         region = context.region

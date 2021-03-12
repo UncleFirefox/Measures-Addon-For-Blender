@@ -129,8 +129,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     def execute(self, context):
 
-        mx = context.object.matrix_world
-        path = [mx @ v for v in self.geopath.get_whole_path()]
+        path = self.geopath.get_whole_path()
 
         if len(path) == 0:
             return {'FINISHED'}

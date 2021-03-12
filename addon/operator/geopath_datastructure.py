@@ -27,6 +27,7 @@ class GeoPath(object):
 
         self.key_points = []
         self.path_segments = []
+
         self.point_size = 8
         self.circle_radius = 8
         self.point_color = (1, 0, 0, 1)
@@ -40,41 +41,33 @@ class GeoPath(object):
         self.geo_data = [dict(), set(), set(), set()]
 
     def click_add_point(self, context, x, y):
-        '''
-        x,y = event.mouse_region_x, event.mouse_region_y
 
-        this will add a point into the bezier curve or
-        close the curve into a cyclic curve
-        '''
         hit, hit_location, face_ind = self.raycast(context, x, y)
 
         if not hit:
-            self.selected = -1
             return
 
         hit_face = self.bme.faces[face_ind]
         self.key_points.append((hit_location, hit_face))
 
-        if len(self.key_points) == 1:
-            self.bme.faces.ensure_lookup_table()  # how does this get outdated?
-            self.geo_data = [dict(), set(), set(), set()]
-        elif len(self.key_points) > 1:
-            #  The elements just before the ones we just pushed
-            start_loc, start_face = self.key_points[-2]
+        if len(self.key_points) < 2:
+            return
 
-            geos, fixed, close, far = geodesic_walk(
-                self.bme.verts, start_face, start_loc,
-                hit_face, self.max_iters)
+        #  The elements just before the ones we just pushed
+        start_loc, start_face = self.key_points[-2]
 
-            path_elements, path = gradient_descent(geos,
-                                                   hit_face, hit_location,
-                                                   self.epsilon)
+        geos, fixed, close, far = geodesic_walk(
+            self.bme.verts, start_face, start_loc,
+            hit_face, self.max_iters)
 
-            self.cleanup_path(start_loc, hit_location, path)
+        path_elements, path = gradient_descent(
+            geos, hit_face, hit_location, self.epsilon)
 
-            self.path_segments.append(path)
+        self.cleanup_path(start_loc, hit_location, path)
 
-            self.geo_data = [geos, fixed, close, far]
+        self.path_segments.append(path)
+
+        self.geo_data = [geos, fixed, close, far]
 
     def cleanup_path(self, start_location, target_location, path):
         # It goes backwards for some reason
@@ -101,9 +94,8 @@ class GeoPath(object):
             continue_geodesic_walk(geos, fixed, close, far,
                                    hit_face, self.max_iters)
 
-        path_elements, path = gradient_descent(geos,
-                                               hit_face, hit_loc,
-                                               self.epsilon)
+        path_elements, path = gradient_descent(
+            geos, hit_face, hit_loc, self.epsilon)
 
         previous_loc, previous_face = self.key_points[-2]
         self.cleanup_path(previous_loc, hit_loc, path)
@@ -111,12 +103,13 @@ class GeoPath(object):
         self.path_segments[-1] = path
 
     def grab_initiate(self):
-        if len(self.key_points) >= 2:
-            self.grab_undo_loc, self.grab_undo_face = self.key_points[-1]
-            self.grab_undo_segment = self.path_segments[-1]
-            return True
-        else:
+
+        if len(self.key_points) < 2:
             return False
+
+        self.grab_undo_loc, self.grab_undo_face = self.key_points[-1]
+        self.grab_undo_segment = self.path_segments[-1]
+        return True
 
     def grab_cancel(self):
         self.key_points[-1] = (self.grab_undo_loc, self.grab_undo_face)

@@ -3,16 +3,10 @@ import bpy
 import bmesh
 import traceback
 
-from enum import Enum
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
 from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
-from .geopath_datastructure import GeoPath
-
-
-class Geodesic_State(Enum):
-    MAIN = 1
-    GRAB = 2
+from .geopath_datastructure import GeoPath, Geodesic_State
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):
@@ -107,7 +101,9 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.state = Geodesic_State.MAIN
 
         # put it back!
-        elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
+        elif (event.type in {'RIGHTMOUSE', 'ESC', 'G'}
+              and event.value == 'PRESS'):
+
             self.geopath.grab_cancel()
             self.state = Geodesic_State.MAIN
 
@@ -170,7 +166,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     def draw_custom_controls(self, context):
         try:
-            self.geopath.draw(context)
+            self.geopath.draw(context, self.state)
             self.draw_debug_panel(context)
         except Exception:
             print("Failed to draw geopath")

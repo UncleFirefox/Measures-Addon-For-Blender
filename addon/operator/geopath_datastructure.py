@@ -1,5 +1,8 @@
 import bmesh
+
 from bpy_extras import view3d_utils
+
+from enum import Enum
 
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
@@ -124,12 +127,20 @@ class GeoPath(object):
         self.grab_undo_segment = []
         return
 
-    def draw(self, context):
+    # TODO: Pass point size and segment size
+    def draw(self, context, plugin_state):
         # Draw Keypoints
         mx = self.selected_obj.matrix_world
+        size = 8
+        color = (1, 0, 0, 1)
         for (location, face) in self.key_points:
             draw.draw_3d_points(
-                context, [mx @ location], 8, color=(1, 0, 0, 1))
+                context, [mx @ location],
+                size, color)
+            if plugin_state == Geodesic_State.GRAB:
+                draw.draw_3d_circles(
+                    context, size, color, [mx @ location]
+                )
 
         # Draw segments
         if len(self.path_segments):
@@ -160,3 +171,8 @@ class GeoPath(object):
             imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
 
         return res, loc, face_ind
+
+
+class Geodesic_State(Enum):
+    MAIN = 1
+    GRAB = 2

@@ -1,10 +1,10 @@
 import bmesh
-from mathutils.bvhtree import BVHTree
-from bpy_extras import view3d_utils
 
+from bpy_extras import view3d_utils
+from functools import reduce
+from enum import Enum
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
-
 from ..utility import draw
 
 
@@ -13,195 +13,312 @@ class GeoPath(object):
     A class which manages user placed points on an object to create a
     piecewise path of geodesics, adapted to the objects surface.
     '''
-    def __init__(self, context, cut_object):
+    def __init__(self, context, selected_obj):
 
-        self.cut_ob = cut_object
+        self.selected_obj = selected_obj
         self.bme = bmesh.new()
-        self.bme.from_mesh(cut_object.data)
+        self.bme.from_mesh(selected_obj.data)
         self.bme.verts.ensure_lookup_table()
         self.bme.edges.ensure_lookup_table()
         self.bme.faces.ensure_lookup_table()
 
         non_tris = [f for f in self.bme.faces if len(f.verts) > 3]
         bmesh.ops.triangulate(self.bme, faces=non_tris)
-        self.bvh = BVHTree.FromBMesh(self.bme)
 
-        self.seed = None
-        self.seed_loc = None
+        self.key_points = []
+        self.path_segments = []
+        self.grab_undo_segment = []
 
-        self.target = None
-        self.target_loc = None
+        self.point_size = 8
+        self.circle_radius = 8
+        self.point_color = (1, 0, 0, 1)
+        self.point_select_color = (0, 1, 0, 1)
+        self.line_color = (.2, .1, .8, 1)
+        self.line_thickness = 3
+
+        self.epsilon = .0000001
+        self.max_iters = 100000
 
         # geos, fixed, close, far
-        self.geo_data = [dict(), set(), set(), set()]
-        self.path = []
+        self.geo_data = [None, None]
+        self.hover_point_index = None
+        self.selected_point_index = None
 
-    def reset_vars(self):
-        self.seed = None
-        self.seed_loc = None
+    def click_add_point(self, context, x, y):
 
-        self.target = None
-        self.target_loc = None
-        # geos, fixed, close, far
-        self.geo_data = [dict(), set(), set(), set()]
-        self.path = []
+        hit, hit_location, face_ind = self.raycast(context, x, y)
 
-    def grab_initiate(self):
-        if self.target is not None:
-            self.grab_undo_loc = self.target_loc
-            self.target_undo = self.target
-            self.path_undo = self.path
-            return True
-        else:
-            return False
+        if not hit:
+            return
+
+        hit_face = self.bme.faces[face_ind]
+        self.key_points.append((hit_location, hit_face))
+
+        if len(self.key_points) < 2:
+            return
+
+        #  The elements just before the ones we just pushed
+        start_loc, start_face = self.key_points[-2]
+
+        geos, fixed, close, far = geodesic_walk(
+            self.bme.verts, start_face, start_loc,
+            hit_face, self.max_iters)
+
+        path_elements, path = gradient_descent(
+            geos, hit_face, hit_location, self.epsilon)
+
+        self.cleanup_path(start_loc, hit_location, path)
+
+        self.path_segments.append(path)
+
+        self.geo_data.append((geos, fixed, close, far))
 
     def grab_mouse_move(self, context, x, y):
-        region = context.region
-        rv3d = context.region_data
-        coord = x, y
-        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
-        ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
-        ray_target = ray_origin + (view_vector * 1000)
 
-        mx = self.cut_ob.matrix_world
-        imx = mx.inverted()
+        hit, hit_loc, face_ind = self.raycast(context, x, y)
 
-        res, loc, no, face_ind = self.cut_ob.ray_cast(
-            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
-
-        if not res:
+        if not hit:
             self.grab_cancel()
             return
 
-        # check if first or end point and it's a non man edge!
-        geos, fixed, close, far = self.geo_data
-
-        self.target = self.bme.faces[face_ind]
-        self.target_loc = loc
-
-        if all([v in fixed for v in self.target.verts]):
-            path_elements, self.path = gradient_descent(
-                                    self.bme, geos,
-                                    self.target, self.target_loc,
-                                    epsilon=.0000001
-            )
-            print('great we have already waked the geodesic this far')
-
-        else:
-            print('continue geo walk until we find it, then get it')
-            continue_geodesic_walk(self.bme, self.seed, self.seed_loc,
-                                   geos, fixed, close, far,
-                                   targets=[self.bme.faces[face_ind]],
-                                   subset=None, max_iters=100000,
-                                   min_dist=None)
-
-            path_elements, self.path = gradient_descent(
-                                self.bme, geos,
-                                self.target, self.target_loc,
-                                epsilon=.0000001
-            )
-
-    def grab_cancel(self):
-        self.target_loc = self.grab_undo_loc
-        self.target = self.target_undo
-        self.path = self.path_undo
-        return
-
-    def grab_confirm(self):
-        self.grab_undo_loc = None
-        self.target_undo = None
-        self.path_undo = []
-        return
-
-    def click_add_seed(self, context, x, y):
-        '''
-        x,y = event.mouse_region_x, event.mouse_region_y
-
-        this will add a point into the bezier curve or
-        close the curve into a cyclic curve
-        '''
-        region = context.region
-        rv3d = context.region_data
-        coord = x, y
-        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
-        ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
-        ray_target = ray_origin + (view_vector * 1000)
-        mx = self.cut_ob.matrix_world
-        imx = mx.inverted()
-
-        res, loc, no, face_ind = self.cut_ob.ray_cast(
-            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
-
-        if not res:
-            self.selected = -1
+        # look for keypoints to hover
+        if self.selected_point_index is None:
+            self.find_keypoint_hover(hit_loc)
             return
 
-        self.bme.faces.ensure_lookup_table()  # how does this get outdated?
-        self.seed = self.bme.faces[face_ind]
-        self.seed_loc = loc
-
-        self.geo_data = [dict(), set(), set(), set()]
-
-    def click_add_target(self, context, x, y):
-        region = context.region
-        rv3d = context.region_data
-        coord = x, y
-        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
-        ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
-        ray_target = ray_origin + (view_vector * 1000)
-        mx = self.cut_ob.matrix_world
-        imx = mx.inverted()
-
-        res, loc, no, face_ind = self.cut_ob.ray_cast(
-            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
-
-        if not res:
+        # At least one segment
+        if len(self.path_segments) == 0:
             return
 
-        self.target = self.bme.faces[face_ind]
-        self.target_loc = loc
+        # otherwise move the selected point
+        point_pos = self.selected_point_index
+        hit_face = self.bme.faces[face_ind]
+
+        # I have a segment before point
+        if point_pos > 0:
+            start_loc, start_face = self.key_points[point_pos-1]
+            end_loc, end_face = self.key_points[point_pos]
+            self.redo_geodesic_segment(
+                point_pos-1, start_loc, start_face, end_loc, end_face, 0)
+
+        # I have a segment after point
+        if point_pos < len(self.key_points)-1:
+            start_loc, start_face = self.key_points[point_pos+1]
+            end_loc, end_face = self.key_points[point_pos]
+            self.redo_geodesic_segment(
+                point_pos, start_loc, start_face, end_loc, end_face, 1)
+
+        # Finally move the key_point
+        self.key_points[point_pos] = (hit_loc, hit_face)
+
+    def redo_geodesic_segment(self, segment_pos, start_loc,
+                              start_face, end_loc, end_face,
+                              cache_pos):
+
+        # Special case handling for weird algorithm behavior
+        should_reverse = cache_pos != 1
+
+        # Try using the cached structure before relaunching
+        # a new geodesic walk
+        cached_path = self.try_continue_geodesic_walk(
+            cache_pos, end_loc, end_face)
+
+        if cached_path:
+            self.cleanup_path(start_loc, end_loc, cached_path, should_reverse)
+            self.path_segments[segment_pos] = cached_path
+            return
 
         geos, fixed, close, far = geodesic_walk(
-            self.bme, self.seed, self.seed_loc,
-            targets=[self.target], subset=None, max_iters=100000,
-            min_dist=None)
+                self.bme.verts, start_face, start_loc,
+                end_face, self.max_iters)
 
-        path_elements, self.path = gradient_descent(
-            self.bme, geos, self.target,
-            self.target_loc, epsilon=.0000001)
+        path_elements, path = gradient_descent(
+                geos, end_face, end_loc, self.epsilon)
 
-        self.geo_data = [geos, fixed, close, far]
+        self.geo_data[cache_pos] = (geos, fixed, close, far)
 
-        # print(self.path)
+        self.cleanup_path(start_loc, end_loc, path, should_reverse)
+        self.path_segments[segment_pos] = path
+
+    def try_continue_geodesic_walk(self, cache_pos, hit_loc, hit_face):
+
+        # Data was not cached
+        if self.geo_data[cache_pos] is None:
+            return None
+
+        geos, fixed, close, far = self.geo_data[cache_pos]
+
+        if not all([v in fixed for v in hit_face.verts]):
+            continue_geodesic_walk(
+                geos, fixed, close, far,
+                hit_face, self.max_iters)
+
+        path_elements, path = gradient_descent(
+            geos, hit_face, hit_loc, self.epsilon)
+
+        return path
+
+    def grab_start(self):
+
+        if (self.hover_point_index is None):
+            return
+
+        self.selected_point_index = self.hover_point_index
+        self.hover_point_index = None
+
+        self.grab_undo_loc, self.grab_undo_face = \
+            self.key_points[self.selected_point_index]
+
+        # start, only add the segment with its same index
+        if self.selected_point_index == 0:
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index]
+            )
+        # end, only the previous one
+        elif self.selected_point_index == len(self.key_points)-1:
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index-1]
+            )
+        # in the middle of two segments
+        else:
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index]
+            )
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index-1]
+            )
+
+        return True
+
+    def grab_cancel(self):
+
+        self.hover_point_index = None
+
+        if self.selected_point_index is None:
+            return
+
+        self.key_points[self.selected_point_index] = \
+            (self.grab_undo_loc, self.grab_undo_face)
+
+        # start, only add the segment with its same index
+        if self.selected_point_index == 0:
+            self.path_segments[self.selected_point_index] = \
+                self.grab_undo_segment[0]
+        # end, only the previous one
+        elif self.selected_point_index == len(self.key_points)-1:
+            self.path_segments[self.selected_point_index-1] = \
+                self.grab_undo_segment[0]
+        # in the middle of two segments
+        else:
+            self.path_segments[self.selected_point_index] = \
+                self.grab_undo_segment[0]
+            self.path_segments[self.selected_point_index-1] = \
+                self.grab_undo_segment[1]
+
+        self.selected_point_index = None
 
         return
 
-    def draw(self, context):
-        if len(self.path):
-            mx = self.cut_ob.matrix_world
-            pts = [mx @ v for v in self.path]
-            draw.draw_polyline_from_3dpoints(
-                context, pts, (.2, .1, .8, 1), 3)
+    def grab_finish(self):
+        self.grab_undo_loc = None
+        self.grab_undo_face = None
+        self.grab_undo_segment = []
 
-        if self.seed_loc is not None:
-            mx = self.cut_ob.matrix_world
-            draw.draw_3d_points(
-                context, [mx @ self.seed_loc], 8, color=(1, 0, 0, 1))
+        # Small trick to keep hovering on the point after releasing mouse
+        self.hover_point_index = self.selected_point_index
 
-        if self.target_loc is not None:
-            mx = self.cut_ob.matrix_world
-            draw.draw_3d_points(
-                context, [mx @ self.target_loc], 8, color=(0, 1, 0, 1))
+        self.selected_point_index = None
+        self.geo_data = [None, None]
+
+        return
+
+    def draw(self, context, plugin_state):
+
+        mx = self.selected_obj.matrix_world
+
+        points = [mx @ location for (location, face) in self.key_points]
+
+        point_highlight_idx = \
+            self.hover_point_index if self.hover_point_index is not None \
+            else self.selected_point_index
+
+        # Draw Keypoints
+        draw.draw_3d_points(context, points,
+                            self.point_size, self.point_color)
+
+        if point_highlight_idx is not None:
+            point = self.key_points[point_highlight_idx][0]
+            draw.draw_3d_points(context, [mx @ point],
+                                self.point_size,
+                                self.point_select_color)
+
+        if plugin_state == Geodesic_State.GRAB:
+            draw.draw_3d_circles(context, points,
+                                 self.circle_radius, self.point_color)
+            if point_highlight_idx is not None:
+                point = self.key_points[point_highlight_idx][0]
+                draw.draw_3d_circles(context, [mx @ point],
+                                     self.circle_radius,
+                                     self.point_select_color)
+
+        # Draw segments
+        if len(self.path_segments):
+            draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
+                                             self.line_color,
+                                             self.line_thickness)
+
+    def cleanup_path(self, start_location, target_location,
+                     path, should_reverse=True):
+
+        # Depending on the direction of the descent
+        # we need to apply some tinkering in the direction
+        if should_reverse:
+            path.reverse()
+            path.pop(0)
+            path.pop(0)
+            path.insert(0, start_location)
+            path.append(target_location)
+        else:
+            path.pop()
+            path.pop()
+            path.insert(0, target_location)
+            path.append(start_location)
 
     def get_whole_path(self):
-        pts = []
-        pts.append(self.target_loc)
-        pts.extend(self.path)
-        pts.remove(pts[1])
-        # This will remove what will end up being
-        # the first element of the path which is not where you clicked
-        # deleting for now
-        # pts.pop()
-        pts.append(self.seed_loc)
-        pts.reverse()
-        return pts
+        mx = self.selected_obj.matrix_world
+        return reduce(lambda a, b: a + [mx @ point for point in b],
+                      self.path_segments, [])
+
+    def raycast(self, context, x, y):
+        region = context.region
+        rv3d = context.region_data
+        coord = x, y
+        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
+        ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
+        ray_target = ray_origin + (view_vector * 1000)
+        mx = self.selected_obj.matrix_world
+        imx = mx.inverted()
+
+        res, loc, no, face_ind = self.selected_obj.ray_cast(
+            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
+
+        return res, loc, face_ind
+
+    def find_keypoint_hover(self, point):
+
+        self.hover_point_index = None
+
+        key_points = [key_point for (key_point, key_face) in self.key_points]
+
+        selected_keypoints = list(
+            filter(lambda x: (x-point).length <= 0.006, key_points)
+        )
+
+        if selected_keypoints:
+            self.hover_point_index = key_points.index(selected_keypoints[0])
+            # print("Point found {}".format(self.hover_point_index))
+
+
+class Geodesic_State(Enum):
+    MAIN = 1
+    GRAB = 2

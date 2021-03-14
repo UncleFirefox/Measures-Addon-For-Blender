@@ -1,17 +1,12 @@
+from functools import reduce
 import bpy
 import bmesh
 import traceback
 
-from enum import Enum
 from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
 from ..utility.addon import get_prefs
 from ..utility.ray import mouse_raycast_to_scene
-from .geopath_datastructure import GeoPath
-
-
-class Geodesic_State(Enum):
-    MAIN = 1
-    GRAB = 2
+from .geopath_datastructure import GeoPath, Geodesic_State
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):
@@ -69,16 +64,12 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         # Grab initiating
         elif event.type == 'G' and event.value == 'PRESS':
-            if self.geopath.grab_initiate():
-                self.state = Geodesic_State.GRAB  # Do grab mode
+            self.state = Geodesic_State.GRAB  # Do grab mode
 
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             x, y = (event.mouse_region_x, event.mouse_region_y)
-            if self.geopath.seed is not None:
-                self.geopath.click_add_target(context, x, y)
-            else:
-                self.geopath.click_add_seed(context, x, y)
+            self.geopath.click_add_point(context, x, y)
 
         # Confirm path an exit gracefully
         elif event.type == 'RET' and event.value == 'PRESS':
@@ -103,21 +94,23 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         }:
             return {'PASS_THROUGH'}
 
-        # confirm location
-        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
-            self.geopath.grab_confirm()
-            self.state = Geodesic_State.MAIN
-
-        # put it back!
-        elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
-            self.geopath.grab_cancel()
-            self.state = Geodesic_State.MAIN
-
-        # update the b_pt location
         if event.type == 'MOUSEMOVE':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
-            self.state = Geodesic_State.GRAB
+
+        # try to see if we are grabbing
+        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self.geopath.grab_start()
+
+        if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
+            self.geopath.grab_finish()
+
+        # cancel grabbing
+        elif (event.type in {'RIGHTMOUSE', 'ESC', 'G'}
+              and event.value == 'PRESS'):
+
+            self.geopath.grab_cancel()
+            self.state = Geodesic_State.MAIN
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
@@ -133,13 +126,10 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
-        # layout.prop(self, 'height')
-        # layout.prop(self, 'plane_rotation')
 
     def execute(self, context):
 
-        mx = context.object.matrix_world
-        path = [mx @ v for v in self.geopath.get_whole_path()]
+        path = self.geopath.get_whole_path()
 
         if len(path) == 0:
             return {'FINISHED'}
@@ -175,7 +165,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     def draw_custom_controls(self, context):
         try:
-            self.geopath.draw(context)
+            self.geopath.draw(context, self.state)
             self.draw_debug_panel(context)
         except Exception:
             print("Failed to draw geopath")
@@ -226,21 +216,16 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Draw path
         text = ""
 
-        mx = context.object.matrix_world
+        if len(self.geopath.path_segments) > 0:
 
-        if self.geopath.seed_loc is not None:
-            seed = mx @ self.geopath.seed_loc
-            text += "START: ({:.3f}, {:.3f}, {:.3f}) ".format(
-                    seed.x,
-                    seed.y,
-                    seed.z)
+            total_path_length = reduce(lambda a, b:
+                                       a + self.get_segment_length(b),
+                                       self.geopath.path_segments, 0)
 
-        if self.geopath.target_loc is not None:
-            target = mx @ self.geopath.target_loc
-            text += "END: ({:.3f}, {:.3f}, {:.3f})".format(
-                    target.x,
-                    target.y,
-                    target.z)
+            text += "#SEGMENTS: {}, LENGTH: {:.3f}".format(
+                len(self.geopath.path_segments),
+                total_path_length
+            )
 
         if len(text) != 0:
             draw_text(
@@ -248,3 +233,11 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
                 size=font_size,
                 color=prefs.color.font_color
             )
+
+    def get_segment_length(self, segment):
+        result = 0
+
+        for i in range(1, len(segment)-1):
+            result += (segment[i-1] - segment[i]).length
+
+        return result

@@ -4,11 +4,11 @@
   <img src="screenshots/headerimage.jpg" width="80%">
 </div>
 
-This Blender addon is intended to accelearate the creation of measures for an Avatar.
+This Blender addon is intended to accelerate the creation of measures for an Avatar.
 
 ## Features
 - Circular measures using bisection
-- Segments along the surface using Geodesic Path (WIP)
+- Connected multi-segment polilines using geodesic paths
 
 ## Developing the plugin
 Install the following tools:

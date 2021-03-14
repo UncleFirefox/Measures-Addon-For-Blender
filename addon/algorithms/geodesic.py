@@ -16,6 +16,426 @@ from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
 
 
+def geodesic_walk(vertices, seed, seed_location, target_location,
+                  max_iters=10000):
+    '''
+    vertices - list of vertices
+
+    seed - a vertex or a face
+
+    seed_location - mathutils.Vector.
+                    vertex.location or a point on the seed face
+                    (eg, from ray_cast)
+
+    target_location - BMVert or BMFace.
+              Algo will stop when target is found
+
+    max_iters - limits number of marching steps
+    '''
+
+    geos = dict()
+
+    fixed_verts = set()
+    close_edges = set()  # used to flip over to get new near verts
+    close = set()
+    stop_targets = set()
+
+    far = set(vertices)
+
+    if isinstance(seed, bmesh.types.BMVert):
+        # initiate seeds with 0 values
+        fixed_verts.add(seed)
+        far.remove(seed)
+        geos[seed] = 0
+
+        vs = ring_neighbors(seed)
+
+        # v = min(vs, key = lambda x: (x.co - seed.co).length)
+        for v in vs:
+            # euclidian distance to initialize
+            geos[v] = (v.co - seed.co).length
+
+        fixed_verts.update(vs)
+
+        # old method, adding all link  faces to fixed
+        for f in seed.link_faces:
+            for e in f.edges:
+                # the edges which make perpendiculars
+                if e not in seed.link_edges:
+                    close_edges.add(e)
+                    nv = next_vert(e, f)
+                    if nv:
+                        close.add(nv)
+                        v1 = min(e.verts, key=geos.get)
+                        v2 = max(e.verts, key=geos.get)
+                        ef = [fc for fc in e.link_faces if fc != f][0]
+                        T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
+                        if nv in geos:
+                            # perhaps min() is better but its supposed to be
+                            # monotonicly increasing!
+                            geos[nv] = max(geos[nv], T)
+                        else:
+                            geos[nv] = T
+
+        stop_targets.update(target_location)
+
+    elif isinstance(seed, bmesh.types.BMFace):
+        for v in seed.verts:
+            T = (v.co - seed_location).length
+            geos[v] = T
+
+        fixed_verts.update(seed.verts)
+        far.difference_update(seed.verts)
+
+        for ed in seed.edges:
+            efs = [fc for fc in ed.link_faces if fc != seed]
+
+            if not len(efs):
+                continue  # seed on border case
+
+            ef = efs[0]
+            nv = next_vert(ed, seed)
+
+            if nv is None:
+                continue  # more safety
+
+            close.add(nv)
+            v1 = min(ed.verts, key=geos.get)
+            v2 = max(ed.verts, key=geos.get)
+
+            T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
+            if nv in geos:
+                # perhaps min() is better but its supposed
+                # to be monotonicly increasing!
+                geos[nv] = max(geos[nv], T)
+            else:
+                geos[nv] = T
+
+        stop_targets.update(target_location.verts)
+
+    iters = 0
+
+    while (should_algorithm_continue(far, close, iters, max_iters,
+                                     stop_targets)):
+        begin_loop(close, far, geos, fixed_verts, stop_targets)
+        iters += 1
+
+    return geos, fixed_verts, close, far
+
+
+def continue_geodesic_walk(geos, fixed_verts, close, far,
+                           target_location, max_iters):
+
+    stop_targets = set()
+
+    if isinstance(target_location, bmesh.types.BMFace):
+        for v in target_location.verts:
+            if v not in fixed_verts:
+                stop_targets.add(v)
+
+    elif isinstance(target_location, bmesh.types.BMVert):
+        if target_location not in fixed_verts:
+            stop_targets.add(target_location)
+
+    iters = 0
+
+    while (should_algorithm_continue(far, close, iters, max_iters,
+                                     stop_targets)):
+
+        begin_loop(close, far, geos, fixed_verts, stop_targets)
+        iters += 1
+
+    return
+
+
+def calc_T(v3, v2, v1, f, geos, ignore_obtuse=False):
+    if not ignore_obtuse and v2 not in geos:
+        if not test_accute(v3.co, v1.co, v2.co):
+            print('new vert is obtuse and we made a virtual edge')
+            vco, v2, vcos = unwrap_tri_obtuse(v1, v3, f)
+        else:
+            print("V2 not in geos and triangle is not obtuse")
+
+    # potentially use custom bmesh layer instead of a dictionary
+    Tv1 = geos[v1]
+    Tv2 = geos[v2]
+
+    # calculate 2 origins which are the 2 intersections of 2 circles
+    # ceneterd on v1 and v2 with radii Tv1, Tv2 respectively
+    # http://mathworld.wolfram.com/Circle-CircleIntersection.html
+
+    # transform points into the reference frame of v1 with v2 on x axis
+    # http://math.stackexchange.com/questions/856666/how-can-i-transform-a-3d-triangle-to-xy-plane
+    u = v2.co - v1.co  # x - axis
+    v2x = u.length
+
+    U = u.normalized()
+
+    c = v3.co - v1.co
+    w = u.cross(c)  # z axis
+
+    W = w.normalized()
+    V = U.cross(W)  # y axis   x,y,z = u,v,w
+
+    # rotation matrix from principal axes
+    T = Matrix.Identity(3)  # make the columns of matrix U, V, W
+    T[0][0], T[0][1], T[0][2] = U[0], V[0], W[0]
+    T[1][0], T[1][1], T[1][2] = U[1], V[1], W[1]
+    T[2][0], T[2][1], T[2][2] = U[2], V[2], W[2]
+
+    v3p = T.transposed() @ c
+    # print('converted vector to coordinates on Vo so Z should be 0')
+    # print(v3p)
+    # solution to the intersection of the 2 circles
+    A = 2 * Tv1**2 * v2x**2 - v2x**4 + 2 * Tv2**2 * v2x**2
+    B = (Tv1**2 - Tv2**2)**2
+
+    x = 1/2 * (v2x**2 + Tv1**2 - Tv2**2)/(v2x)
+    y = 1/2 * ((A-B)**.5)/v2x
+
+    # if isinstance(x, complex):
+    #     # print('x is complex')
+    #     # print(x)
+    if isinstance(y, complex):
+        # print('y is complex, setting to 0')
+        # print(A-B)
+        # print(y)
+        y = 0
+
+    T3a = v3p - Vector((x, y, 0))
+    T3b = v3p - Vector((x, -y, 0))
+    T3 = max(T3a.length, T3b.length)
+
+    return T3
+
+
+def begin_loop(close, far, geos, fixed_verts, stop_targets):
+    # Let Trial be the vertex in close with the smallest T value
+    trial_v = min(close, key=geos.get)
+    fixed_verts.add(trial_v)  # add this vertex to Fixed
+    close.remove(trial_v)  # remove it from close
+
+    if trial_v in stop_targets:
+        stop_targets.remove(trial_v)
+
+    # Compute the distance values for all vertices from Close (UNION)
+    # Unprocessed which are incident to triangles containing Trial
+    # and another vertex in fixed
+
+    for f in trial_v.link_faces:
+        # all link faces have Trial as one vert.  need exactly 1 fixed_vert
+        fvs = [v for v in f.verts if v != trial_v and v in fixed_verts]
+        cvs = [v for v in f.verts if v != trial_v and v not in fixed_verts]
+        if len(fvs) == 1:
+
+            if len(cvs) != 1:
+                print('not one close vert in the triangle, what the heck')
+
+            cv = cvs[0]
+            fv = fvs[0]
+
+            if cv not in close:
+                close.add(cv)
+                far.remove(cv)
+
+            T = calc_T(cv, trial_v, fv, f, geos)
+            if cv in geos:
+                # print('close vert already calced before')
+                if T != geos[cv]:
+                    # print('and the distance value is changing! %f, %f' \
+                    #  % (geos[cv],T))
+                    geos[cv] = min(geos[cv], T)  # maybe min?
+            else:
+                geos[cv] = T
+
+
+def should_algorithm_continue(far, close, iters, max_iters,
+                              stop_targets):
+    return (len(far) and
+            len(close) and
+            ((max_iters and iters < max_iters) or max_iters is None) and
+            (len(stop_targets)))
+
+
+def gradient_descent(geos, start_element,
+                     start_location, epsilon=.0000001):
+
+    def grad_v(v):
+        '''
+        walk down from a vert
+        '''
+        eds = [ed for ed in v.link_edges if geos[ed.other_vert(v)] <= geos[v]]
+
+        if len(eds) == 0:
+            # print('lowest vert or local minima')
+            return None, None, None
+
+        fs = set()
+
+        for ed in eds:
+            fs.update(ed.link_faces)
+
+        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts]))
+
+        for ed in minf.edges:
+            if v not in ed.verts:
+                g = gradient_face(minf, geos)
+                L = minf.calc_perimeter()
+
+                v0, v1 = intersect_line_line(
+                    ed.verts[0].co, ed.verts[1].co, v.co, v.co-L*g)
+
+                V = v0 - ed.verts[0].co
+                edV = ed.verts[1].co - ed.verts[0].co
+
+                if V.length - edV.length > epsilon:
+                    continue
+                    # print('intersects outside segment')
+                elif V.dot(edV) < 0:
+                    # print('intersects behind')
+                    continue
+                else:
+                    # print('regular edge crossing')
+
+                    return v0, ed, minf
+
+        # we were not able to walk through a face
+        # print('must walk on edge')
+        vs = [ed.other_vert(v) for ed in eds]
+        minv = min(vs, key=geos.get)
+
+        if geos[minv] > geos[v]:
+            print('Found smallest geodesic already')
+            return None, None, None
+
+        return minv.co, minv, None
+
+    def grad_f_ed(ed, p, last_face):
+        # walk around non manifold edges
+        if len(ed.link_faces) == 1:
+            minv = min(ed.verts, key=geos.get)
+            return minv.co, minv, None
+
+        f = [fc for fc in ed.link_faces if fc != last_face][0]
+        g = gradient_face(f, geos)
+        L = f.calc_perimeter()
+
+        # test for vert intersection
+        for v in f.verts:
+            v_inter, pct = intersect_point_line(v.co, p, p-L*g)
+
+            delta = v.co - v_inter
+            if delta.length < epsilon:
+                # print('intersect vert')
+                return v.co, v, None
+
+        tests = [e for e in f.edges if e != ed]
+
+        for e in tests:
+            v0, v1 = intersect_line_line(
+                e.verts[0].co, e.verts[1].co, p, p-L*g)
+
+            V = v0 - e.verts[0].co
+            edV = e.verts[1].co - e.verts[0].co
+            Vi = v0 - p
+
+            if V.length - edV.length > epsilon:
+                # print('intersects outside segment')
+                continue
+            elif V.dot(edV) < 0:
+                # print('intersects behind')
+                continue
+            # remember we watnt to travel DOWN the gradient
+            elif Vi.dot(g) > 0:
+                # print('shoots out the face, not across the face')
+                continue
+            else:
+                # print('regular face edge crossing')
+                return v0, e, f
+
+        # we didn't intersect across an edge, or on a vert,
+        # therefore, we should travel ALONG the edge
+
+        vret = min(ed.verts, key=geos.get)
+        return vret.co, vret, None
+
+    def start_grad_f(f, p):
+        g = gradient_face(f, geos)
+        L = f.calc_perimeter()
+
+        # test for vert intersection
+        for v in f.verts:
+            v_inter, pct = intersect_point_line(v.co, p, p-L*g)
+            delta = v.co - v_inter
+
+            if delta.length < epsilon:
+                # print('intersects vert')
+                return v, v.co, None
+
+        for e in f.edges:
+            v0, v1 = intersect_line_line(
+                e.verts[0].co, e.verts[1].co, p, p-L * g)
+            V = v0 - e.verts[0].co
+            edV = e.verts[1].co - e.verts[0].co
+            Vi = v0 - p
+
+            if V.length - edV.length > epsilon:
+                # print('intersects outside segment')
+                continue
+            elif V.dot(edV) < 0:
+                # print('intersects behind')
+                continue
+            # remember we watnt to travel DOWN the gradient
+            elif Vi.dot(g) > 0:
+                # print('shoots out the face, not across the face')
+                continue
+            else:
+                # print('regular face edge crossing')
+                return v0, e, f
+
+        # we didn't intersect across an edge, or on a vert,
+        # therefore, we should travel ALONG the edge
+
+        vret = min(f.verts, key=geos.get)
+        return vret.co, vret, None
+
+    iters = 0
+    path_elements = []
+    path_coords = []
+
+    if isinstance(start_element, bmesh.types.BMVert):
+        new_ele = start_element
+        new_coord = start_element.co
+        last_face = None
+
+    elif isinstance(start_element, bmesh.types.BMFace):
+        f = start_element
+        p = start_location
+        new_coord, new_ele, last_face = start_grad_f(f, p)
+
+    while new_ele is not None and iters < 1000:
+        if new_ele not in path_elements:
+            path_elements += [new_ele]
+            path_coords += [new_coord]
+        else:
+            # print('uh oh we reversed')
+            # print('stopped walking at %i' % iters)
+            return path_elements, path_coords
+
+        if isinstance(path_elements[-1], bmesh.types.BMVert):
+            new_coord, new_ele, last_face = grad_v(path_elements[-1])
+        elif isinstance(path_elements[-1], bmesh.types.BMEdge):
+            new_coord, new_ele, last_face = grad_f_ed(
+                path_elements[-1], path_coords[-1], last_face)
+
+        # if new_coord is None:
+            # print('stopped walking at %i' % iters)
+
+        iters += 1
+
+    return path_elements, path_coords
+
+
 def test_obtuse(f):
     '''
     tests if any verts have obtuse angles in a bmesh face
@@ -263,405 +683,6 @@ def unwrap_tri_obtuse(vcenter, vobtuse, face):
     return v_cos[i], verts[i], v_cos
 
 
-def geodesic_walk(bme, seed, seed_location, targets=[],
-                  subset=None, max_iters=10000, min_dist=None):
-    '''
-    bme - BMesh
-
-    seed - a vertex or a face
-
-    seed_location - mathutils.Vector.
-                    vertex.location or a point on the seed face
-                    (eg, from ray_cast)
-
-    targets - list of BMVerts or BMFaces.
-              If targets != [], algo will stop when all targets have been found
-
-    subset - set(BMVerts) or None.
-             limit the marching/growth to just a subset of verts
-
-    max_iters - limits number of marching steps
-
-    min_distance - float.
-                   Algo will stop when all the nearby verts in the expanding
-                   front are > min distance away (good for brush limits)
-    '''
-
-    geos = dict()
-
-    fixed_verts = set()
-    close_edges = set()  # used to flip over to get new near verts
-    close = set()
-
-    if subset is None:
-        print('using all the verts')
-        far = set(bme.verts)  # can we do this?
-    else:
-        print('using subset of verts')
-        far = set(subset)
-
-    def ring_neighbors(v):
-        return [e.other_vert(v) for e in v.link_edges]
-
-    def calc_T(v3, v2, v1, f, ignore_obtuse=False):
-        if not ignore_obtuse and v2 not in geos:
-            if not test_accute(v3.co, v1.co, v2.co):
-                print('new vert is obtuse and we made a virtual edge')
-                vco, v2, vcos = unwrap_tri_obtuse(v1, v3, f)
-            else:
-                print("V2 not in geos and triangle is not obtuse")
-
-        # potentially use custom bmesh layer instead of a dictionary
-        Tv1 = geos[v1]
-        Tv2 = geos[v2]
-
-        # calculate 2 origins which are the 2 intersections of 2 circles
-        # ceneterd on v1 and v2 with radii Tv1, Tv2 respectively
-        # http://mathworld.wolfram.com/Circle-CircleIntersection.html
-
-        # transform points into the reference frame of v1 with v2 on x axis
-        # http://math.stackexchange.com/questions/856666/how-can-i-transform-a-3d-triangle-to-xy-plane
-        u = v2.co - v1.co  # x - axis
-        v2x = u.length
-
-        U = u.normalized()
-
-        c = v3.co - v1.co
-        w = u.cross(c)  # z axis
-
-        W = w.normalized()
-        V = U.cross(W)  # y axis   x,y,z = u,v,w
-
-        # rotation matrix from principal axes
-        T = Matrix.Identity(3)  # make the columns of matrix U, V, W
-        T[0][0], T[0][1], T[0][2] = U[0], V[0], W[0]
-        T[1][0], T[1][1], T[1][2] = U[1], V[1], W[1]
-        T[2][0], T[2][1], T[2][2] = U[2], V[2], W[2]
-
-        v3p = T.transposed() @ c
-        # print('converted vector to coordinates on Vo so Z should be 0')
-        # print(v3p)
-        # solution to the intersection of the 2 circles
-        A = 2 * Tv1**2 * v2x**2 - v2x**4 + 2 * Tv2**2 * v2x**2
-        B = (Tv1**2 - Tv2**2)**2
-
-        x = 1/2 * (v2x**2 + Tv1**2 - Tv2**2)/(v2x)
-        y = 1/2 * ((A-B)**.5)/v2x
-
-        if isinstance(x, complex):
-            print('x is complex')
-            print(x)
-        elif isinstance(y, complex):
-            print('y is complex, setting to 0')
-            print(A-B)
-            print(y)
-            y = 0
-
-        T3a = v3p - Vector((x, y, 0))
-        T3b = v3p - Vector((x, -y, 0))
-        T3 = max(T3a.length, T3b.length)
-
-        return T3
-
-    def next_vert(ed, face):
-        next_fs = [f for f in ed.link_faces if f != face]
-
-        if not len(next_fs):
-            return None
-
-        f = next_fs[0]
-        v = [v for v in f.verts if v not in ed.verts][0]
-        return v
-
-    if isinstance(seed, bmesh.types.BMVert):
-        # initiate seeds with 0 values
-        fixed_verts.add(seed)
-        far.remove(seed)
-        geos[seed] = 0
-
-        vs = ring_neighbors(seed)
-
-        # v = min(vs, key = lambda x: (x.co - seed.co).length)
-        for v in vs:
-            # euclidian distance to initialize
-            geos[v] = (v.co - seed.co).length
-
-        fixed_verts.update(vs)
-
-        # old method, adding all link  faces to fixed
-        for f in seed.link_faces:
-            for e in f.edges:
-                # the edges which make perpendiculars
-                if e not in seed.link_edges:
-                    close_edges.add(e)
-                    nv = next_vert(e, f)
-                    if nv:
-                        close.add(nv)
-                        v1 = min(e.verts, key=geos.get)
-                        v2 = max(e.verts, key=geos.get)
-                        ef = [fc for fc in e.link_faces if fc != f][0]
-                        T = calc_T(nv, v2, v1, ef, ignore_obtuse=True)
-                        if nv in geos:
-                            # perhaps min() is better but its supposed to be
-                            # monotonicly increasing!
-                            geos[nv] = max(geos[nv], T)
-                        else:
-                            geos[nv] = T
-
-    elif isinstance(seed, bmesh.types.BMFace):
-        for v in seed.verts:
-            T = (v.co - seed_location).length
-            geos[v] = T
-
-        fixed_verts.update(seed.verts)
-        far.difference_update(seed.verts)
-
-        for ed in seed.edges:
-            efs = [fc for fc in ed.link_faces if fc != seed]
-
-            if not len(efs):
-                continue  # seed on border case
-
-            ef = efs[0]
-            nv = next_vert(ed, seed)
-
-            if nv is None:
-                continue  # more safety
-
-            close.add(nv)
-            v1 = min(ed.verts, key=geos.get)
-            v2 = max(ed.verts, key=geos.get)
-
-            T = calc_T(nv, v2, v1, ef, ignore_obtuse=True)
-            if nv in geos:
-                # perhaps min() is better but its supposed
-                # to be monotonicly increasing!
-                geos[nv] = max(geos[nv], T)
-            else:
-                geos[nv] = T
-
-    stop_targets = set()
-    for ele in targets:
-        if isinstance(ele, bmesh.types.BMFace):
-            stop_targets.update(ele.verts)
-        elif isinstance(ele, bmesh.types.BMVert):
-            stop_targets.update(ele)
-
-    def begin_loop():
-
-        for v in close:
-            if v not in geos:
-                print("%i not in geos but is in close" % v.index)
-
-        # Let Trial be the vertex in close with the smallest T value
-        trial_v = min(close, key=geos.get)
-
-        if max_iters is not None and max_iters < 100:
-            print('Trial V is %i with T: %f' % (trial_v.index, geos[trial_v]))
-
-        fixed_verts.add(trial_v)  # add this vertex to Fixed
-        close.remove(trial_v)  # remove it from close
-
-        if trial_v in stop_targets:
-            stop_targets.remove(trial_v)
-
-        # Compute the distance values for all vertices from Close (UNION)
-        # Unprocessed which are incident to triangles containing Trial
-        # and another vertex in fixed
-
-        for f in trial_v.link_faces:
-            # all link faces have Trial as one vert.  need exactly 1 fixed_vert
-            fvs = [v for v in f.verts if v != trial_v and v in fixed_verts]
-            cvs = [v for v in f.verts if v != trial_v and v not in fixed_verts]
-            if len(fvs) == 1:
-
-                if len(cvs) != 1:
-                    print('not one close vert in the triangle, what the heck')
-
-                cv = cvs[0]
-                fv = fvs[0]
-
-                if cv not in close:
-                    close.add(cv)
-                    far.remove(cv)
-
-                T = calc_T(cv, trial_v, fv, f)
-                if cv in geos:
-                    # print('close vert already calced before')
-                    if T != geos[cv]:
-                        # print('and the distance value is changing! %f, %f' \
-                        #  % (geos[cv],T))
-                        geos[cv] = min(geos[cv], T)  # maybe min?
-                else:
-                    geos[cv] = T
-
-    iters = 0
-    while (
-            len(far) and
-            len(close) and
-            ((max_iters and iters < max_iters) or max_iters is None) and
-            (len(stop_targets) or targets == [])
-          ):
-
-        if min_dist:
-            max_fixed = max(fixed_verts, key=geos.get)
-            T = geos[max_fixed]
-            if T > min_dist:
-                fixed_verts.remove(max_fixed)
-                close.add(max_fixed)
-                break
-
-        begin_loop()
-        iters += 1
-
-    return geos, fixed_verts, close, far
-
-
-def continue_geodesic_walk(bme, seed, seed_location,
-                           geos, fixed_verts, close, far,
-                           targets=[], subset=None, max_iters=500,
-                           min_dist=None):
-
-    print('continuuing geodesic where we left off')
-
-    # Repeated code?
-    def calc_T(v3, v2, v1, f, ignore_obtuse=False):
-        if not ignore_obtuse and v2 not in geos:
-            if not test_accute(v3.co, v1.co, v2.co):
-                print('new vert is obtuse and we made a virtual edge')
-                vco, v2, vcos = unwrap_tri_obtuse(v1, v3, f)
-            else:
-                print("V2 not in geos and triangle is not obtuse")
-
-        # potentially use custom bmesh layer instead of a dictionary
-        Tv1 = geos[v1]
-        Tv2 = geos[v2]
-
-        # calculate 2 origins which are the 2 intersections of 2 circles
-        # ceneterd on v1 and v2 with radii Tv1, Tv2 respectively
-        # http://mathworld.wolfram.com/Circle-CircleIntersection.html
-
-        # transform points into the reference frame of v1 with v2 on x axis
-        # http://math.stackexchange.com/questions/856666/how-can-i-transform-a-3d-triangle-to-xy-plane
-        u = v2.co - v1.co  # x - axis
-        v2x = u.length
-
-        U = u.normalized()
-
-        c = v3.co - v1.co
-        w = u.cross(c)  # z axis
-
-        W = w.normalized()
-        V = U.cross(W)  # y axis   x,y,z = u,v,w
-
-        # rotation matrix from principal axes
-        T = Matrix.Identity(3)  # make the columns of matrix U, V, W
-        T[0][0], T[0][1], T[0][2] = U[0], V[0],  W[0]
-        T[1][0], T[1][1], T[1][2] = U[1], V[1],  W[1]
-        T[2][0], T[2][1], T[2][2] = U[2], V[2],  W[2]
-
-        v3p = T.transposed() @ c
-        # print('converted vector to coordinates on Vo so Z should be 0')
-        # print(v3p)
-        # solution to the intersection of the 2 circles
-        A = 2 * Tv1**2 * v2x**2 - v2x**4 + 2 * Tv2**2 * v2x**2
-        B = (Tv1**2 - Tv2**2)**2
-
-        x = 1/2 * (v2x**2 + Tv1**2 - Tv2**2)/(v2x)
-        y = 1/2 * ((A-B)**.5)/v2x
-
-        if isinstance(x, complex):
-            # print('x is complex')
-            # print(x)
-            x = 0
-        elif isinstance(y, complex):
-            # print('y is complex, setting to 0')
-            # print(A-B)
-            # print(y)
-            y = 0
-        T3a = v3p - Vector((x, y, 0))
-        T3b = v3p - Vector((x, -y, 0))
-        T3 = max(T3a.length, T3b.length)
-
-        return T3
-
-    stop_targets = set()
-
-    for ele in targets:
-        if isinstance(ele, bmesh.types.BMFace):
-            for v in ele.verts:
-                if v not in fixed_verts:
-                    stop_targets.add(v)
-                    print(stop_targets)
-
-        elif isinstance(ele, bmesh.types.BMVert):
-            if ele not in fixed_verts:
-                stop_targets.add(ele)
-
-    print('there are %i stop targets' % len(stop_targets))
-
-    def begin_loop():
-
-        for v in close:
-            if v not in geos:
-                print("%i not in geos but is in close" % v.index)
-
-        # Let Trial be the vertex in close with the smallest T value
-        trial_v = min(close, key=geos.get)
-        fixed_verts.add(trial_v)  # add thsi vertex to Fixed
-        close.remove(trial_v)  # remove it from close
-
-        if trial_v in stop_targets:
-            stop_targets.remove(trial_v)
-            print('removing stop target')
-
-        # Compute the distance values for all vertices from Close (UNION)
-        # Unprocessed which are incident to triangles containing Trial
-        # and another vertex in fixed
-        for f in trial_v.link_faces:
-            # all link faces have Trial as one vert.  need exactly 1 fixed_vert
-            fvs = [v for v in f.verts if v != trial_v and v in fixed_verts]
-            cvs = [v for v in f.verts if v != trial_v and v not in fixed_verts]
-            if len(fvs) == 1:
-                if len(cvs) != 1:
-                    print('not one close vert in the triangle, what the heck')
-
-                cv = cvs[0]
-                fv = fvs[0]
-
-                if cv not in close:
-                    close.add(cv)
-                    far.remove(cv)
-
-                T = calc_T(cv, trial_v, fv, f)
-                if cv in geos:
-                    # print('close vert already calced before')
-                    if T != geos[cv]:
-                        # print('and the distance value is changing! %f, %f' \
-                        #  % (geos[cv],T))
-                        geos[cv] = min(geos[cv], T)  # maybe min?
-                else:
-                    geos[cv] = T
-
-    iters = 0
-
-    while (
-            len(far) and
-            len(close) and
-            ((max_iters and iters < max_iters) or max_iters is None) and
-            (len(stop_targets) != 0 or targets == [])
-          ):
-
-        begin_loop()
-        iters += 1
-
-    if len(far) and len(stop_targets) == 0 and len(targets) != 0:
-        print('stopped when we found the new target')
-
-    print('continuued walking in %i additional iters' % iters)
-    return
-
-
 def gradient_face(f, geos):
     # http://saturno.ge.imati.cnr.it/ima/personal-old/attene/PersonalPage/pdf/steepest-descent-paper.pdf
     [vi, vj, vk] = f.verts
@@ -686,185 +707,16 @@ def gradient_face(f, geos):
     return grad
 
 
-def gradient_descent(bme, geos, start_element,
-                     start_location, epsilon=.0000001):
+def next_vert(ed, face):
+    next_fs = [f for f in ed.link_faces if f != face]
 
-    def grad_v(v):
-        '''
-        walk down from a vert
-        '''
-        eds = [ed for ed in v.link_edges if geos[ed.other_vert(v)] <= geos[v]]
+    if not len(next_fs):
+        return None
 
-        if len(eds) == 0:
-            print('lowest vert or local minima')
-            return None, None, None
+    f = next_fs[0]
+    v = [v for v in f.verts if v not in ed.verts][0]
+    return v
 
-        fs = set()
 
-        for ed in eds:
-            fs.update(ed.link_faces)
-
-        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts]))
-
-        for ed in minf.edges:
-            if v not in ed.verts:
-                g = gradient_face(minf, geos)
-                L = minf.calc_perimeter()
-
-                v0, v1 = intersect_line_line(
-                    ed.verts[0].co, ed.verts[1].co, v.co, v.co-L*g)
-
-                V = v0 - ed.verts[0].co
-                edV = ed.verts[1].co - ed.verts[0].co
-
-                if V.length - edV.length > epsilon:
-                    continue
-                    # print('intersects outside segment')
-                elif V.dot(edV) < 0:
-                    # print('intersects behind')
-                    continue
-                else:
-                    # print('regular edge crossing')
-
-                    return v0, ed, minf
-
-        # we were not able to walk through a face
-        print('must walk on edge')
-        vs = [ed.other_vert(v) for ed in eds]
-        minv = min(vs, key=geos.get)
-
-        if geos[minv] > geos[v]:
-            print('Found smallest geodesic already')
-            return None, None, None
-
-        return minv.co, minv, None
-
-    def grad_f_ed(ed, p, last_face):
-        # walk around non manifold edges
-        if len(ed.link_faces) == 1:
-            minv = min(ed.verts, key=geos.get)
-            return minv.co, minv, None
-
-        f = [fc for fc in ed.link_faces if fc != last_face][0]
-        g = gradient_face(f, geos)
-        L = f.calc_perimeter()
-
-        # test for vert intersection
-        for v in f.verts:
-            v_inter, pct = intersect_point_line(v.co, p, p-L*g)
-
-            delta = v.co - v_inter
-            if delta.length < epsilon:
-                print('intersect vert')
-                return v.co, v, None
-
-        tests = [e for e in f.edges if e != ed]
-
-        for e in tests:
-            v0, v1 = intersect_line_line(
-                e.verts[0].co, e.verts[1].co, p, p-L*g)
-
-            V = v0 - e.verts[0].co
-            edV = e.verts[1].co - e.verts[0].co
-            Vi = v0 - p
-
-            if V.length - edV.length > epsilon:
-                # print('intersects outside segment')
-                continue
-            elif V.dot(edV) < 0:
-                # print('intersects behind')
-                continue
-            # remember we watnt to travel DOWN the gradient
-            elif Vi.dot(g) > 0:
-                # print('shoots out the face, not across the face')
-                continue
-            else:
-                # print('regular face edge crossing')
-                return v0, e, f
-
-        # we didn't intersect across an edge, or on a vert,
-        # therefore, we should travel ALONG the edge
-
-        vret = min(ed.verts, key=geos.get)
-        return vret.co, vret, None
-
-    def start_grad_f(f, p):
-        g = gradient_face(f, geos)
-        L = f.calc_perimeter()
-
-        # test for vert intersection
-        for v in f.verts:
-            v_inter, pct = intersect_point_line(v.co, p, p-L*g)
-            delta = v.co - v_inter
-
-            if delta.length < epsilon:
-                print('intersects vert')
-                return v, v.co, None
-
-        for e in f.edges:
-            v0, v1 = intersect_line_line(
-                e.verts[0].co, e.verts[1].co, p, p-L * g)
-            V = v0 - e.verts[0].co
-            edV = e.verts[1].co - e.verts[0].co
-            Vi = v0 - p
-
-            if V.length - edV.length > epsilon:
-                # print('intersects outside segment')
-                continue
-            elif V.dot(edV) < 0:
-                # print('intersects behind')
-                continue
-            # remember we watnt to travel DOWN the gradient
-            elif Vi.dot(g) > 0:
-                # print('shoots out the face, not across the face')
-                continue
-            else:
-                # print('regular face edge crossing')
-                return v0, e, f
-
-        # we didn't intersect across an edge, or on a vert,
-        # therefore, we should travel ALONG the edge
-
-        vret = min(f.verts, key=geos.get)
-        return vret.co, vret, None
-
-    iters = 0
-    path_elements = []
-    path_coords = []
-
-    if isinstance(start_element, bmesh.types.BMVert):
-        # f_start = min(
-        # start_vert.link_faces, key=lambda f: sum([geos[v] for v in f.verts]))
-        new_ele = start_element
-        new_coord = start_element.co
-        last_face = None
-
-    elif isinstance(start_element, bmesh.types.BMFace):
-        f = start_element
-        p = start_location
-        # f_start = min(
-        # start_vert.link_faces,
-        # key = lambda f: sum([geos[v] for v in f.verts]))
-
-        new_coord, new_ele, last_face = start_grad_f(f, p)
-
-    while new_ele is not None and iters < 1000:
-        if new_ele not in path_elements:
-            path_elements += [new_ele]
-            path_coords += [new_coord]
-        else:
-            print('uh oh we reversed')
-            print('stopped walking at %i' % iters)
-            return path_elements, path_coords
-
-        if isinstance(path_elements[-1], bmesh.types.BMVert):
-            new_coord, new_ele, last_face = grad_v(path_elements[-1])
-        elif isinstance(path_elements[-1], bmesh.types.BMEdge):
-            new_coord, new_ele, last_face = grad_f_ed(
-                path_elements[-1], path_coords[-1], last_face)
-
-        if new_coord is None:
-            print('stopped walking at %i' % iters)
-        iters += 1
-
-    return path_elements, path_coords
+def ring_neighbors(v):
+    return [e.other_vert(v) for e in v.link_edges]

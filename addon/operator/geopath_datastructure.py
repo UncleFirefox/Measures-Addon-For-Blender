@@ -32,6 +32,7 @@ class GeoPath(object):
         self.point_size = 8
         self.circle_radius = 8
         self.point_color = (1, 0, 0, 1)
+        self.point_select_color = (0, 1, 0, 1)
         self.line_color = (.2, .1, .8, 1)
         self.line_thickness = 3
 
@@ -114,6 +115,7 @@ class GeoPath(object):
                               start_face, end_loc, end_face,
                               cache_pos):
 
+        # Special case handling for weird algorithm behavior
         should_reverse = cache_pos != 1
 
         # Try using the cached structure before relaunching
@@ -190,6 +192,8 @@ class GeoPath(object):
 
     def grab_cancel(self):
 
+        self.hover_point_index = None
+
         if self.selected_point_index is None:
             return
 
@@ -211,14 +215,21 @@ class GeoPath(object):
             self.path_segments[self.selected_point_index-1] = \
                 self.grab_undo_segment[1]
 
+        self.selected_point_index = None
+
         return
 
     def grab_finish(self):
         self.grab_undo_loc = None
         self.grab_undo_face = None
         self.grab_undo_segment = []
+
+        # Small trick to keep hovering on the point after releasing mouse
+        self.hover_point_index = self.selected_point_index
+
         self.selected_point_index = None
         self.geo_data = [None, None]
+
         return
 
     def draw(self, context, plugin_state):
@@ -227,13 +238,28 @@ class GeoPath(object):
 
         points = [mx @ location for (location, face) in self.key_points]
 
+        point_highlight_idx = \
+            self.hover_point_index if self.hover_point_index is not None \
+            else self.selected_point_index
+
         # Draw Keypoints
         draw.draw_3d_points(context, points,
                             self.point_size, self.point_color)
 
+        if point_highlight_idx is not None:
+            point = self.key_points[point_highlight_idx][0]
+            draw.draw_3d_points(context, [mx @ point],
+                                self.point_size,
+                                self.point_select_color)
+
         if plugin_state == Geodesic_State.GRAB:
             draw.draw_3d_circles(context, points,
                                  self.circle_radius, self.point_color)
+            if point_highlight_idx is not None:
+                point = self.key_points[point_highlight_idx][0]
+                draw.draw_3d_circles(context, [mx @ point],
+                                     self.circle_radius,
+                                     self.point_select_color)
 
         # Draw segments
         if len(self.path_segments):
@@ -280,9 +306,7 @@ class GeoPath(object):
 
     def find_keypoint_hover(self, point):
 
-        if point is None:
-            self.hover_point_index = None
-            return
+        self.hover_point_index = None
 
         key_points = [key_point for (key_point, key_face) in self.key_points]
 

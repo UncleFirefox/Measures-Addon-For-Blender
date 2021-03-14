@@ -64,8 +64,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         # Grab initiating
         elif event.type == 'G' and event.value == 'PRESS':
-            if self.geopath.grab_initiate():
-                self.state = Geodesic_State.GRAB  # Do grab mode
+            self.state = Geodesic_State.GRAB  # Do grab mode
 
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
@@ -95,22 +94,23 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         }:
             return {'PASS_THROUGH'}
 
-        # confirm location
-        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
-            self.geopath.grab_confirm()
-            self.state = Geodesic_State.MAIN
+        if event.type == 'MOUSEMOVE':
+            x, y = (event.mouse_region_x, event.mouse_region_y)
+            self.geopath.grab_mouse_move(context, x, y)
 
-        # put it back!
+        # try to see if we are grabbing
+        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self.geopath.grab_start()
+
+        if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
+            self.geopath.grab_finish()
+
+        # cancel grabbing
         elif (event.type in {'RIGHTMOUSE', 'ESC', 'G'}
               and event.value == 'PRESS'):
 
             self.geopath.grab_cancel()
             self.state = Geodesic_State.MAIN
-
-        # update the b_pt location
-        if event.type == 'MOUSEMOVE':
-            x, y = (event.mouse_region_x, event.mouse_region_y)
-            self.geopath.grab_mouse_move(context, x, y)
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}

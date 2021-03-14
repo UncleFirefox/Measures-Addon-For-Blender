@@ -124,9 +124,7 @@ def geodesic_walk(vertices, seed, seed_location, target_location,
 
 
 def continue_geodesic_walk(geos, fixed_verts, close, far,
-                           target_location, max_iters=500):
-
-    # print('continuing geodesic where we left off')
+                           target_location, max_iters):
 
     stop_targets = set()
 
@@ -134,13 +132,10 @@ def continue_geodesic_walk(geos, fixed_verts, close, far,
         for v in target_location.verts:
             if v not in fixed_verts:
                 stop_targets.add(v)
-                # print(stop_targets)
 
     elif isinstance(target_location, bmesh.types.BMVert):
         if target_location not in fixed_verts:
             stop_targets.add(target_location)
-
-    # print('there are %i stop targets' % len(stop_targets))
 
     iters = 0
 
@@ -150,10 +145,6 @@ def continue_geodesic_walk(geos, fixed_verts, close, far,
         begin_loop(close, far, geos, fixed_verts, stop_targets)
         iters += 1
 
-    # if len(far) and len(stop_targets) == 0:
-    #     print('stopped when we found the new target')
-
-    # print('continuued walking in %i additional iters' % iters)
     return
 
 
@@ -413,8 +404,6 @@ def gradient_descent(geos, start_element,
     path_coords = []
 
     if isinstance(start_element, bmesh.types.BMVert):
-        # f_start = min(
-        # start_vert.link_faces, key=lambda f: sum([geos[v] for v in f.verts]))
         new_ele = start_element
         new_coord = start_element.co
         last_face = None
@@ -422,10 +411,6 @@ def gradient_descent(geos, start_element,
     elif isinstance(start_element, bmesh.types.BMFace):
         f = start_element
         p = start_location
-        # f_start = min(
-        # start_vert.link_faces,
-        # key = lambda f: sum([geos[v] for v in f.verts]))
-
         new_coord, new_ele, last_face = start_grad_f(f, p)
 
     while new_ele is not None and iters < 1000:

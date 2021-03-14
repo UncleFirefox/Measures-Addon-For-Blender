@@ -27,6 +27,7 @@ class GeoPath(object):
 
         self.key_points = []
         self.path_segments = []
+        self.grab_undo_segment = []
 
         self.point_size = 8
         self.circle_radius = 8
@@ -38,7 +39,9 @@ class GeoPath(object):
         self.max_iters = 100000
 
         # geos, fixed, close, far
-        self.geo_data = [dict(), set(), set(), set()]
+        self.geo_data = []
+        self.hover_point_index = None
+        self.selected_point_index = None
 
     def click_add_point(self, context, x, y):
 
@@ -67,7 +70,171 @@ class GeoPath(object):
 
         self.path_segments.append(path)
 
-        self.geo_data = [geos, fixed, close, far]
+        self.geo_data.append((geos, fixed, close, far))
+
+    def grab_mouse_move(self, context, x, y):
+
+        hit, hit_loc, face_ind = self.raycast(context, x, y)
+
+        if not hit:
+            self.grab_cancel()
+            return
+
+        # look for keypoints to hover
+        if self.selected_point_index is None:
+            self.find_keypoint_hover(hit_loc)
+            return
+
+        # At least one segment
+        if len(self.path_segments) == 0:
+            return
+
+        # otherwise move the selected point
+        point_pos = self.selected_point_index
+        hit_face = self.bme.faces[face_ind]
+
+        # Starting point: affect only the segment before me
+        if point_pos == 0:
+            start_loc, start_face = self.key_points[point_pos]
+            end_loc, end_face = self.key_points[point_pos+1]
+            self.redo_geodesic_segment(
+                point_pos, start_loc, start_face, end_loc, end_face)
+
+        # Ending point: affect only the segment before me
+        elif point_pos == len(self.key_points)-1:
+            start_loc, start_face = self.key_points[point_pos-1]  # Prev point
+            self.redo_geodesic_segment(
+                point_pos-1, start_loc, start_face, hit_loc, hit_face)
+
+        # In between segments, perform geodesic on both of them
+        else:
+            # Segment before keypoint
+            start_loc, start_face = self.key_points[point_pos-1]
+            end_loc, end_face = self.key_points[point_pos]
+            self.redo_geodesic_segment(
+                point_pos-1, start_loc, start_face, end_loc, end_face)
+
+            # Segment after keypoint
+            start_loc, start_face = self.key_points[point_pos]
+            end_loc, end_face = self.key_points[point_pos+1]
+            self.redo_geodesic_segment(
+                point_pos, start_loc, start_face, end_loc, end_face)
+
+        # Finally move the key_point
+        self.key_points[point_pos] = (hit_loc, hit_face)
+
+    def redo_geodesic_segment(self, segment_pos, start_loc,
+                              start_face, end_loc, end_face):
+
+        geos, fixed, close, far = geodesic_walk(
+                self.bme.verts, start_face, start_loc,
+                end_face, self.max_iters)
+
+        path_elements, path = gradient_descent(
+                geos, end_face, end_loc, self.epsilon)
+
+        self.cleanup_path(start_loc, end_loc, path)
+        self.path_segments[segment_pos] = path
+
+    def geodesic_on_segment(self, segment_pos, hit_loc, hit_face):
+
+        geos, fixed, close, far = self.geo_data[segment_pos]
+
+        if not all([v in fixed for v in hit_face.verts]):
+            continue_geodesic_walk(
+                geos, fixed, close, far,
+                hit_face, self.max_iters)
+
+        path_elements, path = gradient_descent(
+            geos, hit_face, hit_loc, self.epsilon)
+
+        return path
+
+    def grab_start(self):
+
+        if (self.hover_point_index is None):
+            return
+
+        self.selected_point_index = self.hover_point_index
+        print("Selected point index is {}".format(self.selected_point_index))
+        self.hover_point_index = None
+
+        self.grab_undo_loc, self.grab_undo_face = \
+            self.key_points[self.selected_point_index]
+
+        # start, only add the segment with its same index
+        if self.selected_point_index == 0:
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index]
+            )
+        # end, only the previous one
+        elif self.selected_point_index == len(self.key_points)-1:
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index-1]
+            )
+        # in the middle of two segments
+        else:
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index]
+            )
+            self.grab_undo_segment.append(
+                self.path_segments[self.selected_point_index-1]
+            )
+
+        return True
+
+    def grab_cancel(self):
+
+        if self.selected_point_index is None:
+            return
+
+        self.key_points[self.selected_point_index] = \
+            (self.grab_undo_loc, self.grab_undo_face)
+
+        # start, only add the segment with its same index
+        if self.selected_point_index == 0:
+            self.path_segments[self.selected_point_index] = \
+                self.grab_undo_segment[0]
+        # end, only the previous one
+        elif self.selected_point_index == len(self.key_points)-1:
+            self.path_segments[self.selected_point_index-1] = \
+                self.grab_undo_segment[0]
+        # in the middle of two segments
+        else:
+            self.path_segments[self.selected_point_index] = \
+                self.grab_undo_segment[0]
+            self.path_segments[self.selected_point_index-1] = \
+                self.grab_undo_segment[1]
+
+        return
+
+    def grab_finish(self):
+        self.grab_undo_loc = None
+        self.grab_undo_face = None
+        self.grab_undo_segment = []
+        self.selected_point_index = None
+        print("Selected point index finished")
+        return
+
+    def draw(self, context, plugin_state):
+
+        mx = self.selected_obj.matrix_world
+
+        points = [mx @ location for (location, face) in self.key_points]
+
+        # Draw Keypoints
+        draw.draw_3d_points(context, points,
+                            self.point_size, self.point_color)
+
+        if plugin_state == Geodesic_State.GRAB:
+            draw.draw_3d_circles(context, points,
+                                 self.circle_radius, self.point_color)
+
+        # Draw segments
+        if len(self.path_segments):
+            draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
+                                             self.line_color,
+                                             self.line_thickness)
 
     def cleanup_path(self, start_location, target_location, path):
         # It goes backwards for some reason
@@ -76,71 +243,6 @@ class GeoPath(object):
         path.pop(0)
         path.insert(0, start_location)
         path.append(target_location)
-
-    def grab_mouse_move(self, context, x, y):
-        hit, hit_loc, face_ind = self.raycast(context, x, y)
-
-        if not hit:
-            self.grab_cancel()
-            return
-
-        # check if first or end point and it's a non man edge!
-        geos, fixed, close, far = self.geo_data
-
-        hit_face = self.bme.faces[face_ind]
-        self.key_points[-1] = (hit_loc, hit_face)
-
-        if not all([v in fixed for v in hit_face.verts]):
-            continue_geodesic_walk(geos, fixed, close, far,
-                                   hit_face, self.max_iters)
-
-        path_elements, path = gradient_descent(
-            geos, hit_face, hit_loc, self.epsilon)
-
-        previous_loc, previous_face = self.key_points[-2]
-        self.cleanup_path(previous_loc, hit_loc, path)
-
-        self.path_segments[-1] = path
-
-    def grab_initiate(self):
-
-        if len(self.key_points) < 2:
-            return False
-
-        self.grab_undo_loc, self.grab_undo_face = self.key_points[-1]
-        self.grab_undo_segment = self.path_segments[-1]
-        return True
-
-    def grab_cancel(self):
-        self.key_points[-1] = (self.grab_undo_loc, self.grab_undo_face)
-        self.path_segments[-1] = self.grab_undo_segment
-        return
-
-    def grab_confirm(self):
-        self.grab_undo_loc = None
-        self.grab_undo_face = None
-        self.grab_undo_segment = []
-        return
-
-    def draw(self, context, plugin_state):
-
-        mx = self.selected_obj.matrix_world
-
-        locations = [mx @ location for (location, face) in self.key_points]
-
-        # Draw Keypoints
-        draw.draw_3d_points(context, locations,
-                            self.point_size, self.point_color)
-
-        if plugin_state == Geodesic_State.GRAB:
-            draw.draw_3d_circles(context, locations,
-                                 self.circle_radius, self.point_color)
-
-        # Draw segments
-        if len(self.path_segments):
-            draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
-                                             self.line_color,
-                                             self.line_thickness)
 
     def get_whole_path(self):
         mx = self.selected_obj.matrix_world
@@ -161,6 +263,22 @@ class GeoPath(object):
             imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
 
         return res, loc, face_ind
+
+    def find_keypoint_hover(self, point):
+
+        if point is None:
+            self.hover_point_index = None
+            return
+
+        key_points = [key_point for (key_point, key_face) in self.key_points]
+
+        selected_keypoints = list(
+            filter(lambda x: (x-point).length <= 0.006, key_points)
+        )
+
+        if selected_keypoints:
+            self.hover_point_index = key_points.index(selected_keypoints[0])
+            # print("Point found {}".format(self.hover_point_index))
 
 
 class Geodesic_State(Enum):

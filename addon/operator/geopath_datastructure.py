@@ -39,7 +39,7 @@ class GeoPath(object):
         self.max_iters = 100000
 
         # geos, fixed, close, far
-        self.geo_data = []
+        self.geo_data = [None, None]
         self.hover_point_index = None
         self.selected_point_index = None
 
@@ -93,38 +93,36 @@ class GeoPath(object):
         point_pos = self.selected_point_index
         hit_face = self.bme.faces[face_ind]
 
-        # Starting point: affect only the segment before me
-        if point_pos == 0:
-            start_loc, start_face = self.key_points[point_pos]
-            end_loc, end_face = self.key_points[point_pos+1]
-            self.redo_geodesic_segment(
-                point_pos, start_loc, start_face, end_loc, end_face)
-
-        # Ending point: affect only the segment before me
-        elif point_pos == len(self.key_points)-1:
-            start_loc, start_face = self.key_points[point_pos-1]  # Prev point
-            self.redo_geodesic_segment(
-                point_pos-1, start_loc, start_face, hit_loc, hit_face)
-
-        # In between segments, perform geodesic on both of them
-        else:
-            # Segment before keypoint
+        # I have a segment before point
+        if point_pos > 0:
             start_loc, start_face = self.key_points[point_pos-1]
             end_loc, end_face = self.key_points[point_pos]
             self.redo_geodesic_segment(
-                point_pos-1, start_loc, start_face, end_loc, end_face)
+                point_pos-1, start_loc, start_face, end_loc, end_face, 0)
 
-            # Segment after keypoint
+        # I have a segment after point
+        if point_pos < len(self.key_points)-1:
             start_loc, start_face = self.key_points[point_pos]
             end_loc, end_face = self.key_points[point_pos+1]
             self.redo_geodesic_segment(
-                point_pos, start_loc, start_face, end_loc, end_face)
+                point_pos, start_loc, start_face, end_loc, end_face, 1)
 
         # Finally move the key_point
         self.key_points[point_pos] = (hit_loc, hit_face)
 
     def redo_geodesic_segment(self, segment_pos, start_loc,
-                              start_face, end_loc, end_face):
+                              start_face, end_loc, end_face,
+                              cache_pos):
+
+        # Try using the cached structure before relaunching
+        # a new geodesic walk
+        # cached_path = self.try_continue_geodesic_walk(
+        #     cache_pos, end_loc, end_face)
+
+        # if cached_path:
+        #     self.cleanup_path(start_loc, end_loc, cached_path)
+        #     self.path_segments[segment_pos] = cached_path
+        #     return
 
         geos, fixed, close, far = geodesic_walk(
                 self.bme.verts, start_face, start_loc,
@@ -133,12 +131,18 @@ class GeoPath(object):
         path_elements, path = gradient_descent(
                 geos, end_face, end_loc, self.epsilon)
 
+        self.geo_data[cache_pos] = (geos, fixed, close, far)
+
         self.cleanup_path(start_loc, end_loc, path)
         self.path_segments[segment_pos] = path
 
-    def geodesic_on_segment(self, segment_pos, hit_loc, hit_face):
+    def try_continue_geodesic_walk(self, cache_pos, hit_loc, hit_face):
 
-        geos, fixed, close, far = self.geo_data[segment_pos]
+        # Data was not cached
+        if self.geo_data[cache_pos] is None:
+            return None
+
+        geos, fixed, close, far = self.geo_data[cache_pos]
 
         if not all([v in fixed for v in hit_face.verts]):
             continue_geodesic_walk(
@@ -213,7 +217,7 @@ class GeoPath(object):
         self.grab_undo_face = None
         self.grab_undo_segment = []
         self.selected_point_index = None
-        print("Selected point index finished")
+        self.geo_data = [None, None]
         return
 
     def draw(self, context, plugin_state):

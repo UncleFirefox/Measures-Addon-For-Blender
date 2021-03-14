@@ -116,13 +116,13 @@ class GeoPath(object):
 
         # Try using the cached structure before relaunching
         # a new geodesic walk
-        # cached_path = self.try_continue_geodesic_walk(
-        #     cache_pos, end_loc, end_face)
+        cached_path = self.try_continue_geodesic_walk(
+            cache_pos, end_loc, end_face)
 
-        # if cached_path:
-        #     self.cleanup_path(start_loc, end_loc, cached_path)
-        #     self.path_segments[segment_pos] = cached_path
-        #     return
+        if cached_path:
+            self.cleanup_path(start_loc, end_loc, cached_path)
+            self.path_segments[segment_pos] = cached_path
+            return
 
         geos, fixed, close, far = geodesic_walk(
                 self.bme.verts, start_face, start_loc,

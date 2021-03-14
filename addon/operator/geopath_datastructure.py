@@ -102,8 +102,8 @@ class GeoPath(object):
 
         # I have a segment after point
         if point_pos < len(self.key_points)-1:
-            start_loc, start_face = self.key_points[point_pos]
-            end_loc, end_face = self.key_points[point_pos+1]
+            start_loc, start_face = self.key_points[point_pos+1]
+            end_loc, end_face = self.key_points[point_pos]
             self.redo_geodesic_segment(
                 point_pos, start_loc, start_face, end_loc, end_face, 1)
 
@@ -114,13 +114,15 @@ class GeoPath(object):
                               start_face, end_loc, end_face,
                               cache_pos):
 
+        should_reverse = cache_pos != 1
+
         # Try using the cached structure before relaunching
         # a new geodesic walk
         cached_path = self.try_continue_geodesic_walk(
             cache_pos, end_loc, end_face)
 
         if cached_path:
-            self.cleanup_path(start_loc, end_loc, cached_path)
+            self.cleanup_path(start_loc, end_loc, cached_path, should_reverse)
             self.path_segments[segment_pos] = cached_path
             return
 
@@ -133,7 +135,7 @@ class GeoPath(object):
 
         self.geo_data[cache_pos] = (geos, fixed, close, far)
 
-        self.cleanup_path(start_loc, end_loc, path)
+        self.cleanup_path(start_loc, end_loc, path, should_reverse)
         self.path_segments[segment_pos] = path
 
     def try_continue_geodesic_walk(self, cache_pos, hit_loc, hit_face):
@@ -160,7 +162,6 @@ class GeoPath(object):
             return
 
         self.selected_point_index = self.hover_point_index
-        print("Selected point index is {}".format(self.selected_point_index))
         self.hover_point_index = None
 
         self.grab_undo_loc, self.grab_undo_face = \
@@ -240,13 +241,22 @@ class GeoPath(object):
                                              self.line_color,
                                              self.line_thickness)
 
-    def cleanup_path(self, start_location, target_location, path):
-        # It goes backwards for some reason
-        path.reverse()
-        path.pop(0)
-        path.pop(0)
-        path.insert(0, start_location)
-        path.append(target_location)
+    def cleanup_path(self, start_location, target_location,
+                     path, should_reverse=True):
+
+        # Depending on the direction of the descent
+        # we need to apply some tinkering in the direction
+        if should_reverse:
+            path.reverse()
+            path.pop(0)
+            path.pop(0)
+            path.insert(0, start_location)
+            path.append(target_location)
+        else:
+            path.pop()
+            path.pop()
+            path.insert(0, target_location)
+            path.append(start_location)
 
     def get_whole_path(self):
         mx = self.selected_obj.matrix_world

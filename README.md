@@ -13,7 +13,7 @@ This Blender addon is intended to accelerate the creation of measures for an Ava
 ## Developing the plugin
 Install the following tools:
 
-- [Blender 2.90](https://download.blender.org/release/Blender2.90/) **Other versions won't work**
+- [Blender 2.92](https://download.blender.org/release/Blender2.92/) **Other versions won't work**
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Python for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [Blender Development](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development)
@@ -23,7 +23,7 @@ Follow the instructions of the Blender Development plugin setup to connect to yo
 ## Installing in Blender
 If you simply want to test how the addon works, get the latest version of the addon from the [releases page](https://github.com/UncleFirefox/Measures-Addon-For-Blender/releases).
 
-**Remember, only Blender 2.90 works with this plugin**
+**Remember, only Blender 2.92 works with this plugin**
 
 Inside Blender go to: `Edit > Preferences`, go the the `Add-ons` section in the left menu, hit the `Install...` button and select the file you donwloaded.
 

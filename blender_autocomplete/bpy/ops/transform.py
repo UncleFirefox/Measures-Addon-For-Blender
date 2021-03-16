@@ -242,11 +242,6 @@ def mirror(orient_type: typing.Union[int, str] = 'GLOBAL',
                                                                   0.0)),
            orient_matrix_type: typing.Union[int, str] = 'GLOBAL',
            constraint_axis: typing.List[bool] = (False, False, False),
-           use_proportional_edit: bool = False,
-           proportional_edit_falloff: typing.Union[int, str] = 'SMOOTH',
-           proportional_size: float = 1.0,
-           use_proportional_connected: bool = False,
-           use_proportional_projected: bool = False,
            gpencil_strokes: bool = False,
            center_override: typing.List[float] = (0.0, 0.0, 0.0),
            release_confirm: bool = False,
@@ -261,16 +256,6 @@ def mirror(orient_type: typing.Union[int, str] = 'GLOBAL',
     :type orient_matrix_type: typing.Union[int, str]
     :param constraint_axis: Constraint Axis
     :type constraint_axis: typing.List[bool]
-    :param use_proportional_edit: Proportional Editing
-    :type use_proportional_edit: bool
-    :param proportional_edit_falloff: Proportional Falloff, Falloff type for proportional editing mode * SMOOTH Smooth, Smooth falloff. * SPHERE Sphere, Spherical falloff. * ROOT Root, Root falloff. * INVERSE_SQUARE Inverse Square, Inverse Square falloff. * SHARP Sharp, Sharp falloff. * LINEAR Linear, Linear falloff. * CONSTANT Constant, Constant falloff. * RANDOM Random, Random falloff.
-    :type proportional_edit_falloff: typing.Union[int, str]
-    :param proportional_size: Proportional Size
-    :type proportional_size: float
-    :param use_proportional_connected: Connected
-    :type use_proportional_connected: bool
-    :param use_proportional_projected: Projected (2D)
-    :type use_proportional_projected: bool
     :param gpencil_strokes: Edit Grease Pencil, Edit selected Grease Pencil strokes
     :type gpencil_strokes: bool
     :param center_override: Center Override, Force using this center value (when set)
@@ -396,7 +381,7 @@ def resize(value: typing.List[float] = (1.0, 1.0, 1.0),
     :type snap_normal: typing.List[float]
     :param gpencil_strokes: Edit Grease Pencil, Edit selected Grease Pencil strokes
     :type gpencil_strokes: bool
-    :param texture_space: Edit Texture Space, Edit Object data texture space
+    :param texture_space: Edit Texture Space, Edit object data texture space
     :type texture_space: bool
     :param remove_on_cancel: Remove on Cancel, Remove elements on cancel
     :type remove_on_cancel: bool
@@ -809,7 +794,7 @@ def tosphere(value: float = 0.0,
              center_override: typing.List[float] = (0.0, 0.0, 0.0),
              release_confirm: bool = False,
              use_accurate: bool = False):
-    ''' Move selected vertices outward in a spherical shape around mesh center
+    ''' Move selected items outward in a spherical shape around geometric center
 
     :param value: Factor
     :type value: float
@@ -1041,7 +1026,7 @@ def translate(value: typing.List[float] = (0.0, 0.0, 0.0),
     :type gpencil_strokes: bool
     :param cursor_transform: Transform Cursor
     :type cursor_transform: bool
-    :param texture_space: Edit Texture Space, Edit Object data texture space
+    :param texture_space: Edit Texture Space, Edit object data texture space
     :type texture_space: bool
     :param remove_on_cancel: Remove on Cancel, Remove elements on cancel
     :type remove_on_cancel: bool
@@ -1049,7 +1034,7 @@ def translate(value: typing.List[float] = (0.0, 0.0, 0.0),
     :type release_confirm: bool
     :param use_accurate: Accurate, Use accurate transformation
     :type use_accurate: bool
-    :param use_automerge_and_split: Auto Merge & Split, Forces the use of Auto Merge & Split
+    :param use_automerge_and_split: Auto Merge & Split, Forces the use of Auto Merge and Split
     :type use_automerge_and_split: bool
     '''
 

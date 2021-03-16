@@ -3655,6 +3655,9 @@ class RENDER_PT_eevee_volumetric_shadows(RenderButtonsPanel, bpy_types.Panel,
 
 class RENDER_PT_gpencil(RenderButtonsPanel, bpy_types.Panel,
                         bpy_types._GenericUI):
+    COMPAT_ENGINES = None
+    ''' '''
+
     bl_context = None
     ''' '''
 

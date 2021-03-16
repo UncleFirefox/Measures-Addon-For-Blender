@@ -53,7 +53,7 @@ def bone_layers(
 
 
 def bone_primitive_add(name: str = "Bone"):
-    ''' Add a new bone located at the 3D-Cursor
+    ''' Add a new bone located at the 3D cursor
 
     :param name: Name, Name of the newly created bone
     :type name: str
@@ -153,7 +153,7 @@ def extrude_move(ARMATURE_OT_extrude=None, TRANSFORM_OT_translate=None):
 
 
 def fill():
-    ''' Add bone between selected joint(s) and/or 3D-Cursor
+    ''' Add bone between selected joint(s) and/or 3D cursor
 
     '''
 
@@ -193,7 +193,7 @@ def layers_show_all(all: bool = True):
 def parent_clear(type: typing.Union[int, str] = 'CLEAR'):
     ''' Remove the parent-child relationship between selected bones and their parents
 
-    :param type: ClearType, What way to clear parenting
+    :param type: Clear Type, What way to clear parenting
     :type type: typing.Union[int, str]
     '''
 
@@ -203,7 +203,7 @@ def parent_clear(type: typing.Union[int, str] = 'CLEAR'):
 def parent_set(type: typing.Union[int, str] = 'CONNECTED'):
     ''' Set the active bone as the parent of the selected bones
 
-    :param type: ParentType, Type of parenting
+    :param type: Parent Type, Type of parenting
     :type type: typing.Union[int, str]
     '''
 
@@ -351,7 +351,7 @@ def subdivide(number_cuts: int = 1):
 
 
 def switch_direction():
-    ''' Change the direction that a chain of bones points in (head <-> tail swap)
+    ''' Change the direction that a chain of bones points in (head and tail swap)
 
     '''
 

@@ -25,7 +25,7 @@ def action_sync_length(active: bool = True):
 def action_unlink(force_delete: bool = False):
     ''' Unlink this action from the active action slot (and/or exit Tweak Mode)
 
-    :param force_delete: Force Delete, Clear Fake User and remove copy stashed in this datablock's NLA stack
+    :param force_delete: Force Delete, Clear Fake User and remove copy stashed in this data-block's NLA stack
     :type force_delete: bool
     '''
 
@@ -59,8 +59,9 @@ def bake(
         clear_constraints: bool = False,
         clear_parents: bool = False,
         use_current_action: bool = False,
+        clean_curves: bool = False,
         bake_types: typing.Union[typing.Set[int], typing.Set[str]] = {'POSE'}):
-    ''' Bake all selected objects loc/scale/rotation animation to an action
+    ''' Bake all selected objects location/scale/rotation animation to an action
 
     :param frame_start: Start Frame, Start frame for baking
     :type frame_start: int
@@ -78,6 +79,8 @@ def bake(
     :type clear_parents: bool
     :param use_current_action: Overwrite Current Action, Bake animation into current action, instead of creating a new one (useful for baking only part of bones in an armature)
     :type use_current_action: bool
+    :param clean_curves: Clean Curves, After baking curves, remove redundant keys
+    :type clean_curves: bool
     :param bake_types: Bake Data, Which data's transformations to bake * POSE Pose, Bake bones transformations. * OBJECT Object, Bake object transformations.
     :type bake_types: typing.Union[typing.Set[int], typing.Set[str]]
     '''
@@ -150,7 +153,7 @@ def fmodifier_add(type: typing.Union[int, str] = 'NULL',
                   only_active: bool = True):
     ''' Add F-Modifier to the active/selected NLA-Strips
 
-    :param type: Type * NULL Invalid. * GENERATOR Generator, Generate a curve using a factorized or expanded polynomial. * FNGENERATOR Built-In Function, Generate a curve using standard math functions such as sin and cos. * ENVELOPE Envelope, Reshape F-Curve values - e.g. change amplitude of movements. * CYCLES Cycles, Cyclic extend/repeat keyframe sequence. * NOISE Noise, Add pseudo-random noise on top of F-Curves. * LIMITS Limits, Restrict maximum and minimum values of F-Curve. * STEPPED Stepped Interpolation, Snap values to nearest grid-step - e.g. for a stop-motion look.
+    :param type: Type * NULL Invalid. * GENERATOR Generator, Generate a curve using a factorized or expanded polynomial. * FNGENERATOR Built-In Function, Generate a curve using standard math functions such as sin and cos. * ENVELOPE Envelope, Reshape F-Curve values, e.g. change amplitude of movements. * CYCLES Cycles, Cyclic extend/repeat keyframe sequence. * NOISE Noise, Add pseudo-random noise on top of F-Curves. * LIMITS Limits, Restrict maximum and minimum values of F-Curve. * STEPPED Stepped Interpolation, Snap values to nearest grid step, e.g. for a stop-motion look.
     :type type: typing.Union[int, str]
     :param only_active: Only Active, Only add a F-Modifier of the specified type to the active strip
     :type only_active: bool

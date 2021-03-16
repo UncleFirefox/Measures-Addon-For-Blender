@@ -18,7 +18,7 @@ def keyconfig_export_as_data(wm, kc, filepath, all_keymaps):
     pass
 
 
-def keyconfig_import_from_data(name, keyconfig_data):
+def keyconfig_import_from_data(name, keyconfig_data, keyconfig_version):
     ''' 
 
     '''

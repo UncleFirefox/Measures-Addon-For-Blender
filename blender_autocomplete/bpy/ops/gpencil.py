@@ -19,16 +19,17 @@ def active_frames_delete_all():
     pass
 
 
-def annotate(
-        mode: typing.Union[int, str] = 'DRAW',
-        arrowstyle_start: typing.Union[int, str] = 'NONE',
-        arrowstyle_end: typing.Union[int, str] = 'NONE',
-        use_stabilizer: bool = False,
-        stabilizer_factor: float = 0.75,
-        stabilizer_radius: int = 35,
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        wait_for_input: bool = True):
+def annotate(mode: typing.Union[int, str] = 'DRAW',
+             arrowstyle_start: typing.Union[int, str] = 'NONE',
+             arrowstyle_end: typing.Union[int, str] = 'NONE',
+             use_stabilizer: bool = False,
+             stabilizer_factor: float = 0.75,
+             stabilizer_radius: int = 35,
+             stroke: typing.
+             Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+                   List['bpy.types.OperatorStrokeElement'],
+                   'bpy_prop_collection'] = None,
+             wait_for_input: bool = True):
     ''' Make annotations on the active data
 
     :param mode: Mode, Way to interpret mouse movements * DRAW Draw Freehand, Draw freehand stroke(s). * DRAW_STRAIGHT Draw Straight Lines, Draw straight line segment(s). * DRAW_POLY Draw Poly Line, Click to place endpoints of straight line segments (connected). * ERASER Eraser, Erase Annotation strokes.
@@ -44,7 +45,7 @@ def annotate(
     :param stabilizer_radius: Stabilizer Stroke Radius, Minimum distance from last point before stroke continues
     :type stabilizer_radius: int
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param wait_for_input: Wait for Input, Wait for first click instead of painting immediately
     :type wait_for_input: bool
     '''
@@ -68,39 +69,42 @@ def annotation_add():
     pass
 
 
-def bake_mesh_animation(frame_start: int = 1,
+def bake_mesh_animation(target: typing.Union[int, str] = 'NEW',
+                        frame_start: int = 1,
                         frame_end: int = 250,
                         step: int = 1,
-                        angle: float = 1.22173,
                         thickness: int = 1,
+                        angle: float = 1.22173,
+                        offset: float = 0.001,
                         seams: bool = False,
                         faces: bool = True,
-                        offset: float = 0.001,
+                        only_selected: bool = False,
                         frame_target: int = 1,
-                        target: str = "*NEW",
                         project_type: typing.Union[int, str] = 'VIEW'):
-    ''' Bake Mesh Animation to Grease Pencil strokes
+    ''' Bake mesh animation to grease pencil strokes
 
+    :param target: Target Object, Target grease pencil
+    :type target: typing.Union[int, str]
     :param frame_start: Start Frame, The start frame
     :type frame_start: int
     :param frame_end: End Frame, The end frame of animation
     :type frame_end: int
     :param step: Step, Step between generated frames
     :type step: int
-    :param angle: Threshold Angle, Threshold to determine ends of the strokes
-    :type angle: float
     :param thickness: Thickness
     :type thickness: int
+    :param angle: Threshold Angle, Threshold to determine ends of the strokes
+    :type angle: float
+    :param offset: Stroke Offset, Offset strokes from fill
+    :type offset: float
     :param seams: Only Seam Edges, Convert only seam edges
     :type seams: bool
     :param faces: Export Faces, Export faces as filled strokes
     :type faces: bool
-    :param offset: Offset, Offset strokes from fill
-    :type offset: float
-    :param frame_target: Frame Target
+    :param only_selected: Only Selected Keyframes, Convert only selected keyframes
+    :type only_selected: bool
+    :param frame_target: Target Frame, Destination frame
     :type frame_target: int
-    :param target: Target Object, Target grease pencil object name. Leave empty for new object
-    :type target: str
     :param project_type: Projection Type * KEEP No Reproject. * FRONT Front, Reproject the strokes using the X-Z plane. * SIDE Side, Reproject the strokes using the Y-Z plane. * TOP Top, Reproject the strokes using the X-Y plane. * VIEW View, Reproject the strokes to end up on the same plane, as if drawn from the current viewpoint using 'Cursor' Stroke Placement. * CURSOR Cursor, Reproject the strokes using the orientation of 3D cursor.
     :type project_type: typing.Union[int, str]
     '''
@@ -119,7 +123,7 @@ def blank_frame_add(all_layers: bool = False):
 
 
 def brush_reset():
-    ''' Reset Brush to default parameters
+    ''' Reset brush to default parameters
 
     '''
 
@@ -225,7 +229,7 @@ def delete(type: typing.Union[int, str] = 'POINTS'):
 def dissolve(type: typing.Union[int, str] = 'POINTS'):
     ''' Delete selected points without splitting strokes
 
-    :param type: Type, Method used for dissolving Stroke points * POINTS Dissolve, Dissolve selected points. * BETWEEN Dissolve Between, Dissolve points between selected points. * UNSELECT Dissolve Unselect, Dissolve all unselected points.
+    :param type: Type, Method used for dissolving stroke points * POINTS Dissolve, Dissolve selected points. * BETWEEN Dissolve Between, Dissolve points between selected points. * UNSELECT Dissolve Unselect, Dissolve all unselected points.
     :type type: typing.Union[int, str]
     '''
 
@@ -233,24 +237,29 @@ def dissolve(type: typing.Union[int, str] = 'POINTS'):
 
 
 def draw(mode: typing.Union[int, str] = 'DRAW',
-         stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                              'bpy_prop_collection'] = None,
+         stroke: typing.
+         Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+               List['bpy.types.OperatorStrokeElement'],
+               'bpy_prop_collection'] = None,
          wait_for_input: bool = True,
          disable_straight: bool = False,
          disable_fill: bool = False,
+         disable_stabilizer: bool = False,
          guide_last_angle: float = 0.0):
-    ''' Draw mouse_prv new stroke in the active Grease Pencil Object
+    ''' Draw a new stroke in the active Grease Pencil object
 
     :param mode: Mode, Way to interpret mouse movements * DRAW Draw Freehand, Draw freehand stroke(s). * DRAW_STRAIGHT Draw Straight Lines, Draw straight line segment(s). * ERASER Eraser, Erase Grease Pencil strokes.
     :type mode: typing.Union[int, str]
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param wait_for_input: Wait for Input, Wait for first click instead of painting immediately
     :type wait_for_input: bool
     :param disable_straight: No Straight lines, Disable key for straight lines
     :type disable_straight: bool
     :param disable_fill: No Fill Areas, Disable fill to use stroke as fill boundary
     :type disable_fill: bool
+    :param disable_stabilizer: No Stabilizer
+    :type disable_stabilizer: bool
     :param guide_last_angle: Angle, Speed guide angle
     :type guide_last_angle: float
     '''
@@ -319,8 +328,18 @@ def extrude_move(GPENCIL_OT_extrude=None, TRANSFORM_OT_translate=None):
 def fill(on_back: bool = False):
     ''' Fill with color the shape formed by strokes
 
-    :param on_back: Draw On Back, Send new stroke to Back
+    :param on_back: Draw on Back, Send new stroke to back
     :type on_back: bool
+    '''
+
+    pass
+
+
+def frame_clean_duplicate(type: typing.Union[int, str] = 'ALL'):
+    ''' Remove any duplicated frame
+
+    :param type: Type
+    :type type: typing.Union[int, str]
     '''
 
     pass
@@ -671,46 +690,6 @@ def material_unlock_all():
     pass
 
 
-def mesh_bake(frame_start: int = 1,
-              frame_end: int = 250,
-              step: int = 1,
-              thickness: int = 1,
-              angle: float = 1.22173,
-              offset: float = 0.001,
-              seams: bool = False,
-              faces: bool = True,
-              target: typing.Union[int, str] = '',
-              frame_target: int = 1,
-              project_type: typing.Union[int, str] = 'KEEP'):
-    ''' Bake all mesh animation into grease pencil strokes
-
-    :param frame_start: Start Frame, Start frame for baking
-    :type frame_start: int
-    :param frame_end: End Frame, End frame for baking
-    :type frame_end: int
-    :param step: Frame Step, Frame Step
-    :type step: int
-    :param thickness: Thickness, Thickness of the stroke lines
-    :type thickness: int
-    :param angle: Threshold Angle, Threshold to determine ends of the strokes
-    :type angle: float
-    :param offset: Stroke Offset, Offset strokes from fill
-    :type offset: float
-    :param seams: Only Seam Edges, Convert only seam edges
-    :type seams: bool
-    :param faces: Export Faces, Export faces as filled strokes
-    :type faces: bool
-    :param target: Target Object, Grease Pencil Object
-    :type target: typing.Union[int, str]
-    :param frame_target: Target Frame, Destination frame for the baked animation
-    :type frame_target: int
-    :param project_type: Reproject Type, Type of projection * KEEP No Reproject. * FRONT Front, Reproject the strokes using the X-Z plane. * SIDE Side, Reproject the strokes using the Y-Z plane. * TOP Top, Reproject the strokes using the X-Y plane. * VIEW View, Reproject the strokes to current viewpoint. * CURSOR Cursor, Reproject the strokes using the orientation of 3D cursor.
-    :type project_type: typing.Union[int, str]
-    '''
-
-    pass
-
-
 def move_to_layer(layer: int = 0):
     ''' Move selected strokes to another layer
 
@@ -743,12 +722,91 @@ def paste(type: typing.Union[int, str] = 'ACTIVE', paste_back: bool = False):
     pass
 
 
-def primitive(edges: int = 4,
-              type: typing.Union[int, str] = 'BOX',
-              wait_for_input: bool = True):
-    ''' Create predefined grease pencil stroke shapes
+def primitive_box(subdivision: int = 3,
+                  edges: int = 2,
+                  type: typing.Union[int, str] = 'BOX',
+                  wait_for_input: bool = True):
+    ''' Create predefined grease pencil stroke box shapes
 
-    :param edges: Edges, Number of polygon edges
+    :param subdivision: Subdivisions, Number of subdivision by edges
+    :type subdivision: int
+    :param edges: Edges, Number of points by edge
+    :type edges: int
+    :param type: Type, Type of shape
+    :type type: typing.Union[int, str]
+    :param wait_for_input: Wait for Input
+    :type wait_for_input: bool
+    '''
+
+    pass
+
+
+def primitive_circle(subdivision: int = 94,
+                     edges: int = 2,
+                     type: typing.Union[int, str] = 'CIRCLE',
+                     wait_for_input: bool = True):
+    ''' Create predefined grease pencil stroke circle shapes
+
+    :param subdivision: Subdivisions, Number of subdivision by edges
+    :type subdivision: int
+    :param edges: Edges, Number of points by edge
+    :type edges: int
+    :param type: Type, Type of shape
+    :type type: typing.Union[int, str]
+    :param wait_for_input: Wait for Input
+    :type wait_for_input: bool
+    '''
+
+    pass
+
+
+def primitive_curve(subdivision: int = 62,
+                    edges: int = 2,
+                    type: typing.Union[int, str] = 'CURVE',
+                    wait_for_input: bool = True):
+    ''' Create predefined grease pencil stroke curve shapes
+
+    :param subdivision: Subdivisions, Number of subdivision by edges
+    :type subdivision: int
+    :param edges: Edges, Number of points by edge
+    :type edges: int
+    :param type: Type, Type of shape
+    :type type: typing.Union[int, str]
+    :param wait_for_input: Wait for Input
+    :type wait_for_input: bool
+    '''
+
+    pass
+
+
+def primitive_line(subdivision: int = 6,
+                   edges: int = 2,
+                   type: typing.Union[int, str] = 'LINE',
+                   wait_for_input: bool = True):
+    ''' Create predefined grease pencil stroke lines
+
+    :param subdivision: Subdivisions, Number of subdivision by edges
+    :type subdivision: int
+    :param edges: Edges, Number of points by edge
+    :type edges: int
+    :param type: Type, Type of shape
+    :type type: typing.Union[int, str]
+    :param wait_for_input: Wait for Input
+    :type wait_for_input: bool
+    '''
+
+    pass
+
+
+def primitive_polyline(subdivision: int = 6,
+                       edges: int = 2,
+                       type: typing.Union[int, str] = 'POLYLINE',
+                       wait_for_input: bool = True):
+    ''' Create predefined grease pencil stroke polylines
+
+    :param subdivision: Subdivisions, Number of subdivision by edges
+    :type subdivision: int
+    :param edges: Edges, Number of points by edge
     :type edges: int
     :param type: Type, Type of shape
     :type type: typing.Union[int, str]
@@ -800,14 +858,14 @@ def reveal(select: bool = True):
     pass
 
 
-def sculpt_paint(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        wait_for_input: bool = True):
+def sculpt_paint(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None,
+                 wait_for_input: bool = True):
     ''' Apply tweaks to strokes by painting over the strokes
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param wait_for_input: Wait for Input, Enter a mini 'sculpt-mode' if enabled, otherwise, exit after drawing a single stroke
     :type wait_for_input: bool
     '''
@@ -943,14 +1001,16 @@ def select_grouped(type: typing.Union[int, str] = 'LAYER'):
 
 
 def select_lasso(mode: typing.Union[int, str] = 'SET',
-                 path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None):
+                 path: typing.
+                 Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+                       List['bpy.types.OperatorMousePath'],
+                       'bpy_prop_collection'] = None):
     ''' Select Grease Pencil strokes using lasso selection
 
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection. * XOR Difference, Inverts existing selection. * AND Intersect, Intersect existing selection.
     :type mode: typing.Union[int, str]
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     '''
 
     pass
@@ -1013,7 +1073,7 @@ def selection_opacity_toggle():
 def selectmode_toggle(mode: int = 0):
     ''' Set selection mode for Grease Pencil strokes
 
-    :param mode: Select mode, Select mode
+    :param mode: Select Mode, Select mode
     :type mode: int
     '''
 
@@ -1073,7 +1133,7 @@ def stroke_arrange(direction: typing.Union[int, str] = 'UP'):
 
 
 def stroke_caps_set(type: typing.Union[int, str] = 'TOGGLE'):
-    ''' Change Stroke caps mode (rounded or flat)
+    ''' Change stroke caps mode (rounded or flat)
 
     :param type: Type * TOGGLE Both. * START Start. * END End. * TOGGLE Default, Set as default rounded.
     :type type: typing.Union[int, str]
@@ -1092,13 +1152,16 @@ def stroke_change_color(material: str = ""):
     pass
 
 
-def stroke_cutter(
-        path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                           'bpy_prop_collection'] = None):
+def stroke_cutter(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
+                  flat_caps: bool = False):
     ''' Select section and cut
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :param flat_caps: Flat Caps
+    :type flat_caps: bool
     '''
 
     pass
@@ -1112,6 +1175,27 @@ def stroke_cyclical_set(type: typing.Union[int, str] = 'TOGGLE',
     :type type: typing.Union[int, str]
     :param geometry: Create Geometry, Create new geometry for closing stroke
     :type geometry: bool
+    '''
+
+    pass
+
+
+def stroke_editcurve_set_handle_type(
+        type: typing.Union[int, str] = 'AUTOMATIC'):
+    ''' Set the type of a edit curve handle
+
+    :param type: Type, Spline type
+    :type type: typing.Union[int, str]
+    '''
+
+    pass
+
+
+def stroke_enter_editcurve_mode(error_threshold: float = 0.1):
+    ''' Called to transform a stroke into a curve
+
+    :param error_threshold: Error Threshold, Threshold on the maximum deviation from the actual stroke
+    :type error_threshold: float
     '''
 
     pass
@@ -1187,6 +1271,16 @@ def stroke_merge_material(hue_threshold: float = 0.001,
     :type sat_threshold: float
     :param val_threshold: Value Threshold
     :type val_threshold: float
+    '''
+
+    pass
+
+
+def stroke_reset_vertex_color(mode: typing.Union[int, str] = 'BOTH'):
+    ''' Reset vertex color for all or selected strokes
+
+    :param mode: Mode * STROKE Stroke, Reset Vertex Color to Stroke only. * FILL Fill, Reset Vertex Color to Fill only. * BOTH Stroke and Fill, Reset Vertex Color to Stroke and Fill.
+    :type mode: typing.Union[int, str]
     '''
 
     pass
@@ -1308,8 +1402,39 @@ def stroke_trim():
 
 
 def tint_flip():
-    ''' Switch Tint colors :file: startup/bl_ui/properties_grease_pencil_common.py\:894 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_ui/properties_grease_pencil_common.py$894> _
+    ''' Switch tint colors :file: startup/bl_ui/properties_grease_pencil_common.py\:872 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_ui/properties_grease_pencil_common.py$872> _
 
+    '''
+
+    pass
+
+
+def trace_image(target: typing.Union[int, str] = 'NEW',
+                thickness: int = 10,
+                resolution: int = 5,
+                scale: float = 1.0,
+                sample: float = 0.0,
+                threshold: float = 0.5,
+                turnpolicy: typing.Union[int, str] = 'MINORITY',
+                mode: typing.Union[int, str] = 'SINGLE'):
+    ''' Extract Grease Pencil strokes from image
+
+    :param target: Target Object, Target grease pencil
+    :type target: typing.Union[int, str]
+    :param thickness: Thickness
+    :type thickness: int
+    :param resolution: Resolution, Resolution of the generated curves
+    :type resolution: int
+    :param scale: Scale, Scale of the final stroke
+    :type scale: float
+    :param sample: Sample, Distance to sample points, zero to disable
+    :type sample: float
+    :param threshold: Color Threshold, Determine the lightness threshold above which strokes are generated
+    :type threshold: float
+    :param turnpolicy: Turn Policy, Determines how to resolve ambiguities during decomposition of bitmaps into paths * BLACK Black, Prefers to connect black (foreground) components. * WHITE White, Prefers to connect white (background) components. * LEFT Left, Always take a left turn. * RIGHT Right, Always take a right turn. * MINORITY Minority, Prefers to connect the color (black or white) that occurs least frequently in the local neighborhood of the current position. * MAJORITY Majority, Prefers to connect the color (black or white) that occurs most frequently in the local neighborhood of the current position. * RANDOM Random, Choose pseudo-randomly.
+    :type turnpolicy: typing.Union[int, str]
+    :param mode: Mode, Determines if trace simple image or full sequence * SINGLE Single, Trace the current frame of the image. * SEQUENCE Sequence, Trace full sequence.
+    :type mode: typing.Union[int, str]
     '''
 
     pass
@@ -1320,7 +1445,7 @@ def transform_fill(mode: typing.Union[int, str] = 'ROTATE',
                    rotation: float = 0.0,
                    scale: float = 0.0,
                    release_confirm: bool = False):
-    ''' Transform Grease Pencil Stroke Fill
+    ''' Transform grease pencil stroke fill
 
     :param mode: Mode
     :type mode: typing.Union[int, str]
@@ -1345,7 +1470,7 @@ def unlock_all():
     pass
 
 
-def vertex_color_brightness_contrast(mode: typing.Union[int, str] = 'STROKE',
+def vertex_color_brightness_contrast(mode: typing.Union[int, str] = 'BOTH',
                                      brightness: float = 0.0,
                                      contrast: float = 0.0):
     ''' Adjust vertex color brightness/contrast
@@ -1361,7 +1486,7 @@ def vertex_color_brightness_contrast(mode: typing.Union[int, str] = 'STROKE',
     pass
 
 
-def vertex_color_hsv(mode: typing.Union[int, str] = 'STROKE',
+def vertex_color_hsv(mode: typing.Union[int, str] = 'BOTH',
                      h: float = 0.5,
                      s: float = 1.0,
                      v: float = 1.0):
@@ -1380,7 +1505,7 @@ def vertex_color_hsv(mode: typing.Union[int, str] = 'STROKE',
     pass
 
 
-def vertex_color_invert(mode: typing.Union[int, str] = 'STROKE'):
+def vertex_color_invert(mode: typing.Union[int, str] = 'BOTH'):
     ''' Invert RGB values
 
     :param mode: Mode
@@ -1390,7 +1515,7 @@ def vertex_color_invert(mode: typing.Union[int, str] = 'STROKE'):
     pass
 
 
-def vertex_color_levels(mode: typing.Union[int, str] = 'STROKE',
+def vertex_color_levels(mode: typing.Union[int, str] = 'BOTH',
                         offset: float = 0.0,
                         gain: float = 1.0):
     ''' Adjust levels of vertex colors
@@ -1406,7 +1531,7 @@ def vertex_color_levels(mode: typing.Union[int, str] = 'STROKE',
     pass
 
 
-def vertex_color_set(mode: typing.Union[int, str] = 'STROKE',
+def vertex_color_set(mode: typing.Union[int, str] = 'BOTH',
                      factor: float = 1.0):
     ''' Set active color to all selected vertex
 
@@ -1489,14 +1614,14 @@ def vertex_group_smooth(factor: float = 0.5, repeat: int = 1):
     pass
 
 
-def vertex_paint(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        wait_for_input: bool = True):
+def vertex_paint(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None,
+                 wait_for_input: bool = True):
     ''' Paint stroke points with a color
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param wait_for_input: Wait for Input
     :type wait_for_input: bool
     '''
@@ -1514,14 +1639,14 @@ def vertexmode_toggle(back: bool = False):
     pass
 
 
-def weight_paint(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        wait_for_input: bool = True):
+def weight_paint(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None,
+                 wait_for_input: bool = True):
     ''' Paint stroke points with a color
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param wait_for_input: Wait for Input
     :type wait_for_input: bool
     '''

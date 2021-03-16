@@ -10,6 +10,7 @@ def fbx(filepath: str = "",
         global_scale: float = 1.0,
         apply_unit_scale: bool = True,
         apply_scale_options: typing.Union[int, str] = 'FBX_SCALE_NONE',
+        use_space_transform: bool = True,
         bake_space_transform: bool = False,
         object_types: typing.Union[typing.Set[int], typing.Set[str]] = {
             'ARMATURE', 'CAMERA', 'EMPTY', 'LIGHT', 'MESH', 'OTHER'
@@ -58,6 +59,8 @@ def fbx(filepath: str = "",
     :type apply_unit_scale: bool
     :param apply_scale_options: Apply Scalings, How to apply custom and units scalings in generated FBX file (Blender uses FBX scale to detect units on import, but many other applications do not handle the same way) * FBX_SCALE_NONE All Local, Apply custom scaling and units scaling to each object transformation, FBX scale remains at 1.0. * FBX_SCALE_UNITS FBX Units Scale, Apply custom scaling to each object transformation, and units scaling to FBX scale. * FBX_SCALE_CUSTOM FBX Custom Scale, Apply custom scaling to FBX scale, and units scaling to each object transformation. * FBX_SCALE_ALL FBX All, Apply custom scaling and units scaling to FBX scale.
     :type apply_scale_options: typing.Union[int, str]
+    :param use_space_transform: Use Space Transform, Apply global space transform to the object rotations. When disabled only the axis space is written to the file and all object transforms are left as-is
+    :type use_space_transform: bool
     :param bake_space_transform: Apply Transform, Bake space transform into object data, avoids getting unwanted rotations to objects when target space is not aligned with Blender's space (WARNING! experimental option, use at own risks, known broken with armatures/animations)
     :type bake_space_transform: bool
     :param object_types: Object Types, Which kind of object to export * EMPTY Empty. * CAMERA Camera. * LIGHT Lamp. * ARMATURE Armature, WARNING: not supported in dupli/group instances. * MESH Mesh. * OTHER Other, Other geometry types, like curve, metaball, etc. (converted to meshes).
@@ -131,9 +134,10 @@ def gltf(export_format: typing.Union[int, str] = 'GLB',
          export_draco_position_quantization: int = 14,
          export_draco_normal_quantization: int = 10,
          export_draco_texcoord_quantization: int = 12,
+         export_draco_color_quantization: int = 10,
          export_draco_generic_quantization: int = 12,
          export_tangents: bool = False,
-         export_materials: bool = True,
+         export_materials: typing.Union[int, str] = 'EXPORT',
          export_colors: bool = True,
          export_cameras: bool = False,
          export_selected: bool = False,
@@ -185,12 +189,14 @@ def gltf(export_format: typing.Union[int, str] = 'GLB',
     :type export_draco_normal_quantization: int
     :param export_draco_texcoord_quantization: Texcoord quantization bits, Quantization bits for texture coordinate values (0 = no quantization)
     :type export_draco_texcoord_quantization: int
+    :param export_draco_color_quantization: Color quantization bits, Quantization bits for color values (0 = no quantization)
+    :type export_draco_color_quantization: int
     :param export_draco_generic_quantization: Generic quantization bits, Quantization bits for generic coordinate values like weights or joints (0 = no quantization)
     :type export_draco_generic_quantization: int
     :param export_tangents: Tangents, Export vertex tangents with meshes
     :type export_tangents: bool
-    :param export_materials: Materials, Export materials
-    :type export_materials: bool
+    :param export_materials: Materials, Export materials * EXPORT Export, Export all materials used by included objects. * PLACEHOLDER Placeholder, Do not export materials, but write multiple primitive groups per mesh, keeping material slot information. * NONE No export, Do not export materials, and combine mesh primitive groups, losing material slot information.
+    :type export_materials: typing.Union[int, str]
     :param export_colors: Vertex Colors, Export vertex colors with meshes
     :type export_colors: bool
     :param export_cameras: Cameras, Export cameras

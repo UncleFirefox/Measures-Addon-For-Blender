@@ -2038,6 +2038,12 @@ class NODE_PT_active_node_properties(bpy_types.Panel, bpy_types._GenericUI):
         '''
         pass
 
+    def show_socket_input(self, socket):
+        ''' 
+
+        '''
+        pass
+
     def type_recast(self):
         ''' 
 

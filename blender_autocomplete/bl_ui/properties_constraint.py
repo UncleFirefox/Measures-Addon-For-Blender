@@ -519,7 +519,7 @@ class ConstraintButtonsPanel(bpy_types.Panel, bpy_types._GenericUI):
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -1480,7 +1480,7 @@ class BONE_PT_bActionConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -1870,7 +1870,7 @@ class BONE_PT_bArmatureConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -2261,7 +2261,7 @@ class BONE_PT_bCameraSolverConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -2651,7 +2651,7 @@ class BONE_PT_bChildOfConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -3041,7 +3041,7 @@ class BONE_PT_bClampToConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -3431,7 +3431,7 @@ class BONE_PT_bDampTrackConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -3821,7 +3821,7 @@ class BONE_PT_bDistLimitConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -4212,7 +4212,7 @@ class BONE_PT_bFollowPathConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -4603,7 +4603,7 @@ class BONE_PT_bFollowTrackConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -4993,7 +4993,7 @@ class BONE_PT_bKinematicConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -5383,7 +5383,7 @@ class BONE_PT_bLocLimitConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -5774,7 +5774,7 @@ class BONE_PT_bLocateLikeConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -6164,7 +6164,7 @@ class BONE_PT_bLockTrackConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -6554,7 +6554,7 @@ class BONE_PT_bMinMaxConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -6945,7 +6945,7 @@ class BONE_PT_bObjectSolverConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -7335,7 +7335,7 @@ class BONE_PT_bPivotConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -7725,7 +7725,7 @@ class BONE_PT_bPythonConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -8115,7 +8115,7 @@ class BONE_PT_bRotLimitConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -8506,7 +8506,7 @@ class BONE_PT_bRotateLikeConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -8897,7 +8897,7 @@ class BONE_PT_bSameVolumeConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -9288,7 +9288,7 @@ class BONE_PT_bShrinkwrapConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -9678,7 +9678,7 @@ class BONE_PT_bSizeLikeConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -10068,7 +10068,7 @@ class BONE_PT_bSizeLimitConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -10458,7 +10458,7 @@ class BONE_PT_bSplineIKConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -10848,7 +10848,7 @@ class BONE_PT_bStretchToConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -11238,7 +11238,7 @@ class BONE_PT_bTrackToConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -11628,7 +11628,7 @@ class BONE_PT_bTransLikeConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -12019,7 +12019,7 @@ class BONE_PT_bTransformCacheConstraint(ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -12409,7 +12409,7 @@ class BONE_PT_bTransformConstraint(ConstraintButtonsPanel, BoneConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -14466,7 +14466,7 @@ class OBJECT_PT_bActionConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -15333,7 +15333,7 @@ class OBJECT_PT_bArmatureConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -15962,7 +15962,7 @@ class OBJECT_PT_bCameraSolverConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -16353,7 +16353,7 @@ class OBJECT_PT_bChildOfConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -16744,7 +16744,7 @@ class OBJECT_PT_bClampToConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -17135,7 +17135,7 @@ class OBJECT_PT_bDampTrackConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -17526,7 +17526,7 @@ class OBJECT_PT_bDistLimitConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -17917,7 +17917,7 @@ class OBJECT_PT_bFollowPathConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -18308,7 +18308,7 @@ class OBJECT_PT_bFollowTrackConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -18699,7 +18699,7 @@ class OBJECT_PT_bKinematicConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -19090,7 +19090,7 @@ class OBJECT_PT_bLocLimitConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -19481,7 +19481,7 @@ class OBJECT_PT_bLocateLikeConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -19872,7 +19872,7 @@ class OBJECT_PT_bLockTrackConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -20263,7 +20263,7 @@ class OBJECT_PT_bMinMaxConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -20654,7 +20654,7 @@ class OBJECT_PT_bObjectSolverConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -21044,7 +21044,7 @@ class OBJECT_PT_bPivotConstraint(ObjectConstraintPanel, ConstraintButtonsPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -21435,7 +21435,7 @@ class OBJECT_PT_bPythonConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -21826,7 +21826,7 @@ class OBJECT_PT_bRotLimitConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -22217,7 +22217,7 @@ class OBJECT_PT_bRotateLikeConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -22608,7 +22608,7 @@ class OBJECT_PT_bSameVolumeConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -22999,7 +22999,7 @@ class OBJECT_PT_bShrinkwrapConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -23390,7 +23390,7 @@ class OBJECT_PT_bSizeLikeConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -23781,7 +23781,7 @@ class OBJECT_PT_bSizeLimitConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -24172,7 +24172,7 @@ class OBJECT_PT_bStretchToConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -24563,7 +24563,7 @@ class OBJECT_PT_bTrackToConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -24954,7 +24954,7 @@ class OBJECT_PT_bTransLikeConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -25345,7 +25345,7 @@ class OBJECT_PT_bTransformCacheConstraint(
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''
@@ -25736,7 +25736,7 @@ class OBJECT_PT_bTransformConstraint(ObjectConstraintPanel,
         '''
         pass
 
-    def space_template(self, layout, con, target, owner):
+    def space_template(self, layout, con, target, owner, separator):
         ''' 
 
         '''

@@ -1544,7 +1544,7 @@ class PHYSICS_PT_rigid_body_settings(PHYSICS_PT_rigidbody_panel,
         pass
 
 
-def rigid_body_warning(layout):
+def rigid_body_warning(layout, text):
     ''' 
 
     '''

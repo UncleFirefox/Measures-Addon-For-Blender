@@ -43,7 +43,7 @@ def cube_project(cube_size: float = 1.0,
 def cursor_set(location: typing.List[float] = (0.0, 0.0)):
     ''' Set 2D cursor location
 
-    :param location: Location, Cursor location in normalized (0.0-1.0) coordinates
+    :param location: Location, Cursor location in normalized (0.0 to 1.0) coordinates
     :type location: typing.List[float]
     '''
 
@@ -134,15 +134,15 @@ def lightmap_pack(PREF_CONTEXT: typing.Union[int, str] = 'SEL_FACES',
 
     :param PREF_CONTEXT: Selection * SEL_FACES Selected Faces, Space all UVs evenly. * ALL_FACES All Faces, Average space UVs edge length of each loop.
     :type PREF_CONTEXT: typing.Union[int, str]
-    :param PREF_PACK_IN_ONE: Share Tex Space, Objects Share texture space, map all objects into 1 uvmap
+    :param PREF_PACK_IN_ONE: Share Texture Space, Objects Share texture space, map all objects into 1 uvmap
     :type PREF_PACK_IN_ONE: bool
     :param PREF_NEW_UVLAYER: New UV Map, Create a new UV map for every mesh packed
     :type PREF_NEW_UVLAYER: bool
     :param PREF_APPLY_IMAGE: New Image, Assign new images for every mesh (only one if shared tex space enabled)
     :type PREF_APPLY_IMAGE: bool
-    :param PREF_IMG_PX_SIZE: Image Size, Width and Height for the new image
+    :param PREF_IMG_PX_SIZE: Image Size, Width and height for the new image
     :type PREF_IMG_PX_SIZE: int
-    :param PREF_BOX_DIV: Pack Quality, Pre Packing before the complex boxpack
+    :param PREF_BOX_DIV: Pack Quality, Pre-packing before the complex boxpack
     :type PREF_BOX_DIV: int
     :param PREF_MARGIN_DIV: Margin, Size of the margin as a division of the UV
     :type PREF_MARGIN_DIV: float
@@ -381,13 +381,14 @@ def select_edge_ring(extend: bool = False,
     pass
 
 
-def select_lasso(path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None,
+def select_lasso(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
                  mode: typing.Union[int, str] = 'SET'):
     ''' Select UVs using lasso selection
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection.
     :type mode: typing.Union[int, str]
     '''
@@ -526,23 +527,23 @@ def shortest_path_select(use_face_step: bool = False,
     pass
 
 
-def smart_project(angle_limit: float = 66.0,
+def smart_project(angle_limit: float = 1.15192,
                   island_margin: float = 0.0,
-                  user_area_weight: float = 0.0,
-                  use_aspect: bool = True,
-                  stretch_to_bounds: bool = True):
-    ''' This script projection unwraps the selected faces of a mesh (it operates on all selected mesh objects, and can be used to unwrap selected faces, or all faces)
+                  area_weight: float = 0.0,
+                  correct_aspect: bool = True,
+                  scale_to_bounds: bool = False):
+    ''' Projection unwraps the selected faces of mesh objects
 
     :param angle_limit: Angle Limit, Lower for more projection groups, higher for less distortion
     :type angle_limit: float
     :param island_margin: Island Margin, Margin to reduce bleed from adjacent islands
     :type island_margin: float
-    :param user_area_weight: Area Weight, Weight projections vector by faces with larger areas
-    :type user_area_weight: float
-    :param use_aspect: Correct Aspect, Map UVs taking image aspect ratio into account
-    :type use_aspect: bool
-    :param stretch_to_bounds: Stretch to UV Bounds, Stretch the final output to texture bounds
-    :type stretch_to_bounds: bool
+    :param area_weight: Area Weight, Weight projection's vector by faces with larger areas
+    :type area_weight: float
+    :param correct_aspect: Correct Aspect, Map UVs taking image aspect ratio into account
+    :type correct_aspect: bool
+    :param scale_to_bounds: Scale to Bounds, Scale UV coordinates to bounds after unwrapping
+    :type scale_to_bounds: bool
     '''
 
     pass
@@ -590,18 +591,20 @@ def sphere_project(direction: typing.Union[int, str] = 'VIEW_ON_EQUATOR',
     pass
 
 
-def stitch(use_limit: bool = False,
-           snap_islands: bool = True,
-           limit: float = 0.01,
-           static_island: int = 0,
-           active_object_index: int = 0,
-           midpoint_snap: bool = False,
-           clear_seams: bool = True,
-           mode: typing.Union[int, str] = 'VERTEX',
-           stored_mode: typing.Union[int, str] = 'VERTEX',
-           selection: typing.Union[typing.List['bpy.types.SelectedUvElement'],
-                                   'bpy_prop_collection'] = None,
-           objects_selection_count: typing.List[int] = (0, 0, 0, 0, 0, 0)):
+def stitch(
+        use_limit: bool = False,
+        snap_islands: bool = True,
+        limit: float = 0.01,
+        static_island: int = 0,
+        active_object_index: int = 0,
+        midpoint_snap: bool = False,
+        clear_seams: bool = True,
+        mode: typing.Union[int, str] = 'VERTEX',
+        stored_mode: typing.Union[int, str] = 'VERTEX',
+        selection: typing.Union[
+            typing.Dict[str, 'bpy.types.SelectedUvElement'], typing.
+            List['bpy.types.SelectedUvElement'], 'bpy_prop_collection'] = None,
+        objects_selection_count: typing.List[int] = (0, 0, 0, 0, 0, 0)):
     ''' Stitch selected UV vertices by proximity
 
     :param use_limit: Use Limit, Stitch UVs within a specified limit distance
@@ -614,7 +617,7 @@ def stitch(use_limit: bool = False,
     :type static_island: int
     :param active_object_index: Active Object, Index of the active object
     :type active_object_index: int
-    :param midpoint_snap: Snap At Midpoint, UVs are stitched at midpoint instead of at static island
+    :param midpoint_snap: Snap at Midpoint, UVs are stitched at midpoint instead of at static island
     :type midpoint_snap: bool
     :param clear_seams: Clear Seams, Clear seams of stitched edges
     :type clear_seams: bool
@@ -623,7 +626,7 @@ def stitch(use_limit: bool = False,
     :param stored_mode: Stored Operation Mode, Use vertex or edge stitching
     :type stored_mode: typing.Union[int, str]
     :param selection: Selection
-    :type selection: typing.Union[typing.List['bpy.types.SelectedUvElement'], 'bpy_prop_collection']
+    :type selection: typing.Union[typing.Dict[str, 'bpy.types.SelectedUvElement'], typing.List['bpy.types.SelectedUvElement'], 'bpy_prop_collection']
     :param objects_selection_count: Objects Selection Count
     :type objects_selection_count: typing.List[int]
     '''

@@ -76,13 +76,13 @@ def invert(invert_r: bool = False,
            invert_a: bool = False):
     ''' Invert image's channels
 
-    :param invert_r: Red, Invert Red Channel
+    :param invert_r: Red, Invert red channel
     :type invert_r: bool
-    :param invert_g: Green, Invert Green Channel
+    :param invert_g: Green, Invert green channel
     :type invert_g: bool
-    :param invert_b: Blue, Invert Blue Channel
+    :param invert_b: Blue, Invert blue channel
     :type invert_b: bool
-    :param invert_a: Alpha, Invert Alpha Channel
+    :param invert_a: Alpha, Invert alpha channel
     :type invert_a: bool
     '''
 
@@ -120,7 +120,7 @@ def new(name: str = "Untitled",
     :type alpha: bool
     :param generated_type: Generated Type, Fill the image with a grid for UV map testing * BLANK Blank, Generate a blank image. * UV_GRID UV Grid, Generated grid to test UV mappings. * COLOR_GRID Color Grid, Generated improved UV grid to test UV mappings.
     :type generated_type: typing.Union[int, str]
-    :param float: 32 bit Float, Create image with 32 bit floating point bit depth
+    :param float: 32-bit Float, Create image with 32-bit floating-point bit depth
     :type float: bool
     :param use_stereo_3d: Stereo 3D, Create an image with left and right views
     :type use_stereo_3d: bool
@@ -133,8 +133,10 @@ def new(name: str = "Untitled",
 
 def open(filepath: str = "",
          directory: str = "",
-         files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                             'bpy_prop_collection'] = None,
+         files: typing.
+         Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+               List['bpy.types.OperatorFileListElement'],
+               'bpy_prop_collection'] = None,
          hide_props_region: bool = True,
          filter_blender: bool = False,
          filter_backup: bool = False,
@@ -157,7 +159,7 @@ def open(filepath: str = "",
          show_multiview: bool = False,
          use_multiview: bool = False,
          display_type: typing.Union[int, str] = 'DEFAULT',
-         sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+         sort_method: typing.Union[int, str] = '',
          use_sequence_detection: bool = True,
          use_udim_detecting: bool = True):
     ''' Open image
@@ -167,7 +169,7 @@ def open(filepath: str = "",
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param hide_props_region: Hide Operator Properties, Collapse the region displaying the operator settings
     :type hide_props_region: bool
     :param filter_blender: Filter .blend files
@@ -212,7 +214,7 @@ def open(filepath: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param use_sequence_detection: Detect Sequences, Automatically detect animated sequences in selected images (based on file names)
     :type use_sequence_detection: bool
@@ -232,7 +234,7 @@ def pack():
 
 
 def project_apply():
-    ''' Project edited image back onto the object :file: startup/bl_operators/image.py\:197 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/image.py$197> _
+    ''' Project edited image back onto the object :file: startup/bl_operators/image.py\:196 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/image.py$196> _
 
     '''
 
@@ -240,7 +242,7 @@ def project_apply():
 
 
 def project_edit():
-    ''' Edit a snapshot of the view-port in an external image editor :file: startup/bl_operators/image.py\:126 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/image.py$126> _
+    ''' Edit a snapshot of the 3D Viewport in an external image editor :file: startup/bl_operators/image.py\:126 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/image.py$126> _
 
     '''
 
@@ -316,7 +318,7 @@ def replace(filepath: str = "",
             show_multiview: bool = False,
             use_multiview: bool = False,
             display_type: typing.Union[int, str] = 'DEFAULT',
-            sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+            sort_method: typing.Union[int, str] = ''):
     ''' Replace current image by another one from disk
 
     :param filepath: File Path, Path to file
@@ -365,7 +367,7 @@ def replace(filepath: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -396,6 +398,7 @@ def sample_line(xstart: int = 0,
                 xend: int = 0,
                 ystart: int = 0,
                 yend: int = 0,
+                flip: bool = False,
                 cursor: int = 5):
     ''' Sample a line and show it in Scope panels
 
@@ -407,6 +410,8 @@ def sample_line(xstart: int = 0,
     :type ystart: int
     :param yend: Y End
     :type yend: int
+    :param flip: Flip
+    :type flip: bool
     :param cursor: Cursor, Mouse cursor style to use during the modal operator
     :type cursor: int
     '''
@@ -455,7 +460,7 @@ def save_as(save_as_render: bool = False,
             show_multiview: bool = False,
             use_multiview: bool = False,
             display_type: typing.Union[int, str] = 'DEFAULT',
-            sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+            sort_method: typing.Union[int, str] = ''):
     ''' Save the image with another name and/or settings
 
     :param save_as_render: Save As Render, Apply render part of display transform when saving byte image
@@ -508,7 +513,7 @@ def save_as(save_as_render: bool = False,
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -551,7 +556,7 @@ def tile_add(number: int = 1002,
     :type width: int
     :param height: Height, Image height
     :type height: int
-    :param float: 32 bit Float, Create image with 32 bit floating point bit depth
+    :param float: 32-bit Float, Create image with 32-bit floating-point bit depth
     :type float: bool
     :param alpha: Alpha, Create an image with an alpha channel
     :type alpha: bool
@@ -576,7 +581,7 @@ def tile_fill(color: typing.List[float] = (0.0, 0.0, 0.0, 1.0),
     :type width: int
     :param height: Height, Image height
     :type height: int
-    :param float: 32 bit Float, Create image with 32 bit floating point bit depth
+    :param float: 32-bit Float, Create image with 32-bit floating-point bit depth
     :type float: bool
     :param alpha: Alpha, Create an image with an alpha channel
     :type alpha: bool
@@ -634,7 +639,7 @@ def view_ndof():
 def view_pan(offset: typing.List[float] = (0.0, 0.0)):
     ''' Pan the view
 
-    :param offset: Offset, Offset in floating point units, 1.0 is the width and height of the image
+    :param offset: Offset, Offset in floating-point units, 1.0 is the width and height of the image
     :type offset: typing.List[float]
     '''
 

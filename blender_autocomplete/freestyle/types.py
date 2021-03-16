@@ -21,25 +21,10 @@ class AdjacencyIterator:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'AdjacencyIterator'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(vertex, restrict_to_selection=True, restrict_to_unvisited=True) Builds an AdjacencyIterator using the default constructor, copy constructor or the overloaded constructor.
 
         :param brother: An AdjacencyIterator object.
         :type brother: 'AdjacencyIterator'
-        '''
-        pass
-
-    def __init__(self,
-                 vertex: 'ViewVertex',
-                 restrict_to_selection: bool = True,
-                 restrict_to_unvisited: bool = True):
-        ''' Builds a AdjacencyIterator object.
-
         :param vertex: The vertex which is the next crossing.
         :type vertex: 'ViewVertex'
         :param restrict_to_selection: Indicates whether to force the chaining to stay within the set of selected ViewEdges or not.
@@ -124,22 +109,10 @@ class Chain:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'Chain'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(id) Builds a Chain using the default constructor, copy constructor or from an Id .
 
         :param brother: A Chain object.
         :type brother: 'Chain'
-        '''
-        pass
-
-    def __init__(self, id: 'Id'):
-        ''' Builds a chain from its Id.
-
         :param id: An Id object.
         :type id: 'Id'
         '''
@@ -193,7 +166,7 @@ class ChainingIterator:
                  restrict_to_unvisited: bool = True,
                  begin: 'ViewEdge' = None,
                  orientation: bool = True):
-        ''' Builds a Chaining Iterator from the first ViewEdge used for iteration and its orientation.
+        ''' __init__(brother) Builds a Chaining Iterator from the first ViewEdge used for iteration and its orientation or by using the copy constructor.
 
         :param restrict_to_selection: Indicates whether to force the chaining to stay within the set of selected ViewEdges or not.
         :type restrict_to_selection: bool
@@ -203,12 +176,6 @@ class ChainingIterator:
         :type begin: 'ViewEdge'
         :param orientation: The direction to follow to explore the graph. If true, the direction indicated by the first ViewEdge is used.
         :type orientation: bool
-        '''
-        pass
-
-    def __init__(self, brother: 'ChainingIterator'):
-        ''' Copy constructor.
-
         :param brother: 
         :type brother: 'ChainingIterator'
         '''
@@ -248,22 +215,10 @@ class Curve:
     '''
 
     def __init__(self):
-        ''' Default Constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'bpy.types.Curve'):
-        ''' Copy Constructor.
+        ''' __init__(brother) __init__(id) Builds a FrsCurve using a default constructor, copy constructor or from an Id .
 
         :param brother: A Curve object.
         :type brother: 'bpy.types.Curve'
-        '''
-        pass
-
-    def __init__(self, id: 'Id'):
-        ''' Builds a Curve from its Id.
-
         :param id: An Id object.
         :type id: 'Id'
         '''
@@ -315,41 +270,19 @@ class CurvePoint:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'CurvePoint'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(first_vertex, second_vertex, t2d) __init__(first_point, second_point, t2d) Builds a CurvePoint using the default constructor, copy constructor, or one of the overloaded constructors. The over loaded constructors can either take two SVertex or two CurvePoint objects and an interpolation parameter
 
         :param brother: A CurvePoint object.
         :type brother: 'CurvePoint'
-        '''
-        pass
-
-    def __init__(self, first_vertex: 'SVertex', second_vertex: 'SVertex',
-                 t2d: float):
-        ''' Builds a CurvePoint from two SVertex objects and an interpolation parameter.
-
         :param first_vertex: The first SVertex.
         :type first_vertex: 'SVertex'
         :param second_vertex: The second SVertex.
         :type second_vertex: 'SVertex'
-        :param t2d: A 2D interpolation parameter used to linearly interpolate first_vertex and second_vertex.
-        :type t2d: float
-        '''
-        pass
-
-    def __init__(self, first_point: 'CurvePoint', second_point: 'CurvePoint',
-                 t2d: float):
-        ''' Builds a CurvePoint from two CurvePoint objects and an interpolation parameter.
-
         :param first_point: The first CurvePoint.
         :type first_point: 'CurvePoint'
         :param second_point: The second CurvePoint.
         :type second_point: 'CurvePoint'
-        :param t2d: The 2D interpolation parameter used to linearly interpolate first_point and second_point.
+        :param t2d: A 2D interpolation parameter used to linearly interpolate first_vertex and second_vertex or first_point and second_point.
         :type t2d: float
         '''
         pass
@@ -378,22 +311,10 @@ class CurvePointIterator:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'CurvePointIterator'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(step=0.0) Builds a CurvePointIterator object using either the default constructor, copy constructor, or the overloaded constructor.
 
         :param brother: A CurvePointIterator object.
         :type brother: 'CurvePointIterator'
-        '''
-        pass
-
-    def __init__(self, step: float = 0.0):
-        ''' Builds a CurvePointIterator object.
-
         :param step: A resampling resolution with which the curve is resampled. If zero, no resampling is done (i.e., the iterator iterates over initial vertices).
         :type step: float
         '''
@@ -453,22 +374,10 @@ class FEdge:
     '''
 
     def FEdge(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def FEdge(self, brother: 'FEdge'):
-        ''' Copy constructor.
+        ''' FEdge(brother) Builds an FEdge using the default constructor, copy constructor, or between two SVertex objects.
 
         :param brother: An FEdge object.
         :type brother: 'FEdge'
-        '''
-        pass
-
-    def FEdge(self, first_vertex: 'SVertex', second_vertex: 'SVertex'):
-        ''' Builds an FEdge going from the first vertex to the second.
-
         :param first_vertex: The first SVertex.
         :type first_vertex: 'SVertex'
         :param second_vertex: The second SVertex.
@@ -478,7 +387,7 @@ class FEdge:
 
 
 class FEdgeSharp:
-    ''' Class hierarchy: Interface1D > FEdge > FEdgeSharp Class defining a sharp FEdge. A Sharp FEdge corresponds to an initial edge of the input mesh. It can be a silhouette, a crease or a border. If it is a crease edge, then it is borded by two faces of the mesh. Face a lies on its right whereas Face b lies on its left. If it is a border edge, then it doesn't have any face on its right, and thus Face a is None.
+    ''' Class hierarchy: Interface1D > FEdge > FEdgeSharp Class defining a sharp FEdge. A Sharp FEdge corresponds to an initial edge of the input mesh. It can be a silhouette, a crease or a border. If it is a crease edge, then it is bordered by two faces of the mesh. Face a lies on its right whereas Face b lies on its left. If it is a border edge, then it doesn't have any face on its right, and thus Face a is None.
     '''
 
     face_mark_left: bool = None
@@ -530,22 +439,10 @@ class FEdgeSharp:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'FEdgeSharp'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(first_vertex, second_vertex) Builds an FEdgeSharp using the default constructor, copy constructor, or between two SVertex objects.
 
         :param brother: An FEdgeSharp object.
         :type brother: 'FEdgeSharp'
-        '''
-        pass
-
-    def __init__(self, first_vertex: 'SVertex', second_vertex: 'SVertex'):
-        ''' Builds an FEdgeSharp going from the first vertex to the second.
-
         :param first_vertex: The first SVertex object.
         :type first_vertex: 'SVertex'
         :param second_vertex: The second SVertex object.
@@ -583,22 +480,10 @@ class FEdgeSmooth:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'FEdgeSmooth'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(first_vertex, second_vertex) Builds an FEdgeSmooth using the default constructor, copy constructor, or between two SVertex .
 
         :param brother: An FEdgeSmooth object.
         :type brother: 'FEdgeSmooth'
-        '''
-        pass
-
-    def __init__(self, first_vertex: 'SVertex', second_vertex: 'SVertex'):
-        ''' Builds an FEdgeSmooth going from the first to the second.
-
         :param first_vertex: The first SVertex object.
         :type first_vertex: 'SVertex'
         :param second_vertex: The second SVertex object.
@@ -623,21 +508,15 @@ class Id:
     :type: int
     '''
 
-    def __init__(self, first: int = 0, second: int = 0):
-        ''' Build the Id from two numbers.
-
-        :param first: The first number.
-        :type first: int
-        :param second: The second number.
-        :type second: int
-        '''
-        pass
-
     def __init__(self, brother: 'Id'):
-        ''' Copy constructor.
+        ''' __init__(first=0, second=0) Build the Id from two numbers or another Id using the copy constructor.
 
         :param brother: An Id object.
         :type brother: 'Id'
+        :param first: 
+        :type first: int
+        :param second: The second number.
+        :type second: int
         '''
         pass
 
@@ -747,17 +626,10 @@ class Interface0DIterator:
     '''
 
     def __init__(self, brother: 'Interface0DIterator'):
-        ''' Copy constructor.
+        ''' __init__(it) Construct a nested Interface0DIterator using either the copy constructor or the constructor that takes an he argument of a Function0D.
 
         :param brother: An Interface0DIterator object.
         :type brother: 'Interface0DIterator'
-        '''
-        pass
-
-    def __init__(self, it: typing.Union[
-            'StrokeVertexIterator', 'SVertexIterator', 'CurvePointIterator']):
-        ''' Construct a nested Interface0DIterator that can be the argument of a Function0D.
-
         :param it: An iterator object to be nested.
         :type it: typing.Union['StrokeVertexIterator', 'SVertexIterator', 'CurvePointIterator']
         '''
@@ -929,32 +801,10 @@ class Material:
     '''
 
     def __init__(self):
-        ''' Default constructor.
+        ''' __init__(brother) __init__(line, diffuse, ambient, specular, emission, shininess, priority) Creates a FrsMaterial using either default constructor, copy constructor, or an overloaded constructor
 
-        '''
-        pass
-
-    def __init__(self, brother: 'bpy.types.Material'):
-        ''' Copy constructor.
-
-        :param brother: A Material object.
+        :param brother: A Material object to be used as a copy constructor.
         :type brother: 'bpy.types.Material'
-        '''
-        pass
-
-    def __init__(self, line: typing.Union[typing.List[float], typing.
-                                          List['mathutils.Vector']],
-                 diffuse: typing.Union[typing.List[float], typing.
-                                       List['mathutils.Vector']],
-                 ambient: typing.Union[typing.List[float], typing.
-                                       List['mathutils.Vector']],
-                 specular: typing.Union[typing.List[float], typing.
-                                        List['mathutils.Vector']],
-                 emission: typing.Union[typing.List[float], typing.
-                                        List['mathutils.Vector']],
-                 shininess: float, priority: int):
-        ''' Builds a Material from its line, diffuse, ambient, specular, emissive colors, a shininess coefficient and line color priority.
-
         :param line: The line color.
         :type line: typing.Union[typing.List[float], typing.List['mathutils.Vector']]
         :param diffuse: The diffuse color.
@@ -1098,13 +948,7 @@ class NonTVertex:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, svertex: 'SVertex'):
-        ''' Build a NonTVertex from a SVertex.
+        ''' __init__(svertex) Builds a NonTVertex using the default constructor or a SVertex .
 
         :param svertex: An SVertex object.
         :type svertex: 'SVertex'
@@ -1118,46 +962,26 @@ class Operators:
 
     @staticmethod
     def bidirectional_chain(it: 'ChainingIterator', pred: 'UnaryPredicate1D'):
-        ''' Builds a set of chains from the current set of ViewEdges. Each ViewEdge of the current list potentially starts a new chain. The chaining operator then iterates over the ViewEdges of the ViewMap using the user specified iterator. This operator iterates both using the increment and decrement operators and is therefore bidirectional. This operator works with a ChainingIterator which contains the chaining rules. It is this last one which can be told to chain only edges that belong to the selection or not to process twice a ViewEdge during the chaining. Each time a ViewEdge is added to a chain, its chaining time stamp is incremented. This allows you to keep track of the number of chains to which a ViewEdge belongs to.
+        ''' bidirectional_chain(it) Builds a set of chains from the current set of ViewEdges. Each ViewEdge of the current list potentially starts a new chain. The chaining operator then iterates over the ViewEdges of the ViewMap using the user specified iterator. This operator iterates both using the increment and decrement operators and is therefore bidirectional. This operator works with a ChainingIterator which contains the chaining rules. It is this last one which can be told to chain only edges that belong to the selection or not to process twice a ViewEdge during the chaining. Each time a ViewEdge is added to a chain, its chaining time stamp is incremented. This allows you to keep track of the number of chains to which a ViewEdge belongs to.
 
         :param it: The ChainingIterator on the ViewEdges of the ViewMap. It contains the chaining rule.
         :type it: 'ChainingIterator'
-        :param pred: The predicate on the ViewEdge that expresses the stopping condition.
+        :param pred: The predicate on the ViewEdge that expresses the stopping condition. This parameter is optional, you make not want to pass a stopping criterion when the stopping criterion is already contained in the iterator definition.
         :type pred: 'UnaryPredicate1D'
-        '''
-        pass
-
-    @staticmethod
-    def bidirectional_chain(it: 'ChainingIterator'):
-        ''' The only difference with the above bidirectional chaining algorithm is that we don't need to pass a stopping criterion. This might be desirable when the stopping criterion is already contained in the iterator definition. Builds a set of chains from the current set of ViewEdges. Each ViewEdge of the current list potentially starts a new chain. The chaining operator then iterates over the ViewEdges of the ViewMap using the user specified iterator. This operator iterates both using the increment and decrement operators and is therefore bidirectional. This operator works with a ChainingIterator which contains the chaining rules. It is this last one which can be told to chain only edges that belong to the selection or not to process twice a ViewEdge during the chaining. Each time a ViewEdge is added to a chain, its chaining time stamp is incremented. This allows you to keep track of the number of chains to which a ViewEdge belongs to.
-
-        :param it: The ChainingIterator on the ViewEdges of the ViewMap. It contains the chaining rule.
-        :type it: 'ChainingIterator'
         '''
         pass
 
     @staticmethod
     def chain(it: 'ViewEdgeIterator', pred: 'UnaryPredicate1D',
               modifier: 'UnaryFunction1DVoid'):
-        ''' Builds a set of chains from the current set of ViewEdges. Each ViewEdge of the current list starts a new chain. The chaining operator then iterates over the ViewEdges of the ViewMap using the user specified iterator. This operator only iterates using the increment operator and is therefore unidirectional.
+        ''' chain(it, pred) Builds a set of chains from the current set of ViewEdges. Each ViewEdge of the current list starts a new chain. The chaining operator then iterates over the ViewEdges of the ViewMap using the user specified iterator. This operator only iterates using the increment operator and is therefore unidirectional.
 
         :param it: The iterator on the ViewEdges of the ViewMap. It contains the chaining rule.
         :type it: 'ViewEdgeIterator'
         :param pred: The predicate on the ViewEdge that expresses the stopping condition.
         :type pred: 'UnaryPredicate1D'
-        :param modifier: A function that takes a ViewEdge as argument and that is used to modify the processed ViewEdge state (the timestamp incrementation is a typical illustration of such a modifier).
+        :param modifier: A function that takes a ViewEdge as argument and that is used to modify the processed ViewEdge state (the timestamp incrementation is a typical illustration of such a modifier). If this argument is not given, the time stamp is automatically managed.
         :type modifier: 'UnaryFunction1DVoid'
-        '''
-        pass
-
-    @staticmethod
-    def chain(it: 'ViewEdgeIterator', pred: 'UnaryPredicate1D'):
-        ''' Builds a set of chains from the current set of ViewEdges. Each ViewEdge of the current list starts a new chain. The chaining operator then iterates over the ViewEdges of the ViewMap using the user specified iterator. This operator only iterates using the increment operator and is therefore unidirectional. This chaining operator is different from the previous one because it doesn't take any modifier as argument. Indeed, the time stamp (insuring that a ViewEdge is processed one time) is automatically managed in this case.
-
-        :param it: The iterator on the ViewEdges of the ViewMap. It contains the chaining rule.
-        :type it: 'ViewEdgeIterator'
-        :param pred: The predicate on the ViewEdge that expresses the stopping condition.
-        :type pred: 'UnaryPredicate1D'
         '''
         pass
 
@@ -1236,23 +1060,7 @@ class Operators:
     def recursive_split(func: 'UnaryFunction0DDouble',
                         pred_1d: 'UnaryPredicate1D',
                         sampling: float = 0.0):
-        ''' Splits the current set of chains in a recursive way. We process the points of each chain (with a specified sampling) to find the point minimizing a specified function. The chain is split in two at this point and the two new chains are processed in the same way. The recursivity level is controlled through a predicate 1D that expresses a stopping condition on the chain that is about to be processed.
-
-        :param func: The Unary Function evaluated at each point of the chain. The splitting point is the point minimizing this function.
-        :type func: 'UnaryFunction0DDouble'
-        :param pred_1d: The Unary Predicate expressing the recursivity stopping condition. This predicate is evaluated for each curve before it actually gets split. If pred_1d(chain) is true, the curve won't be split anymore.
-        :type pred_1d: 'UnaryPredicate1D'
-        :param sampling: The resolution used to sample the chain for the predicates evaluation. (The chain is not actually resampled, a virtual point only progresses along the curve using this resolution.)
-        :type sampling: float
-        '''
-        pass
-
-    @staticmethod
-    def recursive_split(func: 'UnaryFunction0DDouble',
-                        pred_0d: 'UnaryPredicate0D',
-                        pred_1d: 'UnaryPredicate1D',
-                        sampling: float = 0.0):
-        ''' Splits the current set of chains in a recursive way. We process the points of each chain (with a specified sampling) to find the point minimizing a specified function. The chain is split in two at this point and the two new chains are processed in the same way. The user can specify a 0D predicate to make a first selection on the points that can potentially be split. A point that doesn't verify the 0D predicate won't be candidate in realizing the min. The recursivity level is controlled through a predicate 1D that expresses a stopping condition on the chain that is about to be processed.
+        ''' recursive_split(func, pred_0d, pred_1d, sampling=0.0) Splits the current set of chains in a recursive way. We process the points of each chain (with a specified sampling) to find the point minimizing a specified function. The chain is split in two at this point and the two new chains are processed in the same way. The recursivity level is controlled through a predicate 1D that expresses a stopping condition on the chain that is about to be processed. The user can also specify a 0D predicate to make a first selection on the points that can potentially be split. A point that doesn't verify the 0D predicate won't be candidate in realizing the min.
 
         :param func: The Unary Function evaluated at each point of the chain. The splitting point is the point minimizing this function.
         :type func: 'UnaryFunction0DDouble'
@@ -1287,24 +1095,15 @@ class Operators:
     def sequential_split(starting_pred: 'UnaryPredicate0D',
                          stopping_pred: 'UnaryPredicate0D',
                          sampling: float = 0.0):
-        ''' Splits each chain of the current set of chains in a sequential way. The points of each chain are processed (with a specified sampling) sequentially. Each time a user specified starting condition is verified, a new chain begins and ends as soon as a user-defined stopping predicate is verified. This allows chains overlapping rather than chains partitioning. The first point of the initial chain is the first point of one of the resulting chains. The splitting ends when no more chain can start.
+        ''' sequential_split(pred, sampling=0.0) Splits each chain of the current set of chains in a sequential way. The points of each chain are processed (with a specified sampling) sequentially. The first point of the initial chain is the first point of one of the resulting chains. The splitting ends when no more chain can start.
 
-        :param starting_pred: The predicate on a point that expresses the starting condition.
+        :param starting_pred: The predicate on a point that expresses the starting condition. Each time this condition is verified, a new chain begins
         :type starting_pred: 'UnaryPredicate0D'
-        :param stopping_pred: The predicate on a point that expresses the stopping condition.
+        :param stopping_pred: The predicate on a point that expresses the stopping condition. The chain ends as soon as this predicate is verified.
         :type stopping_pred: 'UnaryPredicate0D'
-        :param sampling: The resolution used to sample the chain for the predicates evaluation. (The chain is not actually resampled; a virtual point only progresses along the curve using this resolution.)
-        :type sampling: float
-        '''
-        pass
-
-    @staticmethod
-    def sequential_split(pred: 'UnaryPredicate0D', sampling: float = 0.0):
-        ''' Splits each chain of the current set of chains in a sequential way. The points of each chain are processed (with a specified sampling) sequentially and each time a user specified condition is verified, the chain is split into two chains. The resulting set of chains is a partition of the initial chain
-
-        :param pred: The predicate on a point that expresses the splitting condition.
+        :param pred: The predicate on a point that expresses the splitting condition. Each time the condition is verified, the chain is split into two chains. The resulting set of chains is a partition of the initial chain
         :type pred: 'UnaryPredicate0D'
-        :param sampling: The resolution used to sample the chain for the predicate evaluation. (The chain is not actually resampled; a virtual point only progresses along the curve using this resolution.)
+        :param sampling: The resolution used to sample the chain for the predicates evaluation. (The chain is not actually resampled; a virtual point only progresses along the curve using this resolution.)
         :type sampling: float
         '''
         pass
@@ -1354,13 +1153,7 @@ class SShape:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'SShape'):
-        ''' Copy constructor.
+        ''' __init__(brother) Creates a SShape class using either a default constructor or copy constructor.
 
         :param brother: An SShape object.
         :type brother: 'SShape'
@@ -1437,22 +1230,10 @@ class SVertex:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'SVertex'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(point_3d, id) Builds a SVertex using the default constructor, copy constructor or the overloaded constructor which builds a SVertex from 3D coordinates and an Id.
 
         :param brother: A SVertex object.
         :type brother: 'SVertex'
-        '''
-        pass
-
-    def __init__(self, point_3d: 'mathutils.Vector', id: 'Id'):
-        ''' Builds a SVertex from 3D coordinates and an Id.
-
         :param point_3d: A three-dimensional vector.
         :type point_3d: 'mathutils.Vector'
         :param id: An Id object.
@@ -1500,23 +1281,10 @@ class SVertexIterator:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'SVertexIterator'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(vertex, begin, previous_edge, next_edge, t) Build an SVertexIterator using either the default constructor, copy constructor, or the overloaded constructor that starts iteration from an SVertex object vertex.
 
         :param brother: An SVertexIterator object.
         :type brother: 'SVertexIterator'
-        '''
-        pass
-
-    def __init__(self, vertex: 'SVertex', begin: 'SVertex',
-                 previous_edge: 'FEdge', next_edge: 'FEdge', t: float):
-        ''' Build an SVertexIterator that starts iteration from an SVertex object v.
-
         :param vertex: The SVertex from which the iterator starts iteration.
         :type vertex: 'SVertex'
         :param begin: The first SVertex of a ViewEdge.
@@ -1566,13 +1334,7 @@ class Stroke:
     '''
 
     def Stroke(self):
-        ''' Default constructor
-
-        '''
-        pass
-
-    def Stroke(self, brother):
-        ''' Copy constructor
+        ''' Stroke(brother) Creates a Stroke using the default constructor or copy constructor
 
         '''
         pass
@@ -1613,17 +1375,11 @@ class Stroke:
         pass
 
     def resample(self, n: int):
-        ''' Resamples the stroke so that it eventually has N points. That means it is going to add N-vertices_size, where vertices_size is the number of points we already have. If vertices_size >= N, no resampling is done.
+        ''' resample(sampling) Resamples the stroke so using one of two methods with the goal of creating a stroke with fewer points and the same shape.
 
-        :param n: The number of vertices we eventually want in our stroke.
+        :param n: Resamples the stroke so that it eventually has N points. That means it is going to add N-vertices_size, where vertices_size is the number of points we already have. If vertices_size >= N, no resampling is done.
         :type n: int
-        '''
-        pass
-
-    def resample(self, sampling: float):
-        ''' Resamples the stroke with a given sampling. If the sampling is smaller than the actual sampling value, no resampling is done.
-
-        :param sampling: The new sampling value.
+        :param sampling: Resamples the stroke with a given sampling value. If the sampling is smaller than the actual sampling value, no resampling is done.
         :type sampling: float
         '''
         pass
@@ -1690,23 +1446,10 @@ class StrokeAttribute:
     '''
 
     def __init__(self):
-        ''' Default constructor.
+        ''' __init__(brother) __init__(red, green, blue, alpha, thickness_right, thickness_left) __init__(attribute1, attribute2, t) Creates a StrokeAttribute object using either a default constructor, copy constructor, overloaded constructor, or and interpolation constructor to interpolate between two StrokeAttribute objects.
 
-        '''
-        pass
-
-    def __init__(self, brother: 'StrokeAttribute'):
-        ''' Copy constructor.
-
-        :param brother: A StrokeAttribute object.
+        :param brother: A StrokeAttribute object to be used as a copy constructor.
         :type brother: 'StrokeAttribute'
-        '''
-        pass
-
-    def __init__(self, red: float, green: float, blue: float, alpha: float,
-                 thickness_right: float, thickness_left: float):
-        ''' Build a stroke vertex attribute from a set of parameters.
-
         :param red: Red component of a stroke color.
         :type red: float
         :param green: Green component of a stroke color.
@@ -1719,13 +1462,6 @@ class StrokeAttribute:
         :type thickness_right: float
         :param thickness_left: Stroke thickness on the left.
         :type thickness_left: float
-        '''
-        pass
-
-    def __init__(self, attribute1: 'StrokeAttribute',
-                 attribute2: 'StrokeAttribute', t: float):
-        ''' Interpolation constructor. Build a StrokeAttribute from two StrokeAttribute objects and an interpolation parameter.
-
         :param attribute1: The first StrokeAttribute object.
         :type attribute1: 'StrokeAttribute'
         :param attribute2: The second StrokeAttribute object.
@@ -1888,52 +1624,21 @@ class StrokeVertex:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'StrokeVertex'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(first_vertex, second_vertex, t3d) __init__(point) __init__(svertex) __init__(svertex, attribute) Builds a StrokeVertex using the default constructor, copy constructor, from 2 StrokeVertex and an interpolation parameter, from a CurvePoint, from a SVertex, or a SVertex and a StrokeAttribute object.
 
         :param brother: A StrokeVertex object.
         :type brother: 'StrokeVertex'
-        '''
-        pass
-
-    def __init__(self, first_vertex: 'StrokeVertex',
-                 second_vertex: 'StrokeVertex', t3d: float):
-        ''' Build a stroke vertex from 2 stroke vertices and an interpolation parameter.
-
         :param first_vertex: The first StrokeVertex.
         :type first_vertex: 'StrokeVertex'
         :param second_vertex: The second StrokeVertex.
         :type second_vertex: 'StrokeVertex'
         :param t3d: An interpolation parameter.
         :type t3d: float
-        '''
-        pass
-
-    def __init__(self, point: 'CurvePoint'):
-        ''' Build a stroke vertex from a CurvePoint
-
         :param point: A CurvePoint object.
         :type point: 'CurvePoint'
-        '''
-        pass
-
-    def __init__(self, svertex: 'SVertex'):
-        ''' Build a stroke vertex from a SVertex
-
-        :param svertex: An SVertex object.
+        :param svertex: An SVertex object. An SVertex object.
         :type svertex: 'SVertex'
-        '''
-        pass
-
-    def __init__(self, svertex: 'SVertex', attribute: 'StrokeAttribute'):
-        ''' Build a stroke vertex from an SVertex and a StrokeAttribute object.
-
-        :param svertex: An SVertex object.
+        :param svertex: An SVertex object. An SVertex object.
         :type svertex: 'SVertex'
         :param attribute: A StrokeAttribute object.
         :type attribute: 'StrokeAttribute'
@@ -1970,13 +1675,7 @@ class StrokeVertexIterator:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'StrokeVertexIterator'):
-        ''' Copy constructor.
+        ''' __init__(brother) Creates a StrokeVertexIterator using either the default constructor or the copy constructor.
 
         :param brother: A StrokeVertexIterator object.
         :type brother: 'StrokeVertexIterator'
@@ -2200,13 +1899,7 @@ class UnaryFunction1DDouble:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2225,13 +1918,7 @@ class UnaryFunction1DEdgeNature:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2250,13 +1937,7 @@ class UnaryFunction1DFloat:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2275,13 +1956,7 @@ class UnaryFunction1DUnsigned:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2300,13 +1975,7 @@ class UnaryFunction1DVec2f:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2325,13 +1994,7 @@ class UnaryFunction1DVec3f:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2350,13 +2013,7 @@ class UnaryFunction1DVectorViewShape:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using the default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2375,13 +2032,7 @@ class UnaryFunction1DVoid:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, integration_type: 'IntegrationType'):
-        ''' Builds a unary 1D function using the integration method given as argument.
+        ''' __init__(integration_type) Builds a unary 1D function using either a default constructor or the integration method given as an argument.
 
         :param integration_type: An integration method.
         :type integration_type: 'IntegrationType'
@@ -2514,13 +2165,7 @@ class ViewEdge:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'ViewEdge'):
-        ''' Copy constructor.
+        ''' __init__(brother) Builds a ViewEdge using the default constructor or the copy constructor.
 
         :param brother: A ViewEdge object.
         :type brother: 'ViewEdge'
@@ -2563,18 +2208,12 @@ class ViewEdgeIterator:
     '''
 
     def __init__(self, begin: 'ViewEdge' = None, orientation: bool = True):
-        ''' Builds a ViewEdgeIterator from a starting ViewEdge and its orientation.
+        ''' __init__(brother) Builds a ViewEdgeIterator from a starting ViewEdge and its orientation or the copy constructor.
 
         :param begin: The ViewEdge from where to start the iteration.
         :type begin: 'ViewEdge'
         :param orientation: If true, we'll look for the next ViewEdge among the ViewEdges that surround the ending ViewVertex of begin. If false, we'll search over the ViewEdges surrounding the ending ViewVertex of begin.
         :type orientation: bool
-        '''
-        pass
-
-    def __init__(self, brother: 'ViewEdgeIterator'):
-        ''' Copy constructor.
-
         :param brother: A ViewEdgeIterator object.
         :type brother: 'ViewEdgeIterator'
         '''
@@ -2669,22 +2308,10 @@ class ViewShape:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, brother: 'ViewShape'):
-        ''' Copy constructor.
+        ''' __init__(brother) __init__(sshape) Builds a ViewShape using the default constructor, copy constructor, or from a SShape .
 
         :param brother: A ViewShape object.
         :type brother: 'ViewShape'
-        '''
-        pass
-
-    def __init__(self, sshape: 'SShape'):
-        ''' Builds a ViewShape from an SShape.
-
         :param sshape: An SShape object.
         :type sshape: 'SShape'
         '''
@@ -2755,13 +2382,7 @@ class orientedViewEdgeIterator:
     '''
 
     def __init__(self):
-        ''' Default constructor.
-
-        '''
-        pass
-
-    def __init__(self, iBrother: 'orientedViewEdgeIterator'):
-        ''' Copy constructor.
+        ''' __init__(iBrother) Creates an orientedViewEdgeIterator using either the default constructor or the copy constructor.
 
         :param iBrother: An orientedViewEdgeIterator object.
         :type iBrother: 'orientedViewEdgeIterator'

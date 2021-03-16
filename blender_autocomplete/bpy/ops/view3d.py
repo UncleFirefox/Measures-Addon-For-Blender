@@ -3,32 +3,31 @@ import typing
 import bpy.types
 
 
-def background_image_add(
-        name: str = "Image",
-        filepath: str = "",
-        hide_props_region: bool = True,
-        filter_blender: bool = False,
-        filter_backup: bool = False,
-        filter_image: bool = True,
-        filter_movie: bool = True,
-        filter_python: bool = False,
-        filter_font: bool = False,
-        filter_sound: bool = False,
-        filter_text: bool = False,
-        filter_archive: bool = False,
-        filter_btx: bool = False,
-        filter_collada: bool = False,
-        filter_alembic: bool = False,
-        filter_usd: bool = False,
-        filter_volume: bool = False,
-        filter_folder: bool = True,
-        filter_blenlib: bool = False,
-        filemode: int = 9,
-        relative_path: bool = True,
-        show_multiview: bool = False,
-        use_multiview: bool = False,
-        display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+def background_image_add(name: str = "Image",
+                         filepath: str = "",
+                         hide_props_region: bool = True,
+                         filter_blender: bool = False,
+                         filter_backup: bool = False,
+                         filter_image: bool = True,
+                         filter_movie: bool = True,
+                         filter_python: bool = False,
+                         filter_font: bool = False,
+                         filter_sound: bool = False,
+                         filter_text: bool = False,
+                         filter_archive: bool = False,
+                         filter_btx: bool = False,
+                         filter_collada: bool = False,
+                         filter_alembic: bool = False,
+                         filter_usd: bool = False,
+                         filter_volume: bool = False,
+                         filter_folder: bool = True,
+                         filter_blenlib: bool = False,
+                         filemode: int = 9,
+                         relative_path: bool = True,
+                         show_multiview: bool = False,
+                         use_multiview: bool = False,
+                         display_type: typing.Union[int, str] = 'DEFAULT',
+                         sort_method: typing.Union[int, str] = ''):
     ''' Add a new background image
 
     :param name: Name, Image name to assign
@@ -79,7 +78,7 @@ def background_image_add(
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -226,9 +225,14 @@ def fly():
 
 def interactive_add(primitive_type: typing.Union[int, str] = 'CUBE',
                     plane_axis: typing.Union[int, str] = 'Z',
+                    plane_axis_auto: bool = False,
                     plane_depth: typing.Union[int, str] = 'SURFACE',
-                    plane_origin: typing.Union[int, str] = 'BASE',
                     plane_orientation: typing.Union[int, str] = 'SURFACE',
+                    snap_target: typing.Union[int, str] = 'GEOMETRY',
+                    plane_origin_base: typing.Union[int, str] = 'EDGE',
+                    plane_origin_depth: typing.Union[int, str] = 'EDGE',
+                    plane_aspect_base: typing.Union[int, str] = 'FREE',
+                    plane_aspect_depth: typing.Union[int, str] = 'FREE',
                     wait_for_input: bool = True):
     ''' Interactively add an object
 
@@ -236,12 +240,22 @@ def interactive_add(primitive_type: typing.Union[int, str] = 'CUBE',
     :type primitive_type: typing.Union[int, str]
     :param plane_axis: Plane Axis, The axis used for placing the base region
     :type plane_axis: typing.Union[int, str]
-    :param plane_depth: Position, The initial depth used when placing the cursor * SURFACE Surface, Start placing on the surface, using the 3D cursor position as a fallback. * CURSOR_PLANE 3D Cursor Plane, Start placement using a point projected onto the selected axis at the 3D cursor position. * CURSOR_VIEW 3D Cursor View, Start placement using the mouse cursor projected onto the view plane.
+    :param plane_axis_auto: Auto Axis, Select the closest axis when placing objects (surface overrides)
+    :type plane_axis_auto: bool
+    :param plane_depth: Position, The initial depth used when placing the cursor * SURFACE Surface, Start placing on the surface, using the 3D cursor position as a fallback. * CURSOR_PLANE Cursor Plane, Start placement using a point projected onto the orientation axis at the 3D cursor position. * CURSOR_VIEW Cursor View, Start placement using a point projected onto the view plane at the 3D cursor position.
     :type plane_depth: typing.Union[int, str]
-    :param plane_origin: Origin, The initial position for placement * BASE Base, Start placing the corner position. * CENTER Center, Start placing the center position.
-    :type plane_origin: typing.Union[int, str]
-    :param plane_orientation: Orientation, The initial depth used when placing the cursor * SURFACE Surface, Use the surface normal (the transform orientation as a fallback). * DEFAULT Default, Use the current transform orientation.
+    :param plane_orientation: Orientation, The initial depth used when placing the cursor * SURFACE Surface, Use the surface normal (using the transform orientation as a fallback). * DEFAULT Default, Use the current transform orientation.
     :type plane_orientation: typing.Union[int, str]
+    :param snap_target: Snap to, The target to use while snapping * GEOMETRY Geometry, Snap to all geometry. * DEFAULT Default, Use the current snap settings.
+    :type snap_target: typing.Union[int, str]
+    :param plane_origin_base: Origin, The initial position for placement * EDGE Edge, Start placing the edge position. * CENTER Center, Start placing the center position.
+    :type plane_origin_base: typing.Union[int, str]
+    :param plane_origin_depth: Origin, The initial position for placement * EDGE Edge, Start placing the edge position. * CENTER Center, Start placing the center position.
+    :type plane_origin_depth: typing.Union[int, str]
+    :param plane_aspect_base: Aspect, The initial aspect setting * FREE Free, Use an unconstrained aspect. * FIXED Fixed, Use a fixed 1:1 aspect.
+    :type plane_aspect_base: typing.Union[int, str]
+    :param plane_aspect_depth: Aspect, The initial aspect setting * FREE Free, Use an unconstrained aspect. * FIXED Fixed, Use a fixed 1:1 aspect.
+    :type plane_aspect_depth: typing.Union[int, str]
     :param wait_for_input: Wait for Input
     :type wait_for_input: bool
     '''
@@ -411,11 +425,11 @@ def select(extend: bool = False,
     :type toggle: bool
     :param deselect_all: Deselect On Nothing, Deselect all when nothing under the cursor
     :type deselect_all: bool
-    :param center: Center, Use the object center when selecting, in edit-mode used to extend object selection
+    :param center: Center, Use the object center when selecting, in edit mode used to extend object selection
     :type center: bool
     :param enumerate: Enumerate, List objects under the mouse (object mode only)
     :type enumerate: bool
-    :param object: Object, Use object selection (edit-mode only)
+    :param object: Object, Use object selection (edit mode only)
     :type object: bool
     :param location: Location, Mouse location
     :type location: typing.List[int]
@@ -471,13 +485,14 @@ def select_circle(x: int = 0,
     pass
 
 
-def select_lasso(path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None,
+def select_lasso(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
                  mode: typing.Union[int, str] = 'SET'):
     ''' Select items using lasso selection
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection. * XOR Difference, Inverts existing selection. * AND Intersect, Intersect existing selection.
     :type mode: typing.Union[int, str]
     '''
@@ -601,9 +616,9 @@ def transform_gizmo_set(
         type: typing.Union[typing.Set[int], typing.Set[str]] = {}):
     ''' Set the current transform gizmo
 
-    :param extend: extend
+    :param extend: Extend
     :type extend: bool
-    :param type: type
+    :param type: Type
     :type type: typing.Union[typing.Set[int], typing.Set[str]]
     '''
 
@@ -627,7 +642,7 @@ def view_axis(type: typing.Union[int, str] = 'LEFT',
               relative: bool = False):
     ''' Use a preset viewpoint
 
-    :param type: View, Preset viewpoint to use * LEFT Left, View From the Left. * RIGHT Right, View From the Right. * BOTTOM Bottom, View From the Bottom. * TOP Top, View From the Top. * FRONT Front, View From the Front. * BACK Back, View From the Back.
+    :param type: View, Preset viewpoint to use * LEFT Left, View from the left. * RIGHT Right, View from the right. * BOTTOM Bottom, View from the bottom. * TOP Top, View from the top. * FRONT Front, View from the front. * BACK Back, View from the back.
     :type type: typing.Union[int, str]
     :param align_active: Align Active, Align to the active object's axis
     :type align_active: bool
@@ -699,7 +714,7 @@ def view_orbit(angle: float = 0.0, type: typing.Union[int, str] = 'ORBITLEFT'):
 
     :param angle: Roll
     :type angle: float
-    :param type: Orbit, Direction of View Orbit * ORBITLEFT Orbit Left, Orbit the view around to the Left. * ORBITRIGHT Orbit Right, Orbit the view around to the Right. * ORBITUP Orbit Up, Orbit the view Up. * ORBITDOWN Orbit Down, Orbit the view Down.
+    :param type: Orbit, Direction of View Orbit * ORBITLEFT Orbit Left, Orbit the view around to the left. * ORBITRIGHT Orbit Right, Orbit the view around to the right. * ORBITUP Orbit Up, Orbit the view up. * ORBITDOWN Orbit Down, Orbit the view down.
     :type type: typing.Union[int, str]
     '''
 
@@ -709,7 +724,7 @@ def view_orbit(angle: float = 0.0, type: typing.Union[int, str] = 'ORBITLEFT'):
 def view_pan(type: typing.Union[int, str] = 'PANLEFT'):
     ''' Pan the view in a given direction
 
-    :param type: Pan, Direction of View Pan * PANLEFT Pan Left, Pan the view to the Left. * PANRIGHT Pan Right, Pan the view to the Right. * PANUP Pan Up, Pan the view Up. * PANDOWN Pan Down, Pan the view Down.
+    :param type: Pan, Direction of View Pan * PANLEFT Pan Left, Pan the view to the left. * PANRIGHT Pan Right, Pan the view to the right. * PANUP Pan Up, Pan the view up. * PANDOWN Pan Down, Pan the view down.
     :type type: typing.Union[int, str]
     '''
 
@@ -729,7 +744,7 @@ def view_roll(angle: float = 0.0, type: typing.Union[int, str] = 'ANGLE'):
 
     :param angle: Roll
     :type angle: float
-    :param type: Roll Angle Source, How roll angle is calculated * ANGLE Roll Angle, Roll the view using an angle value. * LEFT Roll Left, Roll the view around to the Left. * RIGHT Roll Right, Roll the view around to the Right.
+    :param type: Roll Angle Source, How roll angle is calculated * ANGLE Roll Angle, Roll the view using an angle value. * LEFT Roll Left, Roll the view around to the left. * RIGHT Roll Right, Roll the view around to the right.
     :type type: typing.Union[int, str]
     '''
 

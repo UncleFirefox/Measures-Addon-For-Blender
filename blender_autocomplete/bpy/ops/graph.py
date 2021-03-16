@@ -101,9 +101,11 @@ def decimate(mode: typing.Union[int, str] = 'RATIO',
     pass
 
 
-def delete():
+def delete(confirm: bool = True):
     ''' Remove all selected keyframes
 
+    :param confirm: Confirm, Prompt for confirmation
+    :type confirm: bool
     '''
 
     pass
@@ -187,7 +189,7 @@ def fmodifier_add(type: typing.Union[int, str] = 'NULL',
                   only_active: bool = True):
     ''' Add F-Modifier to the active/selected F-Curves
 
-    :param type: Type * NULL Invalid. * GENERATOR Generator, Generate a curve using a factorized or expanded polynomial. * FNGENERATOR Built-In Function, Generate a curve using standard math functions such as sin and cos. * ENVELOPE Envelope, Reshape F-Curve values - e.g. change amplitude of movements. * CYCLES Cycles, Cyclic extend/repeat keyframe sequence. * NOISE Noise, Add pseudo-random noise on top of F-Curves. * LIMITS Limits, Restrict maximum and minimum values of F-Curve. * STEPPED Stepped Interpolation, Snap values to nearest grid-step - e.g. for a stop-motion look.
+    :param type: Type * NULL Invalid. * GENERATOR Generator, Generate a curve using a factorized or expanded polynomial. * FNGENERATOR Built-In Function, Generate a curve using standard math functions such as sin and cos. * ENVELOPE Envelope, Reshape F-Curve values, e.g. change amplitude of movements. * CYCLES Cycles, Cyclic extend/repeat keyframe sequence. * NOISE Noise, Add pseudo-random noise on top of F-Curves. * LIMITS Limits, Restrict maximum and minimum values of F-Curve. * STEPPED Stepped Interpolation, Snap values to nearest grid step, e.g. for a stop-motion look.
     :type type: typing.Union[int, str]
     :param only_active: Only Active, Only add F-Modifier to active F-Curve
     :type only_active: bool
@@ -204,7 +206,7 @@ def fmodifier_copy():
     pass
 
 
-def fmodifier_paste(only_active: bool = True, replace: bool = False):
+def fmodifier_paste(only_active: bool = False, replace: bool = False):
     ''' Add copied F-Modifiers to the selected F-Curves
 
     :param only_active: Only Active, Only paste F-Modifiers on active F-Curve
@@ -273,7 +275,7 @@ def interpolation_type(type: typing.Union[int, str] = 'CONSTANT'):
 def keyframe_insert(type: typing.Union[int, str] = 'ALL'):
     ''' Insert keyframes for the specified channels
 
-    :param type: Type * ALL All Channels, Insert a keyframe on all visible and editable F-Curves using each curve's current value. * SEL Only Selected Channels, Insert a keyframe on selected F-Curves using each curve's current value. * CURSOR_ACTIVE Active Channels At Cursor, Insert a keyframe for the active F-Curve at the cursor point. * CURSOR_SEL Selected Channels At Cursor, Insert a keyframe for selected F-Curves at the cursor point.
+    :param type: Type * ALL All Channels, Insert a keyframe on all visible and editable F-Curves using each curve's current value. * SEL Only Selected Channels, Insert a keyframe on selected F-Curves using each curve's current value. * CURSOR_ACTIVE Active Channels at Cursor, Insert a keyframe for the active F-Curve at the cursor point. * CURSOR_SEL Selected Channels at Cursor, Insert a keyframe for selected F-Curves at the cursor point.
     :type type: typing.Union[int, str]
     '''
 
@@ -283,7 +285,7 @@ def keyframe_insert(type: typing.Union[int, str] = 'ALL'):
 def mirror(type: typing.Union[int, str] = 'CFRA'):
     ''' Flip selected keyframes over the selected mirror line
 
-    :param type: Type * CFRA By Times Over Current Frame, Flip times of selected keyframes using the current frame as the mirror line. * VALUE By Values Over Cursor Value, Flip values of selected keyframes using the cursor value (Y/Horizontal component) as the mirror line. * YAXIS By Times Over Time=0, Flip times of selected keyframes, effectively reversing the order they appear in. * XAXIS By Values Over Value=0, Flip values of selected keyframes (i.e. negative values become positive, and vice versa). * MARKER By Times Over First Selected Marker, Flip times of selected keyframes using the first selected marker as the reference point.
+    :param type: Type * CFRA By Times Over Current Frame, Flip times of selected keyframes using the current frame as the mirror line. * VALUE By Values Over Cursor Value, Flip values of selected keyframes using the cursor value (Y/Horizontal component) as the mirror line. * YAXIS By Times Over Zero Time, Flip times of selected keyframes, effectively reversing the order they appear in. * XAXIS By Values Over Zero Value, Flip values of selected keyframes (i.e. negative values become positive, and vice versa). * MARKER By Times Over First Selected Marker, Flip times of selected keyframes using the first selected marker as the reference point.
     :type type: typing.Union[int, str]
     '''
 
@@ -408,13 +410,14 @@ def select_column(mode: typing.Union[int, str] = 'KEYS'):
     pass
 
 
-def select_lasso(path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None,
+def select_lasso(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
                  mode: typing.Union[int, str] = 'SET'):
     ''' Select keyframe points using lasso selection
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection.
     :type mode: typing.Union[int, str]
     '''
@@ -470,8 +473,16 @@ def smooth():
 def snap(type: typing.Union[int, str] = 'CFRA'):
     ''' Snap selected keyframes to the chosen times/values
 
-    :param type: Type * CFRA Current Frame, Snap selected keyframes to the current frame. * VALUE Cursor Value, Set values of selected keyframes to the cursor value (Y/Horizontal component). * NEAREST_FRAME Nearest Frame, Snap selected keyframes to the nearest (whole) frame (use to fix accidental sub-frame offsets). * NEAREST_SECOND Nearest Second, Snap selected keyframes to the nearest second. * NEAREST_MARKER Nearest Marker, Snap selected keyframes to the nearest marker. * HORIZONTAL Flatten Handles, Flatten handles for a smoother transition.
+    :param type: Type * CFRA Selection to Current Frame, Snap selected keyframes to the current frame. * VALUE Selection to Cursor Value, Set values of selected keyframes to the cursor value (Y/Horizontal component). * NEAREST_FRAME Selection to Nearest Frame, Snap selected keyframes to the nearest (whole) frame (use to fix accidental subframe offsets). * NEAREST_SECOND Selection to Nearest Second, Snap selected keyframes to the nearest second. * NEAREST_MARKER Selection to Nearest Marker, Snap selected keyframes to the nearest marker. * HORIZONTAL Flatten Handles, Flatten handles for a smoother transition.
     :type type: typing.Union[int, str]
+    '''
+
+    pass
+
+
+def snap_cursor_value():
+    ''' Place the cursor value on the average value of selected keyframes
+
     '''
 
     pass
@@ -498,7 +509,7 @@ def sound_bake(filepath: str = "",
                show_multiview: bool = False,
                use_multiview: bool = False,
                display_type: typing.Union[int, str] = 'DEFAULT',
-               sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+               sort_method: typing.Union[int, str] = '',
                low: float = 0.0,
                high: float = 100000.0,
                attack: float = 0.005,
@@ -552,15 +563,15 @@ def sound_bake(filepath: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
-    :param low: Lowest frequency, Cutoff frequency of a high-pass filter that is applied to the audio data
+    :param low: Lowest Frequency, Cutoff frequency of a high-pass filter that is applied to the audio data
     :type low: float
-    :param high: Highest frequency, Cutoff frequency of a low-pass filter that is applied to the audio data
+    :param high: Highest Frequency, Cutoff frequency of a low-pass filter that is applied to the audio data
     :type high: float
-    :param attack: Attack time, Value for the hull curve calculation that tells how fast the hull curve can rise (the lower the value the steeper it can rise)
+    :param attack: Attack Time, Value for the hull curve calculation that tells how fast the hull curve can rise (the lower the value the steeper it can rise)
     :type attack: float
-    :param release: Release time, Value for the hull curve calculation that tells how fast the hull curve can fall (the lower the value the steeper it can fall)
+    :param release: Release Time, Value for the hull curve calculation that tells how fast the hull curve can fall (the lower the value the steeper it can fall)
     :type release: float
     :param threshold: Threshold, Minimum amplitude value needed to influence the hull curve
     :type threshold: float
@@ -572,6 +583,14 @@ def sound_bake(filepath: str = "",
     :type use_square: bool
     :param sthreshold: Square Threshold, Square only: all values with an absolute amplitude lower than that result in 0
     :type sthreshold: float
+    '''
+
+    pass
+
+
+def unbake():
+    ''' Un-Bake selected F-Points to F-Curves
+
     '''
 
     pass

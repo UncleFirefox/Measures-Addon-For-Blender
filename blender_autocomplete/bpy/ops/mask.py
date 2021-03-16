@@ -299,13 +299,14 @@ def select_circle(x: int = 0,
     pass
 
 
-def select_lasso(path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None,
+def select_lasso(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
                  mode: typing.Union[int, str] = 'SET'):
     ''' Select curve points using lasso selection
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection.
     :type mode: typing.Union[int, str]
     '''
@@ -396,7 +397,7 @@ def slide_point(slide_feather: bool = False, is_new_point: bool = False):
 
 
 def slide_spline_curvature():
-    ''' Slide a point on the spline to define it's curvature
+    ''' Slide a point on the spline to define its curvature
 
     '''
 

@@ -33,7 +33,7 @@ def channels_clean_empty():
 
 
 def channels_click(extend: bool = False, children_only: bool = False):
-    ''' Handle mouse-clicks over animation channels
+    ''' Handle mouse clicks over animation channels
 
     :param extend: Extend Select
     :type extend: bool
@@ -217,7 +217,7 @@ def channels_ungroup():
 
 
 def clear_useless_actions(only_unused: bool = True):
-    ''' Mark actions with no F-Curves for deletion after save & reload of file preserving "action libraries"
+    ''' Mark actions with no F-Curves for deletion after save and reload of file preserving "action libraries"
 
     :param only_unused: Only Unused, Only unused (Fake User only) actions get considered
     :type only_unused: bool
@@ -466,7 +466,7 @@ def paste_driver_button():
 
 
 def previewrange_clear():
-    ''' Clear Preview Range
+    ''' Clear preview range
 
     '''
 
@@ -495,6 +495,14 @@ def previewrange_set(xmin: int = 0,
     pass
 
 
+def show_group_colors_deprecated():
+    ''' This option moved to Preferences > Animation :file: startup/bl_operators/anim.py\:439 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/anim.py$439> _
+
+    '''
+
+    pass
+
+
 def start_frame_set():
     ''' Set the current frame as the preview or scene start frame
 
@@ -504,9 +512,9 @@ def start_frame_set():
 
 
 def update_animated_transform_constraints(use_convert_to_radians: bool = True):
-    ''' Update fcurves/drivers affecting Transform constraints (use it with files from 2.70 and earlier)
+    ''' Update f-curves/drivers affecting Transform constraints (use it with files from 2.70 and earlier)
 
-    :param use_convert_to_radians: Convert To Radians, Convert fcurves/drivers affecting rotations to radians (Warning: use this only once!)
+    :param use_convert_to_radians: Convert to Radians, Convert fcurves/drivers affecting rotations to radians (Warning: use this only once!)
     :type use_convert_to_radians: bool
     '''
 

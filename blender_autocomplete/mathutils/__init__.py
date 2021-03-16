@@ -1,10 +1,10 @@
 import sys
 import typing
-from . import geometry
-from . import kdtree
-from . import interpolate
 from . import noise
+from . import kdtree
 from . import bvhtree
+from . import interpolate
+from . import geometry
 
 
 class Color:
@@ -156,11 +156,11 @@ class Euler:
         '''
         pass
 
-    def rotate(self, other: typing.Union['Euler', 'Quaternion', 'Matrix']):
+    def rotate(self, other: typing.Union['Euler', 'Matrix', 'Quaternion']):
         ''' Rotates the euler by another mathutils value.
 
         :param other: rotation component of mathutils value
-        :type other: typing.Union['Euler', 'Quaternion', 'Matrix']
+        :type other: typing.Union['Euler', 'Matrix', 'Quaternion']
         '''
         pass
 
@@ -358,13 +358,13 @@ class Matrix:
         pass
 
     def adjugate(self):
-        ''' Set the matrix to its adjugate.
+        ''' Set the matrix to its adjugate. :raises ValueError: if the matrix cannot be adjugate.
 
         '''
         pass
 
     def adjugated(self) -> 'Matrix':
-        ''' Return an adjugated copy of the matrix.
+        ''' Return an adjugated copy of the matrix. :raises ValueError: if the matrix cannot be adjugated
 
         :rtype: 'Matrix'
         :return: the adjugated matrix.
@@ -473,11 +473,11 @@ class Matrix:
         '''
         pass
 
-    def rotate(self, other: typing.Union['Euler', 'Quaternion', 'Matrix']):
+    def rotate(self, other: typing.Union['Euler', 'Matrix', 'Quaternion']):
         ''' Rotates the matrix by another mathutils value.
 
         :param other: rotation component of mathutils value
-        :type other: typing.Union['Euler', 'Quaternion', 'Matrix']
+        :type other: typing.Union['Euler', 'Matrix', 'Quaternion']
         '''
         pass
 
@@ -735,11 +735,11 @@ class Quaternion:
         '''
         pass
 
-    def rotate(self, other: typing.Union['Euler', 'Quaternion', 'Matrix']):
+    def rotate(self, other: typing.Union['Euler', 'Matrix', 'Quaternion']):
         ''' Rotates the quaternion by another mathutils value.
 
         :param other: rotation component of mathutils value
-        :type other: typing.Union['Euler', 'Quaternion', 'Matrix']
+        :type other: typing.Union['Euler', 'Matrix', 'Quaternion']
         '''
         pass
 
@@ -2094,11 +2094,11 @@ class Vector:
         pass
 
     @staticmethod
-    def rotate(other: typing.Union['Euler', 'Quaternion', 'Matrix']):
+    def rotate(other: typing.Union['Euler', 'Matrix', 'Quaternion']):
         ''' Rotate the vector by a rotation value.
 
         :param other: rotation component of mathutils value
-        :type other: typing.Union['Euler', 'Quaternion', 'Matrix']
+        :type other: typing.Union['Euler', 'Matrix', 'Quaternion']
         '''
         pass
 

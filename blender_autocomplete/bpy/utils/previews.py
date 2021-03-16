@@ -24,7 +24,7 @@ class ImagePreviewCollection:
              filepath: str,
              filetype: str,
              force_reload: bool = False) -> 'bpy.types.ImagePreview':
-        ''' Generate a new preview from given file path, or return existing one matching name .
+        ''' Generate a new preview from given file path. :raises KeyError: if name already exists.
 
         :param name: The name (unique id) identifying the preview.
         :type name: str
@@ -40,7 +40,7 @@ class ImagePreviewCollection:
         pass
 
     def new(self, name: str) -> 'bpy.types.ImagePreview':
-        ''' Generate a new empty preview, or return existing one matching name .
+        ''' Generate a new empty preview. :raises KeyError: if name already exists.
 
         :param name: The name (unique id) identifying the preview.
         :type name: str

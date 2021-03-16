@@ -25,7 +25,7 @@ def python_file_run(filepath: str = ""):
 
 
 def reload():
-    ''' Reload Scripts
+    ''' Reload scripts
 
     '''
 

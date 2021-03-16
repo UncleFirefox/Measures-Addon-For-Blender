@@ -36,6 +36,14 @@ def draw_node_categories_menu(context):
     pass
 
 
+def has_node_categories(context):
+    ''' 
+
+    '''
+
+    pass
+
+
 def node_categories_iter(context):
     ''' 
 

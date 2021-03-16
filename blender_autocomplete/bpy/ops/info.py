@@ -3,7 +3,7 @@ import typing
 
 
 def report_copy():
-    ''' Copy selected reports to Clipboard
+    ''' Copy selected reports to clipboard
 
     '''
 

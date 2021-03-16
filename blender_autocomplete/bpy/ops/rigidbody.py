@@ -112,7 +112,7 @@ def objects_remove():
 def shape_change(type: typing.Union[int, str] = 'MESH'):
     ''' Change collision shapes for selected Rigid Body Objects
 
-    :param type: Rigid Body Shape * BOX Box, Box-like shapes (i.e. cubes), including planes (i.e. ground planes). * SPHERE Sphere. * CAPSULE Capsule. * CYLINDER Cylinder. * CONE Cone. * CONVEX_HULL Convex Hull, A mesh-like surface encompassing (i.e. shrinkwrap over) all vertices (best results with fewer vertices). * MESH Mesh, Mesh consisting of triangles only, allowing for more detailed interactions than convex hulls.
+    :param type: Rigid Body Shape * BOX Box, Box-like shapes (i.e. cubes), including planes (i.e. ground planes). * SPHERE Sphere. * CAPSULE Capsule. * CYLINDER Cylinder. * CONE Cone. * CONVEX_HULL Convex Hull, A mesh-like surface encompassing (i.e. shrinkwrap over) all vertices (best results with fewer vertices). * MESH Mesh, Mesh consisting of triangles only, allowing for more detailed interactions than convex hulls. * COMPOUND Compound Parent, Combines all of its direct rigid body children into one rigid object.
     :type type: typing.Union[int, str]
     '''
 

@@ -41,8 +41,8 @@ def beautify_fill(
 
 
 def bevel(bm: 'bmesh.types.BMesh', geom: typing.
-          Union[typing.List['bmesh.types.BMFace'], typing.
-                List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']],
+          Union[typing.List['bmesh.types.BMEdge'], typing.
+                List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
           offset: float, offset_type: typing.Union[int, str],
           profile_type: typing.Union[int, str], segments: int, profile: float,
           affect: typing.Union[int, str], clamp_overlap: bool, material: int,
@@ -57,7 +57,7 @@ def bevel(bm: 'bmesh.types.BMesh', geom: typing.
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
     :param geom: input edges and vertices
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param offset: amount to offset beveled edge
     :type offset: float
     :param offset_type: how to measure the offset
@@ -94,7 +94,7 @@ def bevel(bm: 'bmesh.types.BMesh', geom: typing.
     :type smoothresh: float
     :param custom_profile: CurveProfile
     :type custom_profile: 'bpy.types.bpy_struct'
-    :param vmesh_method: Undocumented.
+    :param vmesh_method: The method to use to create meshes at intersections.
     :type vmesh_method: typing.Union[int, str]
     :return: - faces : output faces **type** list of ( bmesh.types.BMFace ) - edges : output edges **type** list of ( bmesh.types.BMEdge ) - verts : output verts **type** list of ( bmesh.types.BMVert )
     '''
@@ -123,8 +123,8 @@ def bisect_edges(bm: 'bmesh.types.BMesh',
 
 def bisect_plane(
         bm: 'bmesh.types.BMesh', geom: typing.
-        Union[typing.List['bmesh.types.BMFace'], typing.
-              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']],
+        Union[typing.List['bmesh.types.BMEdge'], typing.
+              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
         dist: float, plane_co: typing.List['mathutils.Vector'],
         plane_no: typing.List['mathutils.Vector'], use_snap_center: bool,
         clear_outer: bool, clear_inner: bool) -> dict:
@@ -132,8 +132,8 @@ def bisect_plane(
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param geom: Undocumented.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :param geom: input geometry
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param dist: minimum distance when testing if a vert is exactly on the plane
     :type dist: float
     :param plane_co: point on the plane
@@ -158,9 +158,9 @@ def bmesh_to_mesh(bm: 'bmesh.types.BMesh', mesh: 'bpy.types.Mesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param mesh: Undocumented.
+    :param mesh: pointer to a mesh structure to fill in
     :type mesh: 'bpy.types.Mesh'
-    :param object: Undocumented.
+    :param object: pointer to an object structure
     :type object: 'bpy.types.Object'
     '''
 
@@ -181,11 +181,11 @@ def bridge_loops(bm: 'bmesh.types.BMesh',
     :type use_pairs: bool
     :param use_cyclic: Undocumented.
     :type use_cyclic: bool
-    :param use_merge: Undocumented.
+    :param use_merge: merge rather than creating faces
     :type use_merge: bool
-    :param merge_factor: Undocumented.
+    :param merge_factor: merge factor
     :type merge_factor: float
-    :param twist_offset: Undocumented.
+    :param twist_offset: twist offset for closed loops
     :type twist_offset: int
     :return: - faces : new faces **type** list of ( bmesh.types.BMFace ) - edges : new edges **type** list of ( bmesh.types.BMEdge )
     '''
@@ -229,11 +229,11 @@ def connect_vert_pair(
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param verts: Undocumented.
+    :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
-    :param verts_exclude: Undocumented.
+    :param verts_exclude: input vertices to explicitly exclude from connecting
     :type verts_exclude: typing.List['bmesh.types.BMVert']
-    :param faces_exclude: Undocumented.
+    :param faces_exclude: input faces to explicitly exclude from connecting
     :type faces_exclude: typing.List['bmesh.types.BMFace']
     :return: - edges : **type** list of ( bmesh.types.BMEdge )
     '''
@@ -249,9 +249,9 @@ def connect_verts(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param verts: Undocumented.
+    :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
-    :param faces_exclude: Undocumented.
+    :param faces_exclude: input faces to explicitly exclude from connecting
     :type faces_exclude: typing.List['bmesh.types.BMFace']
     :param check_degenerate: prevent splits with overlaps & intersections
     :type check_degenerate: bool
@@ -267,7 +267,7 @@ def connect_verts_concave(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param faces: Undocumented.
+    :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
     :return: - edges : **type** list of ( bmesh.types.BMEdge ) - faces : **type** list of ( bmesh.types.BMFace )
     '''
@@ -283,7 +283,7 @@ def connect_verts_nonplanar(bm: 'bmesh.types.BMesh', angle_limit: float,
     :type bm: 'bmesh.types.BMesh'
     :param angle_limit: total rotation angle (radians)
     :type angle_limit: float
-    :param faces: Undocumented.
+    :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
     :return: - edges : **type** list of ( bmesh.types.BMEdge ) - faces : **type** list of ( bmesh.types.BMFace )
     '''
@@ -293,15 +293,15 @@ def connect_verts_nonplanar(bm: 'bmesh.types.BMesh', angle_limit: float,
 
 def contextual_create(
         bm: 'bmesh.types.BMesh', geom: typing.
-        Union[typing.List['bmesh.types.BMFace'], typing.
-              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']],
+        Union[typing.List['bmesh.types.BMEdge'], typing.
+              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
         mat_nr: int, use_smooth: bool) -> dict:
     ''' Contextual Create. This is basically F-key, it creates new faces from vertices, makes stuff from edge nets, makes wire edges, etc. It also dissolves faces. Three verts become a triangle, four become a quad. Two become a wire edge.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
     :param geom: input geometry.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param mat_nr: material to use
     :type mat_nr: int
     :param use_smooth: smooth to use
@@ -313,17 +313,17 @@ def contextual_create(
 
 
 def convex_hull(bm: 'bmesh.types.BMesh',
-                input: typing.Union[typing.List['bmesh.types.BMFace'], typing.
+                input: typing.Union[typing.List['bmesh.types.BMEdge'], typing.
                                     List['bmesh.types.BMVert'], typing.
-                                    List['bmesh.types.BMEdge']],
+                                    List['bmesh.types.BMFace']],
                 use_existing_faces: bool) -> dict:
     ''' Convex Hull Builds a convex hull from the vertices in 'input'. If 'use_existing_faces' is true, the hull will not output triangles that are covered by a pre-existing face. All hull vertices, faces, and edges are added to 'geom.out'. Any input elements that end up inside the hull (i.e. are not used by an output face) are added to the 'interior_geom' slot. The 'unused_geom' slot will contain all interior geometry that is completely unused. Lastly, 'holes_geom' contains edges and faces that were in the input and are part of the hull.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param input: Undocumented.
-    :type input: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
-    :param use_existing_faces: Undocumented.
+    :param input: input geometry
+    :type input: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
+    :param use_existing_faces: skip hull triangles that are covered by a pre-existing face
     :type use_existing_faces: bool
     :return: - geom : **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace ) - geom_interior : **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace ) - geom_unused : **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace ) - geom_holes : **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace )
     '''
@@ -342,7 +342,7 @@ def create_circle(bm: 'bmesh.types.BMesh', cap_ends: bool, cap_tris: bool,
     :type cap_ends: bool
     :param cap_tris: fill ends with triangles instead of ngons
     :type cap_tris: bool
-    :param segments: Undocumented.
+    :param segments: number of vertices in the circle
     :type segments: int
     :param radius: Radius of the circle.
     :type radius: float
@@ -368,7 +368,7 @@ def create_cone(bm: 'bmesh.types.BMesh', cap_ends: bool, cap_tris: bool,
     :type cap_ends: bool
     :param cap_tris: fill ends with triangles instead of ngons
     :type cap_tris: bool
-    :param segments: Undocumented.
+    :param segments: number of vertices in the base circle
     :type segments: int
     :param diameter1: diameter of one end
     :type diameter1: float
@@ -502,16 +502,16 @@ def create_vert(bm: 'bmesh.types.BMesh',
 
 
 def delete(bm: 'bmesh.types.BMesh',
-           geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.
+           geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.
                               List['bmesh.types.BMVert'], typing.
-                              List['bmesh.types.BMEdge']],
+                              List['bmesh.types.BMFace']],
            context: typing.Union[int, str]):
     ''' Delete Geometry. Utility operator to delete geometry.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param geom: Undocumented.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :param geom: input geometry
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param context: geometry types to delete
     :type context: typing.Union[int, str]
     '''
@@ -527,7 +527,7 @@ def dissolve_degenerate(bm: 'bmesh.types.BMesh', dist: float,
     :type bm: 'bmesh.types.BMesh'
     :param dist: maximum distance to consider degenerate
     :type dist: float
-    :param edges: Undocumented.
+    :param edges: input edges
     :type edges: typing.List['bmesh.types.BMEdge']
     '''
 
@@ -541,11 +541,11 @@ def dissolve_edges(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param edges: Undocumented.
+    :param edges: input edges
     :type edges: typing.List['bmesh.types.BMEdge']
     :param use_verts: dissolve verts left between only 2 edges.
     :type use_verts: bool
-    :param use_face_split: Undocumented.
+    :param use_face_split: split off face corners to maintain surrounding geometry
     :type use_face_split: bool
     :return: - region : **type** list of ( bmesh.types.BMFace )
     '''
@@ -560,7 +560,7 @@ def dissolve_faces(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param faces: Undocumented.
+    :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
     :param use_verts: dissolve verts left between only 2 edges.
     :type use_verts: bool
@@ -581,13 +581,13 @@ def dissolve_limit(bm: 'bmesh.types.BMesh', angle_limit: float,
     :type bm: 'bmesh.types.BMesh'
     :param angle_limit: total rotation angle (radians)
     :type angle_limit: float
-    :param use_dissolve_boundaries: Undocumented.
+    :param use_dissolve_boundaries: dissolve all vertices in between face boundaries
     :type use_dissolve_boundaries: bool
-    :param verts: Undocumented.
+    :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
-    :param edges: Undocumented.
+    :param edges: input edges
     :type edges: typing.List['bmesh.types.BMEdge']
-    :param delimit: Undocumented.
+    :param delimit: delimit dissolve operation
     :type delimit: set
     :return: - region : **type** list of ( bmesh.types.BMFace )
     '''
@@ -602,11 +602,11 @@ def dissolve_verts(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param verts: Undocumented.
+    :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
-    :param use_face_split: Undocumented.
+    :param use_face_split: split off face corners to maintain surrounding geometry
     :type use_face_split: bool
-    :param use_boundary_tear: Undocumented.
+    :param use_boundary_tear: split off face corners instead of merging faces
     :type use_boundary_tear: bool
     '''
 
@@ -614,18 +614,18 @@ def dissolve_verts(bm: 'bmesh.types.BMesh',
 
 
 def duplicate(bm: 'bmesh.types.BMesh',
-              geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.
+              geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.
                                  List['bmesh.types.BMVert'], typing.
-                                 List['bmesh.types.BMEdge']],
+                                 List['bmesh.types.BMFace']],
               dest: 'bmesh.types.BMesh', use_select_history: bool,
               use_edge_flip_from_face: bool) -> dict:
     ''' Duplicate Geometry. Utility operator to duplicate geometry, optionally into a destination mesh.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param geom: Undocumented.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
-    :param dest: Undocumented.
+    :param geom: input geometry
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
+    :param dest: destination bmesh, if NULL will use current on
     :type dest: 'bmesh.types.BMesh'
     :param use_select_history: Undocumented.
     :type use_select_history: bool
@@ -730,23 +730,19 @@ def extrude_edge_only(bm: 'bmesh.types.BMesh',
 
 
 def extrude_face_region(
-        bm: 'bmesh.types.BMesh',
-        geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.
-                           List['bmesh.types.BMVert'], typing.
-                           List['bmesh.types.BMEdge']] = [],
-        edges_exclude: set = [],
-        use_keep_orig: bool = False,
-        use_normal_flip: bool = False,
-        use_normal_from_adjacent: bool = False,
-        use_dissolve_ortho_edges: bool = False,
-        use_select_history: bool = False) -> dict:
+        bm: 'bmesh.types.BMesh', geom: typing.
+        Union[typing.List['bmesh.types.BMEdge'], typing.
+              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
+        edges_exclude: set, use_keep_orig: bool, use_normal_flip: bool,
+        use_normal_from_adjacent: bool, use_dissolve_ortho_edges: bool,
+        use_select_history: bool) -> dict:
     ''' Extrude Faces. Extrude operator (does not transform)
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
     :param geom: edges and faces
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
-    :param edges_exclude: Undocumented.
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
+    :param edges_exclude: input edges to explicitly exclude from extrusion
     :type edges_exclude: set
     :param use_keep_orig: keep original geometry (requires geom to include edges).
     :type use_keep_orig: bool
@@ -866,15 +862,15 @@ def inset_individual(bm: 'bmesh.types.BMesh',
     :type bm: 'bmesh.types.BMesh'
     :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
-    :param thickness: Undocumented.
+    :param thickness: thickness
     :type thickness: float
-    :param depth: Undocumented.
+    :param depth: depth
     :type depth: float
-    :param use_even_offset: Undocumented.
+    :param use_even_offset: scale the offset to give more even thickness
     :type use_even_offset: bool
-    :param use_interpolate: Undocumented.
+    :param use_interpolate: blend face data across the inset
     :type use_interpolate: bool
-    :param use_relative_offset: Undocumented.
+    :param use_relative_offset: scale the offset by surrounding geometry
     :type use_relative_offset: bool
     :return: - faces : output faces **type** list of ( bmesh.types.BMFace )
     '''
@@ -894,23 +890,23 @@ def inset_region(
     :type bm: 'bmesh.types.BMesh'
     :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
-    :param faces_exclude: Undocumented.
+    :param faces_exclude: input faces to explicitly exclude from inset
     :type faces_exclude: typing.List['bmesh.types.BMFace']
-    :param use_boundary: Undocumented.
+    :param use_boundary: inset face boundaries
     :type use_boundary: bool
-    :param use_even_offset: Undocumented.
+    :param use_even_offset: scale the offset to give more even thickness
     :type use_even_offset: bool
-    :param use_interpolate: Undocumented.
+    :param use_interpolate: blend face data across the inset
     :type use_interpolate: bool
-    :param use_relative_offset: Undocumented.
+    :param use_relative_offset: scale the offset by surrounding geometry
     :type use_relative_offset: bool
-    :param use_edge_rail: Undocumented.
+    :param use_edge_rail: inset the region along existing edges
     :type use_edge_rail: bool
-    :param thickness: Undocumented.
+    :param thickness: thickness
     :type thickness: float
-    :param depth: Undocumented.
+    :param depth: depth
     :type depth: float
-    :param use_outset: Undocumented.
+    :param use_outset: outset rather than inset
     :type use_outset: bool
     :return: - faces : output faces **type** list of ( bmesh.types.BMFace )
     '''
@@ -929,15 +925,15 @@ def join_triangles(bm: 'bmesh.types.BMesh',
     :type bm: 'bmesh.types.BMesh'
     :param faces: input geometry.
     :type faces: typing.List['bmesh.types.BMFace']
-    :param cmp_seam: Undocumented.
+    :param cmp_seam: Compare seam
     :type cmp_seam: bool
-    :param cmp_sharp: Undocumented.
+    :param cmp_sharp: Compare sharp
     :type cmp_sharp: bool
-    :param cmp_uvs: Undocumented.
+    :param cmp_uvs: Compare UVs
     :type cmp_uvs: bool
-    :param cmp_vcols: Undocumented.
+    :param cmp_vcols: compare VCols
     :type cmp_vcols: bool
-    :param cmp_materials: Undocumented.
+    :param cmp_materials: compare materials
     :type cmp_materials: bool
     :param angle_face_threshold: Undocumented.
     :type angle_face_threshold: float
@@ -955,9 +951,9 @@ def mesh_to_bmesh(bm: 'bmesh.types.BMesh', mesh: 'bpy.types.Mesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param mesh: Undocumented.
+    :param mesh: pointer to a Mesh structure
     :type mesh: 'bpy.types.Mesh'
-    :param object: Undocumented.
+    :param object: pointer to an Object structure
     :type object: 'bpy.types.Object'
     :param use_shapekey: load active shapekey coordinates into verts
     :type use_shapekey: bool
@@ -967,18 +963,18 @@ def mesh_to_bmesh(bm: 'bmesh.types.BMesh', mesh: 'bpy.types.Mesh',
 
 
 def mirror(bm: 'bmesh.types.BMesh',
-           geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.
+           geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.
                               List['bmesh.types.BMVert'], typing.
-                              List['bmesh.types.BMEdge']],
+                              List['bmesh.types.BMFace']],
            matrix: 'mathutils.Matrix', merge_dist: float,
            axis: typing.Union[int, str], mirror_u: bool, mirror_v: bool,
-           mirror_udim: bool) -> dict:
+           mirror_udim: bool, use_shapekey: bool) -> dict:
     ''' Mirror. Mirrors geometry along an axis. The resulting geometry is welded on using merge_dist. Pairs of original/mirrored vertices are welded using the merge_dist parameter (which defines the minimum distance for welding to happen).
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
     :param geom: input geometry
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param matrix: matrix defining the mirror transformation
     :type matrix: 'mathutils.Matrix'
     :param merge_dist: maximum distance for merging. does no merging if 0.
@@ -991,6 +987,8 @@ def mirror(bm: 'bmesh.types.BMesh',
     :type mirror_v: bool
     :param mirror_udim: mirror UVs in each tile
     :type mirror_udim: bool
+    :param use_shapekey: Transform shape keys too.
+    :type use_shapekey: bool
     :return: - geom : output geometry, mirrored **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace )
     '''
 
@@ -1003,9 +1001,9 @@ def object_load_bmesh(bm: 'bmesh.types.BMesh', scene: 'bpy.types.Scene',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param scene: Undocumented.
+    :param scene: pointer to an scene structure
     :type scene: 'bpy.types.Scene'
-    :param object: Undocumented.
+    :param object: pointer to an object structure
     :type object: 'bpy.types.Object'
     '''
 
@@ -1019,11 +1017,11 @@ def offset_edgeloops(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param edges: input faces
+    :param edges: input edges
     :type edges: typing.List['bmesh.types.BMEdge']
-    :param use_cap_endpoint: Undocumented.
+    :param use_cap_endpoint: extend loop around end-points
     :type use_cap_endpoint: bool
-    :return: - edges : output faces **type** list of ( bmesh.types.BMEdge )
+    :return: - edges : output edges **type** list of ( bmesh.types.BMEdge )
     '''
 
     pass
@@ -1107,7 +1105,7 @@ def recalc_face_normals(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param faces: Undocumented.
+    :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
     '''
 
@@ -1116,15 +1114,15 @@ def recalc_face_normals(bm: 'bmesh.types.BMesh',
 
 def region_extend(
         bm: 'bmesh.types.BMesh', geom: typing.
-        Union[typing.List['bmesh.types.BMFace'], typing.
-              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']],
+        Union[typing.List['bmesh.types.BMEdge'], typing.
+              List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
         use_contract: bool, use_faces: bool, use_face_step: bool) -> dict:
     ''' Region Extend. used to implement the select more/less tools. this puts some geometry surrounding regions of geometry in geom into geom.out. if use_faces is 0 then geom.out spits out verts and edges, otherwise it spits out faces.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
     :param geom: input geometry
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param use_contract: find boundary inside the regions, not outside.
     :type use_contract: bool
     :param use_faces: extend from faces instead of edges
@@ -1139,7 +1137,7 @@ def region_extend(
 
 def remove_doubles(bm: 'bmesh.types.BMesh',
                    verts: typing.List['bmesh.types.BMVert'], dist: float):
-    ''' Remove Doubles. Finds groups of vertices closer then dist and merges them together, using the weld verts bmop.
+    ''' Remove Doubles. Finds groups of vertices closer than dist and merges them together, using the weld verts bmop.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
@@ -1196,8 +1194,8 @@ def reverse_uvs(bm: 'bmesh.types.BMesh',
 
 def rotate(bm: 'bmesh.types.BMesh', cent: typing.List['mathutils.Vector'],
            matrix: 'mathutils.Matrix',
-           verts: typing.List['bmesh.types.BMVert'],
-           space: 'mathutils.Matrix'):
+           verts: typing.List['bmesh.types.BMVert'], space: 'mathutils.Matrix',
+           use_shapekey: bool):
     ''' Rotate. Rotate vertices around a center, using a 3x3 rotation matrix.
 
     :param bm: The bmesh to operate on.
@@ -1210,6 +1208,8 @@ def rotate(bm: 'bmesh.types.BMesh', cent: typing.List['mathutils.Vector'],
     :type verts: typing.List['bmesh.types.BMVert']
     :param space: matrix to define the space (typically object matrix)
     :type space: 'mathutils.Matrix'
+    :param use_shapekey: Transform shape keys too.
+    :type use_shapekey: bool
     '''
 
     pass
@@ -1263,7 +1263,8 @@ def rotate_uvs(bm: 'bmesh.types.BMesh',
 
 
 def scale(bm: 'bmesh.types.BMesh', vec: typing.List['mathutils.Vector'],
-          space: 'mathutils.Matrix', verts: typing.List['bmesh.types.BMVert']):
+          space: 'mathutils.Matrix', verts: typing.List['bmesh.types.BMVert'],
+          use_shapekey: bool):
     ''' Scale. Scales vertices by an offset.
 
     :param bm: The bmesh to operate on.
@@ -1274,6 +1275,8 @@ def scale(bm: 'bmesh.types.BMesh', vec: typing.List['mathutils.Vector'],
     :type space: 'mathutils.Matrix'
     :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
+    :param use_shapekey: Transform shape keys too.
+    :type use_shapekey: bool
     '''
 
     pass
@@ -1339,17 +1342,17 @@ def smooth_vert(bm: 'bmesh.types.BMesh',
 
 
 def solidify(bm: 'bmesh.types.BMesh',
-             geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.
+             geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.
                                 List['bmesh.types.BMVert'], typing.
-                                List['bmesh.types.BMEdge']],
+                                List['bmesh.types.BMFace']],
              thickness: float) -> dict:
     ''' Solidify. Turns a mesh into a shell with thickness
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param geom: Undocumented.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
-    :param thickness: Undocumented.
+    :param geom: input geometry
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
+    :param thickness: thickness
     :type thickness: float
     :return: - geom : **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace )
     '''
@@ -1358,8 +1361,8 @@ def solidify(bm: 'bmesh.types.BMesh',
 
 
 def spin(bm: 'bmesh.types.BMesh', geom: typing.
-         Union[typing.List['bmesh.types.BMFace'], typing.
-               List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']],
+         Union[typing.List['bmesh.types.BMEdge'], typing.
+               List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
          cent: typing.List['mathutils.Vector'],
          axis: typing.List['mathutils.Vector'],
          dvec: typing.List['mathutils.Vector'], angle: float,
@@ -1369,8 +1372,8 @@ def spin(bm: 'bmesh.types.BMesh', geom: typing.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param geom: Undocumented.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :param geom: input geometry
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param cent: rotation center
     :type cent: typing.List['mathutils.Vector']
     :param axis: rotation axis
@@ -1396,16 +1399,16 @@ def spin(bm: 'bmesh.types.BMesh', geom: typing.
 
 
 def split(bm: 'bmesh.types.BMesh', geom: typing.
-          Union[typing.List['bmesh.types.BMFace'], typing.
-                List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']],
+          Union[typing.List['bmesh.types.BMEdge'], typing.
+                List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']],
           dest: 'bmesh.types.BMesh', use_only_faces: bool) -> dict:
     ''' Split Off Geometry. Disconnect geometry from adjacent edges and faces, optionally into a destination mesh.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param geom: Undocumented.
-    :type geom: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
-    :param dest: Undocumented.
+    :param geom: input geometry
+    :type geom: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
+    :param dest: destination bmesh, if NULL will use current one
     :type dest: 'bmesh.types.BMesh'
     :param use_only_faces: when enabled. don't duplicate loose verts/edges
     :type use_only_faces: bool
@@ -1447,13 +1450,13 @@ def subdivide_edgering(bm: 'bmesh.types.BMesh',
     :type edges: typing.List['bmesh.types.BMEdge']
     :param interp_mode: interpolation method
     :type interp_mode: typing.Union[int, str]
-    :param smooth: Undocumented.
+    :param smooth: smoothness factor
     :type smooth: float
-    :param cuts: Undocumented.
+    :param cuts: number of cuts
     :type cuts: int
     :param profile_shape: profile shape type
     :type profile_shape: typing.Union[int, str]
-    :param profile_shape_factor: Undocumented.
+    :param profile_shape_factor: how much intermediary new edges are shrunk/expanded
     :type profile_shape_factor: float
     :return: - faces : output faces **type** list of ( bmesh.types.BMFace )
     '''
@@ -1472,19 +1475,19 @@ def subdivide_edges(
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param edges: Undocumented.
+    :param edges: input edges
     :type edges: typing.List['bmesh.types.BMEdge']
-    :param smooth: Undocumented.
+    :param smooth: smoothness factor
     :type smooth: float
     :param smooth_falloff: smooth falloff type
     :type smooth_falloff: typing.Union[int, str]
-    :param fractal: Undocumented.
+    :param fractal: fractal randomness factor
     :type fractal: float
-    :param along_normal: Undocumented.
+    :param along_normal: apply fractal displacement along normal only
     :type along_normal: float
-    :param cuts: Undocumented.
+    :param cuts: number of cuts
     :type cuts: int
-    :param seed: Undocumented.
+    :param seed: seed for the random number generator
     :type seed: int
     :param custom_patterns: uses custom pointers
     :type custom_patterns: dict
@@ -1509,20 +1512,23 @@ def subdivide_edges(
 
 
 def symmetrize(bm: 'bmesh.types.BMesh',
-               input: typing.Union[typing.List['bmesh.types.BMFace'], typing.
+               input: typing.Union[typing.List['bmesh.types.BMEdge'], typing.
                                    List['bmesh.types.BMVert'], typing.
-                                   List['bmesh.types.BMEdge']],
-               direction: typing.Union[int, str], dist: float) -> dict:
+                                   List['bmesh.types.BMFace']],
+               direction: typing.Union[int, str], dist: float,
+               use_shapekey: bool) -> dict:
     ''' Symmetrize. Makes the mesh elements in the "input" slot symmetrical. Unlike normal mirroring, it only copies in one direction, as specified by the "direction" slot. The edges and faces that cross the plane of symmetry are split as needed to enforce symmetry. All new vertices, edges, and faces are added to the "geom.out" slot.
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param input: Undocumented.
-    :type input: typing.Union[typing.List['bmesh.types.BMFace'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMEdge']]
+    :param input: input geometry
+    :type input: typing.Union[typing.List['bmesh.types.BMEdge'], typing.List['bmesh.types.BMVert'], typing.List['bmesh.types.BMFace']]
     :param direction: axis to use
     :type direction: typing.Union[int, str]
     :param dist: minimum distance
     :type dist: float
+    :param use_shapekey: Transform shape keys too.
+    :type use_shapekey: bool
     :return: - geom : **type** list of ( bmesh.types.BMVert , bmesh.types.BMEdge , bmesh.types.BMFace )
     '''
 
@@ -1531,7 +1537,7 @@ def symmetrize(bm: 'bmesh.types.BMesh',
 
 def transform(bm: 'bmesh.types.BMesh', matrix: 'mathutils.Matrix',
               space: 'mathutils.Matrix',
-              verts: typing.List['bmesh.types.BMVert']):
+              verts: typing.List['bmesh.types.BMVert'], use_shapekey: bool):
     ''' Transform. Transforms a set of vertices by a matrix. Multiplies the vertex coordinates with the matrix.
 
     :param bm: The bmesh to operate on.
@@ -1542,15 +1548,16 @@ def transform(bm: 'bmesh.types.BMesh', matrix: 'mathutils.Matrix',
     :type space: 'mathutils.Matrix'
     :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
+    :param use_shapekey: Transform shape keys too.
+    :type use_shapekey: bool
     '''
 
     pass
 
 
-def translate(bm: 'bmesh.types.BMesh',
-              vec: typing.List['mathutils.Vector'],
+def translate(bm: 'bmesh.types.BMesh', vec: typing.List['mathutils.Vector'],
               space: 'mathutils.Matrix',
-              verts: typing.List['bmesh.types.BMVert'] = []):
+              verts: typing.List['bmesh.types.BMVert'], use_shapekey: bool):
     ''' Translate. Translate vertices by an offset.
 
     :param bm: The bmesh to operate on.
@@ -1561,6 +1568,8 @@ def translate(bm: 'bmesh.types.BMesh',
     :type space: 'mathutils.Matrix'
     :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
+    :param use_shapekey: Transform shape keys too.
+    :type use_shapekey: bool
     '''
 
     pass
@@ -1573,7 +1582,7 @@ def triangle_fill(bm: 'bmesh.types.BMesh', use_beauty: bool,
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param use_beauty: Undocumented.
+    :param use_beauty: use best triangulation division
     :type use_beauty: bool
     :param use_dissolve: dissolve resulting faces
     :type use_dissolve: bool
@@ -1595,11 +1604,11 @@ def triangulate(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param faces: Undocumented.
+    :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
-    :param quad_method: Undocumented.
+    :param quad_method: method for splitting the quads into triangles
     :type quad_method: typing.Union[int, str]
-    :param ngon_method: Undocumented.
+    :param ngon_method: method for splitting the polygons into triangles
     :type ngon_method: typing.Union[int, str]
     :return: - edges : **type** list of ( bmesh.types.BMEdge ) - faces : **type** list of ( bmesh.types.BMFace ) - face_map : **type** dict mapping vert/edge/face types to bmesh.types.BMVert / bmesh.types.BMEdge / bmesh.types.BMFace - face_map_double : duplicate faces **type** dict mapping vert/edge/face types to bmesh.types.BMVert / bmesh.types.BMEdge / bmesh.types.BMFace
     '''
@@ -1615,7 +1624,7 @@ def unsubdivide(bm: 'bmesh.types.BMesh',
     :type bm: 'bmesh.types.BMesh'
     :param verts: input vertices
     :type verts: typing.List['bmesh.types.BMVert']
-    :param iterations: Undocumented.
+    :param iterations: number of times to unsubdivide
     :type iterations: int
     '''
 
@@ -1628,7 +1637,7 @@ def weld_verts(bm: 'bmesh.types.BMesh',
 
     :param bm: The bmesh to operate on.
     :type bm: 'bmesh.types.BMesh'
-    :param targetmap: Undocumented.
+    :param targetmap: maps welded vertices to verts they should weld to
     :type targetmap: typing.Union[dict, dict, dict]
     '''
 
@@ -1646,23 +1655,23 @@ def wireframe(bm: 'bmesh.types.BMesh',
     :type bm: 'bmesh.types.BMesh'
     :param faces: input faces
     :type faces: typing.List['bmesh.types.BMFace']
-    :param thickness: Undocumented.
+    :param thickness: thickness
     :type thickness: float
-    :param offset: Undocumented.
+    :param offset: offset the thickness from the center
     :type offset: float
-    :param use_replace: Undocumented.
+    :param use_replace: remove original geometry
     :type use_replace: bool
-    :param use_boundary: Undocumented.
+    :param use_boundary: inset face boundaries
     :type use_boundary: bool
-    :param use_even_offset: Undocumented.
+    :param use_even_offset: scale the offset to give more even thickness
     :type use_even_offset: bool
-    :param use_crease: Undocumented.
+    :param use_crease: crease hub edges for improved subdivision surface
     :type use_crease: bool
-    :param crease_weight: Undocumented.
+    :param crease_weight: the mean crease weight for resulting edges
     :type crease_weight: float
-    :param use_relative_offset: Undocumented.
+    :param use_relative_offset: scale the offset by surrounding geometry
     :type use_relative_offset: bool
-    :param material_offset: Undocumented.
+    :param material_offset: offset material index of generated faces
     :type material_offset: int
     :return: - faces : output faces **type** list of ( bmesh.types.BMFace )
     '''

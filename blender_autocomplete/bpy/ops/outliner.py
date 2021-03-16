@@ -22,6 +22,16 @@ def animdata_operation(type: typing.Union[int, str] = 'CLEAR_ANIMDATA'):
     pass
 
 
+def collection_color_tag_set(color: typing.Union[int, str] = 'NONE'):
+    ''' Set a color tag for the selected collections
+
+    :param color: Color Tag * NONE None, Assign no color tag to the collection. * COLOR_01 Color 01. * COLOR_02 Color 02. * COLOR_03 Color 03. * COLOR_04 Color 04. * COLOR_05 Color 05. * COLOR_06 Color 06. * COLOR_07 Color 07. * COLOR_08 Color 08.
+    :type color: typing.Union[int, str]
+    '''
+
+    pass
+
+
 def collection_disable():
     ''' Disable viewport drawing in the view layers
 
@@ -238,6 +248,14 @@ def data_operation(type: typing.Union[int, str] = 'SELECT'):
     pass
 
 
+def datastack_drop():
+    ''' Copy or reorder modifiers, constraints, and effects
+
+    '''
+
+    pass
+
+
 def delete(hierarchy: bool = False):
     ''' Delete selected objects and collections
 
@@ -307,7 +325,7 @@ def id_delete():
 def id_operation(type: typing.Union[int, str] = 'UNLINK'):
     ''' Undocumented, consider contributing <https://developer.blender.org/T51061> __.
 
-    :param type: ID data Operation * UNLINK Unlink. * LOCAL Make Local. * SINGLE Make Single User. * DELETE Delete. * REMAP Remap Users, Make all users of selected data-blocks to use instead current (clicked) one. * OVERRIDE_LIBRARY_CREATE Add Library Override, Add a local override of this linked data-block. * OVERRIDE_LIBRARY_CREATE_HIERARCHY Add Library Override Hierarchy, Add a local override of this linked data-block, and its hierarchy of dependencies. * OVERRIDE_LIBRARY_RESET Reset Library Override, Reset this local override to its linked values. * OVERRIDE_LIBRARY_RESET_HIERARCHY Reset Library Override Hierarchy, Reset this local override to its linked values, as well as its hierarchy of dependencies. * COPY Copy. * PASTE Paste. * ADD_FAKE Add Fake User, Ensure data-block gets saved even if it isn't in use (e.g. for motion and material libraries). * CLEAR_FAKE Clear Fake User. * RENAME Rename. * SELECT_LINKED Select Linked.
+    :param type: ID Data Operation * UNLINK Unlink. * MARK_ASSET Mark Asset. * CLEAR_ASSET Clear Asset. * LOCAL Make Local. * SINGLE Make Single User. * DELETE Delete. * REMAP Remap Users, Make all users of selected data-blocks to use instead current (clicked) one. * OVERRIDE_LIBRARY_CREATE Add Library Override, Add a local override of this linked data-block. * OVERRIDE_LIBRARY_CREATE_HIERARCHY Add Library Override Hierarchy, Add a local override of this linked data-block, and its hierarchy of dependencies. * OVERRIDE_LIBRARY_PROXY_CONVERT Convert Proxy to Override, Convert a Proxy object to a full library override, including all its dependencies. * OVERRIDE_LIBRARY_RESET Reset Library Override, Reset this local override to its linked values. * OVERRIDE_LIBRARY_RESET_HIERARCHY Reset Library Override Hierarchy, Reset this local override to its linked values, as well as its hierarchy of dependencies. * OVERRIDE_LIBRARY_RESYNC_HIERARCHY Resync Library Override Hierarchy, Rebuild this local override from its linked reference, as well as its hierarchy of dependencies. * OVERRIDE_LIBRARY_DELETE_HIERARCHY Delete Library Override Hierarchy, Delete this local override (including its hierarchy of override dependencies) and relink its usages to the linked data-blocks. * COPY Copy. * PASTE Paste. * ADD_FAKE Add Fake User, Ensure data-block gets saved even if it isn't in use (e.g. for motion and material libraries). * CLEAR_FAKE Clear Fake User. * RENAME Rename. * SELECT_LINKED Select Linked.
     :type type: typing.Union[int, str]
     '''
 
@@ -372,9 +390,11 @@ def item_openclose(all: bool = False):
     pass
 
 
-def item_rename():
+def item_rename(use_active: bool = False):
     ''' Rename the active element
 
+    :param use_active: Use Active, Rename the active item, rather than the one the mouse is over
+    :type use_active: bool
     '''
 
     pass
@@ -435,7 +455,7 @@ def modifier_operation(type: typing.Union[int, str] = 'TOGVIS'):
 def object_operation(type: typing.Union[int, str] = 'SELECT'):
     ''' Undocumented, consider contributing <https://developer.blender.org/T51061> __.
 
-    :param type: Object Operation * SELECT Select. * DESELECT Deselect. * SELECT_HIERARCHY Select Hierarchy. * REMAP Remap Users, Make all users of selected data-blocks to use instead a new chosen one. * RENAME Rename. * OBJECT_MODE_ENTER Enter Mode. * OBJECT_MODE_EXIT Exit Mode.
+    :param type: Object Operation * SELECT Select. * DESELECT Deselect. * SELECT_HIERARCHY Select Hierarchy. * REMAP Remap Users, Make all users of selected data-blocks to use instead a new chosen one. * RENAME Rename. * OBJECT_MODE_ENTER Enter Mode. * OBJECT_MODE_EXIT Exit Mode. * OBJECT_PROXY_TO_OVERRIDE Convert Proxy to Override, Convert a Proxy object to a full library override, including all its dependencies.
     :type type: typing.Union[int, str]
     '''
 
@@ -558,7 +578,7 @@ def select_walk(direction: typing.Union[int, str] = 'UP',
 
 
 def show_active():
-    ''' Open up the tree and adjust the view so that the active Object is shown centered
+    ''' Open up the tree and adjust the view so that the active object is shown centered
 
     '''
 

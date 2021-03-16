@@ -31,7 +31,7 @@ def mixdown(filepath: str = "",
             filemode: int = 9,
             relative_path: bool = True,
             display_type: typing.Union[int, str] = 'DEFAULT',
-            sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+            sort_method: typing.Union[int, str] = '',
             accuracy: int = 1024,
             container: typing.Union[int, str] = 'FLAC',
             codec: typing.Union[int, str] = 'FLAC',
@@ -82,7 +82,7 @@ def mixdown(filepath: str = "",
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param accuracy: Accuracy, Sample accuracy, important for animation data (the lower the value, the more accurate)
     :type accuracy: int
@@ -90,7 +90,7 @@ def mixdown(filepath: str = "",
     :type container: typing.Union[int, str]
     :param codec: Codec, Audio Codec * AAC AAC, Advanced Audio Coding. * AC3 AC3, Dolby Digital ATRAC 3. * FLAC FLAC, Free Lossless Audio Codec. * MP2 MP2, MPEG-1 Audio Layer II. * MP3 MP3, MPEG-2 Audio Layer III. * PCM PCM, Pulse Code Modulation (RAW). * VORBIS Vorbis, Xiph.Org Vorbis Codec.
     :type codec: typing.Union[int, str]
-    :param format: Format, Sample format * U8 U8, 8 bit unsigned. * S16 S16, 16 bit signed. * S24 S24, 24 bit signed. * S32 S32, 32 bit signed. * F32 F32, 32 bit floating point. * F64 F64, 64 bit floating point.
+    :param format: Format, Sample format * U8 U8, 8-bit unsigned. * S16 S16, 16-bit signed. * S24 S24, 24-bit signed. * S32 S32, 32-bit signed. * F32 F32, 32-bit floating-point. * F64 F64, 64-bit floating-point.
     :type format: typing.Union[int, str]
     :param bitrate: Bitrate, Bitrate in kbit/s
     :type bitrate: int
@@ -124,7 +124,7 @@ def open(filepath: str = "",
          show_multiview: bool = False,
          use_multiview: bool = False,
          display_type: typing.Union[int, str] = 'DEFAULT',
-         sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+         sort_method: typing.Union[int, str] = '',
          cache: bool = False,
          mono: bool = False):
     ''' Load a sound file
@@ -175,7 +175,7 @@ def open(filepath: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param cache: Cache, Cache the sound in memory
     :type cache: bool
@@ -209,7 +209,7 @@ def open_mono(filepath: str = "",
               show_multiview: bool = False,
               use_multiview: bool = False,
               display_type: typing.Union[int, str] = 'DEFAULT',
-              sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+              sort_method: typing.Union[int, str] = '',
               cache: bool = False,
               mono: bool = True):
     ''' Load a sound file as mono
@@ -260,7 +260,7 @@ def open_mono(filepath: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param cache: Cache, Cache the sound in memory
     :type cache: bool

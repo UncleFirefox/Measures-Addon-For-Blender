@@ -59,7 +59,7 @@ def addon_install(overwrite: bool = True,
 
 
 def addon_refresh():
-    ''' Scan add-on directories for new modules :file: startup/bl_operators/userpref.py\:581 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$581> _
+    ''' Scan add-on directories for new modules :file: startup/bl_operators/userpref.py\:587 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$587> _
 
     '''
 
@@ -90,7 +90,7 @@ def app_template_install(overwrite: bool = True,
                          filepath: str = "",
                          filter_folder: bool = True,
                          filter_glob: str = "*.zip"):
-    ''' Install an application-template
+    ''' Install an application template
 
     :param overwrite: Overwrite, Remove existing template with the same ID
     :type overwrite: bool
@@ -100,6 +100,24 @@ def app_template_install(overwrite: bool = True,
     :type filter_folder: bool
     :param filter_glob: filter_glob
     :type filter_glob: str
+    '''
+
+    pass
+
+
+def asset_library_add():
+    ''' Add a path to a .blend file to be used by the Asset Browser as source of assets
+
+    '''
+
+    pass
+
+
+def asset_library_remove(index: int = 0):
+    ''' Remove a path to a .blend file, so the Asset Browser will not attempt to show it anymore
+
+    :param index: Index
+    :type index: int
     '''
 
     pass
@@ -124,7 +142,7 @@ def autoexec_path_remove(index: int = 0):
 
 
 def copy_prev():
-    ''' Copy settings from previous version :file: startup/bl_operators/userpref.py\:164 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$164> _
+    ''' Copy settings from previous version :file: startup/bl_operators/userpref.py\:170 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$170> _
 
     '''
 
@@ -178,7 +196,7 @@ def keyconfig_import(filepath: str = "keymap.py",
     :type filter_text: bool
     :param filter_python: Filter python
     :type filter_python: bool
-    :param keep_original: Keep original, Keep original file after copying to configuration folder
+    :param keep_original: Keep Original, Keep original file after copying to configuration folder
     :type keep_original: bool
     '''
 
@@ -186,7 +204,7 @@ def keyconfig_import(filepath: str = "keymap.py",
 
 
 def keyconfig_remove():
-    ''' Remove key config :file: startup/bl_operators/userpref.py\:429 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$429> _
+    ''' Remove key config :file: startup/bl_operators/userpref.py\:435 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$435> _
 
     '''
 
@@ -194,7 +212,7 @@ def keyconfig_remove():
 
 
 def keyconfig_test():
-    ''' Test key-config for conflicts :file: startup/bl_operators/userpref.py\:188 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$188> _
+    ''' Test key configuration for conflicts :file: startup/bl_operators/userpref.py\:194 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$194> _
 
     '''
 
@@ -202,7 +220,7 @@ def keyconfig_test():
 
 
 def keyitem_add():
-    ''' Add key map item :file: startup/bl_operators/userpref.py\:377 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$377> _
+    ''' Add key map item :file: startup/bl_operators/userpref.py\:383 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$383> _
 
     '''
 
@@ -248,7 +266,7 @@ def reset_default_theme():
 
 
 def studiolight_copy_settings(index: int = 0):
-    ''' Copy Studio Light settings to the Studio light editor
+    ''' Copy Studio Light settings to the Studio Light editor
 
     :param index: index
     :type index: int
@@ -258,23 +276,25 @@ def studiolight_copy_settings(index: int = 0):
 
 
 def studiolight_install(
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         directory: str = "",
         filter_folder: bool = True,
         filter_glob: str = "*.png;*.jpg;*.hdr;*.exr",
         type: typing.Union[int, str] = 'MATCAP'):
-    ''' Install a user defined studio light
+    ''' Install a user defined light
 
     :param files: File Path
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param directory: directory
     :type directory: str
-    :param filter_folder: Filter folders
+    :param filter_folder: Filter Folders
     :type filter_folder: bool
     :param filter_glob: filter_glob
     :type filter_glob: str
-    :param type: Type
+    :param type: Type * MATCAP MatCap, Install custom MatCaps. * WORLD World, Install custom HDRIs. * STUDIO Studio, Install custom Studio Lights.
     :type type: typing.Union[int, str]
     '''
 
@@ -292,7 +312,7 @@ def studiolight_new(filename: str = "StudioLight"):
 
 
 def studiolight_show():
-    ''' Show light preferences :file: startup/bl_operators/userpref.py\:1136 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$1136> _
+    ''' Show light preferences :file: startup/bl_operators/userpref.py\:1142 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/userpref.py$1142> _
 
     '''
 

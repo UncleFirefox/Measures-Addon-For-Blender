@@ -3,13 +3,14 @@ import typing
 import bpy.types
 
 
-def brush_edit(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None):
+def brush_edit(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None
+               ):
     ''' Apply a stroke of brush to the particles
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     '''
 
     pass
@@ -18,7 +19,7 @@ def brush_edit(
 def connect_hair(all: bool = False):
     ''' Connect hair to the emitter mesh
 
-    :param all: All hair, Connect all hair systems to the emitter mesh
+    :param all: All Hair, Connect all hair systems to the emitter mesh
     :type all: bool
     '''
 
@@ -54,7 +55,7 @@ def delete(type: typing.Union[int, str] = 'PARTICLE'):
 def disconnect_hair(all: bool = False):
     ''' Disconnect hair from the emitter mesh
 
-    :param all: All hair, Disconnect all hair systems from the emitter mesh
+    :param all: All Hair, Disconnect all hair systems from the emitter mesh
     :type all: bool
     '''
 

@@ -16,7 +16,7 @@ class ContourUP1D:
     '''
 
     def __call__(self, inter: 'freestyle.types.Interface1D') -> bool:
-        ''' Returns true if the Interface1D is a contour. An Interface1D is a contour if it is borded by a different shape on each of its sides.
+        ''' Returns true if the Interface1D is a contour. An Interface1D is a contour if it is bordered by a different shape on each of its sides.
 
         :param inter: An Interface1D object.
         :type inter: 'freestyle.types.Interface1D'
@@ -102,7 +102,7 @@ class ExternalContourUP1D:
     '''
 
     def __call__(self, inter: 'freestyle.types.Interface1D') -> bool:
-        ''' Returns true if the Interface1D is an external contour. An Interface1D is an external contour if it is borded by no shape on one of its sides.
+        ''' Returns true if the Interface1D is an external contour. An Interface1D is an external contour if it is bordered by no shape on one of its sides.
 
         :param inter: An Interface1D object.
         :type inter: 'freestyle.types.Interface1D'

@@ -51,9 +51,11 @@ def copy():
     pass
 
 
-def delete():
+def delete(confirm: bool = True):
     ''' Remove all selected keyframes
 
+    :param confirm: Confirm, Prompt for confirmation
+    :type confirm: bool
     '''
 
     pass
@@ -138,7 +140,7 @@ def keyframe_insert(type: typing.Union[int, str] = 'ALL'):
 def keyframe_type(type: typing.Union[int, str] = 'KEYFRAME'):
     ''' Set type of keyframe for the selected keyframes
 
-    :param type: Type * KEYFRAME Keyframe, Normal keyframe - e.g. for key poses. * BREAKDOWN Breakdown, A breakdown pose - e.g. for transitions between key poses. * MOVING_HOLD Moving Hold, A keyframe that is part of a moving hold. * EXTREME Extreme, An 'extreme' pose, or some other purpose as needed. * JITTER Jitter, A filler or baked keyframe for keying on ones, or some other purpose as needed.
+    :param type: Type * KEYFRAME Keyframe, Normal keyframe, e.g. for key poses. * BREAKDOWN Breakdown, A breakdown pose, e.g. for transitions between key poses. * MOVING_HOLD Moving Hold, A keyframe that is part of a moving hold. * EXTREME Extreme, An 'extreme' pose, or some other purpose as needed. * JITTER Jitter, A filler or baked keyframe for keying on ones, or some other purpose as needed.
     :type type: typing.Union[int, str]
     '''
 
@@ -172,7 +174,7 @@ def markers_make_local():
 def mirror(type: typing.Union[int, str] = 'CFRA'):
     ''' Flip selected keyframes over the selected mirror line
 
-    :param type: Type * CFRA By Times Over Current Frame, Flip times of selected keyframes using the current frame as the mirror line. * XAXIS By Values Over Value=0, Flip values of selected keyframes (i.e. negative values become positive, and vice versa). * MARKER By Times Over First Selected Marker, Flip times of selected keyframes using the first selected marker as the reference point.
+    :param type: Type * CFRA By Times Over Current Frame, Flip times of selected keyframes using the current frame as the mirror line. * XAXIS By Values Over Zero Value, Flip values of selected keyframes (i.e. negative values become positive, and vice versa). * MARKER By Times Over First Selected Marker, Flip times of selected keyframes using the first selected marker as the reference point.
     :type type: typing.Union[int, str]
     '''
 
@@ -300,13 +302,14 @@ def select_column(mode: typing.Union[int, str] = 'KEYS'):
     pass
 
 
-def select_lasso(path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None,
+def select_lasso(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
                  mode: typing.Union[int, str] = 'SET'):
     ''' Select keyframe points using lasso selection
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection.
     :type mode: typing.Union[int, str]
     '''
@@ -354,7 +357,7 @@ def select_more():
 def snap(type: typing.Union[int, str] = 'CFRA'):
     ''' Snap selected keyframes to the times specified
 
-    :param type: Type * CFRA Current Frame, Snap selected keyframes to the current frame. * NEAREST_FRAME Nearest Frame, Snap selected keyframes to the nearest (whole) frame (use to fix accidental sub-frame offsets). * NEAREST_SECOND Nearest Second, Snap selected keyframes to the nearest second. * NEAREST_MARKER Nearest Marker, Snap selected keyframes to the nearest marker.
+    :param type: Type * CFRA Selection to Current Frame, Snap selected keyframes to the current frame. * NEAREST_FRAME Selection to Nearest Frame, Snap selected keyframes to the nearest (whole) frame (use to fix accidental subframe offsets). * NEAREST_SECOND Selection to Nearest Second, Snap selected keyframes to the nearest second. * NEAREST_MARKER Selection to Nearest Marker, Snap selected keyframes to the nearest marker.
     :type type: typing.Union[int, str]
     '''
 

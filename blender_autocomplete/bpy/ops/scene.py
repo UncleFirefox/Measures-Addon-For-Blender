@@ -242,7 +242,7 @@ def light_cache_bake(delay: int = 0, subset: typing.Union[int, str] = 'ALL'):
 
     :param delay: Delay, Delay in millisecond before baking starts
     :type delay: int
-    :param subset: Subset, Subset of probes to update * ALL All LightProbes, Bake both irradiance grids and reflection cubemaps. * DIRTY Dirty Only, Only bake lightprobes that are marked as dirty. * CUBEMAPS Cubemaps Only, Try to only bake reflection cubemaps if irradiance grids are up to date.
+    :param subset: Subset, Subset of probes to update * ALL All Light Probes, Bake both irradiance grids and reflection cubemaps. * DIRTY Dirty Only, Only bake light probes that are marked as dirty. * CUBEMAPS Cubemaps Only, Try to only bake reflection cubemaps if irradiance grids are up to date.
     :type subset: typing.Union[int, str]
     '''
 
@@ -293,8 +293,24 @@ def view_layer_add(type: typing.Union[int, str] = 'NEW'):
     pass
 
 
+def view_layer_add_aov():
+    ''' Add a Shader AOV
+
+    '''
+
+    pass
+
+
 def view_layer_remove():
     ''' Remove the selected view layer
+
+    '''
+
+    pass
+
+
+def view_layer_remove_aov():
+    ''' Remove Active AOV
 
     '''
 

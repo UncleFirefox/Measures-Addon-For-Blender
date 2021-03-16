@@ -55,6 +55,6 @@ def mouse_raycast_to_scene(context, event):
         bpy.context.region, bpy.context.region_data, mouse_pos)
 
     hit, location, normal, index, object, matrix = context.scene.ray_cast(
-        context.view_layer, origin, direction)
+        context.view_layer.depsgraph, origin, direction)
 
     return hit, location, normal, index, object, matrix

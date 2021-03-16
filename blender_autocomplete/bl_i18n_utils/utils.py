@@ -312,6 +312,22 @@ def is_valid_po_path(path):
     pass
 
 
+def list_po_dir(root_path, settings):
+    ''' 
+
+    '''
+
+    pass
+
+
+def locale_explode(locale):
+    ''' 
+
+    '''
+
+    pass
+
+
 def locale_match(loc1, loc2):
     ''' 
 

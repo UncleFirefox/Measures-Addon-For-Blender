@@ -697,6 +697,15 @@ class TextureMaskPanel(BrushPanel, UnifiedPaintPanel):
         pass
 
 
+def brush_basic__draw_color_selector(context, layout, brush, gp_settings,
+                                     props):
+    ''' 
+
+    '''
+
+    pass
+
+
 def brush_basic_gpencil_paint_settings(layout, context, brush, compact):
     ''' 
 

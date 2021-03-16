@@ -142,6 +142,8 @@ selected_editable_bones: typing.List['bpy.types.EditBone'] = None
 
 selected_editable_fcurves: typing.List['bpy.types.FCurve'] = None
 
+selected_editable_keyframes: typing.List['bpy.types.Keyframe'] = None
+
 selected_editable_objects: typing.List['bpy.types.Object'] = None
 
 selected_editable_sequences: typing.List['bpy.types.Sequence'] = None

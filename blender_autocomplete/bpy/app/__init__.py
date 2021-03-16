@@ -1,7 +1,7 @@
 import sys
 import typing
-from . import timers
 from . import translations
+from . import timers
 from . import handlers
 from . import icons
 
@@ -30,7 +30,7 @@ binary_path = None
 '''
 
 binary_path_python = None
-''' String, the path to the python executable (read-only)
+''' String, the path to the python executable (read-only). Deprecated! Use sys.executable instead.
 '''
 
 build_branch = None
@@ -169,14 +169,6 @@ ffmpeg = None
 ''' constant value bpy.app.ffmpeg(supported=True, avcodec_version=(58, 54, 100), avcodec_version_string='58, 54, 100', avdevice_version=(58, 8, 100), avdevice_version_string='58, 8, 100', avformat_version=(58, 29, 100), avformat_version_string='58, 29, 100', avutil_version=(56, 31, 100), avutil_version_string='56, 31, 100', swscale_version=(5, 5, 100), swscale_version_string=' 5, 5, 100')
 '''
 
-handlers = None
-''' constant value bpy.app.handlers(frame_change_pre=[], frame_change_post=[], render_pre=[], render_post=[], render_write=[], render_stats=[], render_init=[], render_complete=[], render_cancel=[], load_pre=[], load_post=[], save_pre=[], save_post=[], undo_pre=[], undo_post=[], redo_pre=[], redo_post=[], depsgraph_update_pre=[], depsgraph_update_post=[], version_update=[], load_factory_preferences_post=[], load_factory_startup_post=[], persistent=<class 'persistent'>)
-'''
-
-icons = None
-''' Manage custom icons
-'''
-
 ocio = None
 ''' constant value bpy.app.ocio(supported=True, version=(1, 1, 1), version_string=' 1, 1, 1')
 '''
@@ -209,14 +201,6 @@ tempdir = None
 ''' String, the temp directory used by blender (read-only)
 '''
 
-timers = None
-''' Manage timers
-'''
-
-translations = None
-''' Application and addons internationalization API
-'''
-
 usd = None
 ''' constant value bpy.app.usd(supported=True, version=(0, 20, 5), version_string=' 0, 20, 5')
 '''
@@ -239,6 +223,10 @@ version_char = None
 
 version_cycle = None
 ''' The release status of this build alpha/beta/rc/release
+'''
+
+version_file = None
+''' The blend file version, compatible with bpy.data.version
 '''
 
 version_string = None

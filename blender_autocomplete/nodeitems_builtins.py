@@ -19,7 +19,7 @@ class CompositorNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
         pass
 
 
-class ShaderNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
+class GeometryNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
     def poll(self, context):
         ''' 
 
@@ -27,7 +27,7 @@ class ShaderNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
         pass
 
 
-class SimulationNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
+class ShaderNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
     def poll(self, context):
         ''' 
 
@@ -41,14 +41,6 @@ class TextureNodeCategory(SortedNodeCategory, nodeitems_utils.NodeCategory):
 
         '''
         pass
-
-
-def cycles_aov_node_poll(context):
-    ''' 
-
-    '''
-
-    pass
 
 
 def cycles_shader_nodes_poll(context):
@@ -100,6 +92,14 @@ def line_style_shader_nodes_poll(context):
 
 
 def node_group_items(context):
+    ''' 
+
+    '''
+
+    pass
+
+
+def not_implemented_node(idname):
     ''' 
 
     '''

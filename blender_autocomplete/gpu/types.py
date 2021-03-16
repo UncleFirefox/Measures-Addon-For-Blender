@@ -17,7 +17,7 @@ class GPUBatch:
         pass
 
     def program_set(self, program: 'GPUShader'):
-        ''' Assign a shader to this batch that will be used for drawing when not overwritten later. Note: This method has to be called in the draw context that the batch will be drawn in. This function does not need to be called when you always set the shader when calling batch.draw .
+        ''' Assign a shader to this batch that will be used for drawing when not overwritten later. Note: This method has to be called in the draw context that the batch will be drawn in. This function does not need to be called when you always set the shader when calling :meth: gpu.types.GPUBatch.draw .
 
         :param program: The program/shader the batch will use in future draw calls.
         :type program: 'GPUShader'
@@ -108,7 +108,7 @@ class GPUOffScreen:
 
 
 class GPUShader:
-    ''' GPUShader combines multiple GLSL shaders into a program used for drawing. It must contain a vertex and fragment shaders, with an optional geometry shader. The GLSL #version directive is automatically included at the top of shaders, and set to 330. Some preprocessor directives are automatically added according to the Operating System or availability: GPU_ATI , GPU_NVIDIA and GPU_INTEL . The following extensions are enabled by default if supported by the GPU: GL_ARB_texture_gather and GL_ARB_texture_query_lod . To debug shaders, use the --debug-gpu-shaders command line option to see full GLSL shader compilation and linking errors. For drawing user interface elements and gizmos, use fragOutput = blender_srgb_to_framebuffer_space(fragOutput) to transform the output sRGB colors to the framebuffer colorspace. :param vertexcode: Vertex shader code. :type vertexcode: str :param fragcode: Fragment shader code. :type value: str :param geocode: Geometry shader code. :type value: str :param libcode: Code with functions and presets to be shared between shaders. :type value: str :param defines: Preprocessor directives. :type value: str
+    ''' GPUShader combines multiple GLSL shaders into a program used for drawing. It must contain a vertex and fragment shaders, with an optional geometry shader. The GLSL #version directive is automatically included at the top of shaders, and set to 330. Some preprocessor directives are automatically added according to the Operating System or availability: GPU_ATI , GPU_NVIDIA and GPU_INTEL . The following extensions are enabled by default if supported by the GPU: GL_ARB_texture_gather , GL_ARB_texture_cube_map_array and GL_ARB_shader_draw_parameters . To debug shaders, use the --debug-gpu-shaders command line option to see full GLSL shader compilation and linking errors. For drawing user interface elements and gizmos, use fragOutput = blender_srgb_to_framebuffer_space(fragOutput) to transform the output sRGB colors to the frame-buffer color-space. :param vertexcode: Vertex shader code. :type vertexcode: str :param fragcode: Fragment shader code. :type value: str :param geocode: Geometry shader code. :type value: str :param libcode: Code with functions and presets to be shared between shaders. :type value: str :param defines: Preprocessor directives. :type value: str
     '''
 
     program: int = None

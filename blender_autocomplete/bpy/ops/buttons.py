@@ -2,6 +2,14 @@ import sys
 import typing
 
 
+def clear_filter():
+    ''' Clear the search filter
+
+    '''
+
+    pass
+
+
 def context_menu():
     ''' Display properties editor context_menu
 
@@ -31,8 +39,8 @@ def directory_browse(directory: str = "",
                      filemode: int = 9,
                      relative_path: bool = True,
                      display_type: typing.Union[int, str] = 'DEFAULT',
-                     sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
-    ''' Open a directory browser, Hold Shift to open the file, Alt to browse containing directory
+                     sort_method: typing.Union[int, str] = ''):
+    ''' Open a directory browser, hold Shift to open the file, Alt to browse containing directory
 
     :param directory: Directory, Directory of the file
     :type directory: str
@@ -76,7 +84,7 @@ def directory_browse(directory: str = "",
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -104,8 +112,8 @@ def file_browse(filepath: str = "",
                 filemode: int = 9,
                 relative_path: bool = True,
                 display_type: typing.Union[int, str] = 'DEFAULT',
-                sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
-    ''' Open a file browser, Hold Shift to open the file, Alt to browse containing directory
+                sort_method: typing.Union[int, str] = ''):
+    ''' Open a file browser, hold Shift to open the file, Alt to browse containing directory
 
     :param filepath: File Path, Path to file
     :type filepath: str
@@ -149,8 +157,24 @@ def file_browse(filepath: str = "",
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
+    '''
+
+    pass
+
+
+def start_filter():
+    ''' Start entering filter text
+
+    '''
+
+    pass
+
+
+def toggle_pin():
+    ''' Keep the current data-block displayed
+
     '''
 
     pass

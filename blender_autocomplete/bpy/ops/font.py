@@ -99,7 +99,7 @@ def open(filepath: str = "",
          filemode: int = 9,
          relative_path: bool = True,
          display_type: typing.Union[int, str] = 'DEFAULT',
-         sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+         sort_method: typing.Union[int, str] = ''):
     ''' Load a new font from a file
 
     :param filepath: File Path, Path to file
@@ -144,7 +144,7 @@ def open(filepath: str = "",
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -202,7 +202,7 @@ def text_insert(text: str = "", accent: bool = False):
 
     :param text: Text, Text to insert at the cursor position
     :type text: str
-    :param accent: Accent mode, Next typed character will strike through previous, for special character input
+    :param accent: Accent Mode, Next typed character will strike through previous, for special character input
     :type accent: bool
     '''
 
@@ -217,28 +217,27 @@ def text_paste():
     pass
 
 
-def text_paste_from_file(
-        filepath: str = "",
-        hide_props_region: bool = True,
-        filter_blender: bool = False,
-        filter_backup: bool = False,
-        filter_image: bool = False,
-        filter_movie: bool = False,
-        filter_python: bool = False,
-        filter_font: bool = False,
-        filter_sound: bool = False,
-        filter_text: bool = True,
-        filter_archive: bool = False,
-        filter_btx: bool = False,
-        filter_collada: bool = False,
-        filter_alembic: bool = False,
-        filter_usd: bool = False,
-        filter_volume: bool = False,
-        filter_folder: bool = True,
-        filter_blenlib: bool = False,
-        filemode: int = 9,
-        display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+def text_paste_from_file(filepath: str = "",
+                         hide_props_region: bool = True,
+                         filter_blender: bool = False,
+                         filter_backup: bool = False,
+                         filter_image: bool = False,
+                         filter_movie: bool = False,
+                         filter_python: bool = False,
+                         filter_font: bool = False,
+                         filter_sound: bool = False,
+                         filter_text: bool = True,
+                         filter_archive: bool = False,
+                         filter_btx: bool = False,
+                         filter_collada: bool = False,
+                         filter_alembic: bool = False,
+                         filter_usd: bool = False,
+                         filter_volume: bool = False,
+                         filter_folder: bool = True,
+                         filter_blenlib: bool = False,
+                         filemode: int = 9,
+                         display_type: typing.Union[int, str] = 'DEFAULT',
+                         sort_method: typing.Union[int, str] = ''):
     ''' Paste contents from file
 
     :param filepath: File Path, Path to file
@@ -281,7 +280,7 @@ def text_paste_from_file(
     :type filemode: int
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -297,7 +296,7 @@ def textbox_add():
 
 
 def textbox_remove(index: int = 0):
-    ''' Remove the textbox
+    ''' Remove the text box
 
     :param index: Index, The current text box
     :type index: int

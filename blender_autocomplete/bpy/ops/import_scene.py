@@ -6,8 +6,10 @@ import bpy.types
 def fbx(filepath: str = "",
         directory: str = "",
         filter_glob: str = "*.fbx",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         ui_tab: typing.Union[int, str] = 'MAIN',
         use_manual_orientation: bool = False,
         global_scale: float = 1.0,
@@ -38,7 +40,7 @@ def fbx(filepath: str = "",
     :param filter_glob: filter_glob
     :type filter_glob: str
     :param files: File Path
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param ui_tab: ui_tab, Import options categories * MAIN Main, Main basic settings. * ARMATURE Armatures, Armature-related settings.
     :type ui_tab: typing.Union[int, str]
     :param use_manual_orientation: Manual Orientation, Specify orientation and scale, instead of using embedded data in FBX file
@@ -88,8 +90,10 @@ def fbx(filepath: str = "",
 
 def gltf(filepath: str = "",
          filter_glob: str = "*.glb;*.gltf",
-         files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                             'bpy_prop_collection'] = None,
+         files: typing.
+         Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+               List['bpy.types.OperatorFileListElement'],
+               'bpy_prop_collection'] = None,
          loglevel: int = 0,
          import_pack_images: bool = True,
          merge_vertices: bool = False,
@@ -103,7 +107,7 @@ def gltf(filepath: str = "",
     :param filter_glob: filter_glob
     :type filter_glob: str
     :param files: File Path
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param loglevel: Log Level, Log Level
     :type loglevel: int
     :param import_pack_images: Pack Images, Pack all images into .blend file
@@ -130,7 +134,7 @@ def obj(filepath: str = "",
         use_groups_as_vgroups: bool = False,
         use_image_search: bool = True,
         split_mode: typing.Union[int, str] = 'ON',
-        global_clight_size: float = 0.0,
+        global_clamp_size: float = 0.0,
         axis_forward: typing.Union[int, str] = '-Z',
         axis_up: typing.Union[int, str] = 'Y'):
     ''' Load a Wavefront OBJ File
@@ -153,8 +157,8 @@ def obj(filepath: str = "",
     :type use_image_search: bool
     :param split_mode: Split * ON Split, Split geometry, omits unused verts. * OFF Keep Vert Order, Keep vertex order from file.
     :type split_mode: typing.Union[int, str]
-    :param global_clight_size: Clamp Size, Clamp bounds under this value (zero to disable)
-    :type global_clight_size: float
+    :param global_clamp_size: Clamp Size, Clamp bounds under this value (zero to disable)
+    :type global_clamp_size: float
     :param axis_forward: Forward
     :type axis_forward: typing.Union[int, str]
     :param axis_up: Up

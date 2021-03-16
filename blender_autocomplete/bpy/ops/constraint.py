@@ -12,7 +12,7 @@ def add_target():
 
 def childof_clear_inverse(constraint: str = "",
                           owner: typing.Union[int, str] = 'OBJECT'):
-    ''' Clear inverse correction for ChildOf constraint
+    ''' Clear inverse correction for Child Of constraint
 
     :param constraint: Constraint, Name of the constraint to edit
     :type constraint: str
@@ -25,7 +25,7 @@ def childof_clear_inverse(constraint: str = "",
 
 def childof_set_inverse(constraint: str = "",
                         owner: typing.Union[int, str] = 'OBJECT'):
-    ''' Set inverse correction for ChildOf constraint
+    ''' Set inverse correction for Child Of constraint
 
     :param constraint: Constraint, Name of the constraint to edit
     :type constraint: str
@@ -142,7 +142,7 @@ def normalize_target_weights():
 
 def objectsolver_clear_inverse(constraint: str = "",
                                owner: typing.Union[int, str] = 'OBJECT'):
-    ''' Clear inverse correction for ObjectSolver constraint
+    ''' Clear inverse correction for Object Solver constraint
 
     :param constraint: Constraint, Name of the constraint to edit
     :type constraint: str
@@ -155,7 +155,7 @@ def objectsolver_clear_inverse(constraint: str = "",
 
 def objectsolver_set_inverse(constraint: str = "",
                              owner: typing.Union[int, str] = 'OBJECT'):
-    ''' Set inverse correction for ObjectSolver constraint
+    ''' Set inverse correction for Object Solver constraint
 
     :param constraint: Constraint, Name of the constraint to edit
     :type constraint: str

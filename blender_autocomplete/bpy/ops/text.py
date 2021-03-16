@@ -210,7 +210,7 @@ def open(filepath: str = "",
          filter_blenlib: bool = False,
          filemode: int = 9,
          display_type: typing.Union[int, str] = 'DEFAULT',
-         sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+         sort_method: typing.Union[int, str] = '',
          internal: bool = False):
     ''' Open a new text data-block
 
@@ -254,9 +254,9 @@ def open(filepath: str = "",
     :type filemode: int
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
-    :param internal: Make internal, Make text file internal after loading
+    :param internal: Make Internal, Make text file internal after loading
     :type internal: bool
     '''
 
@@ -300,7 +300,7 @@ def reload():
 def replace(all: bool = False):
     ''' Replace text with the specified text
 
-    :param all: Replace all, Replace all occurrences
+    :param all: Replace All, Replace all occurrences
     :type all: bool
     '''
 
@@ -362,7 +362,7 @@ def save_as(filepath: str = "",
             filter_blenlib: bool = False,
             filemode: int = 9,
             display_type: typing.Union[int, str] = 'DEFAULT',
-            sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+            sort_method: typing.Union[int, str] = ''):
     ''' Save active text file with options
 
     :param filepath: File Path, Path to file
@@ -407,7 +407,7 @@ def save_as(filepath: str = "",
     :type filemode: int
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 

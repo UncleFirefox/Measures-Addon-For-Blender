@@ -3,8 +3,8 @@ import typing
 import bpy.types
 import bpy.context
 
-from . import units
 from . import previews
+from . import units
 
 
 def app_template_paths(subdir: str = None):
@@ -154,8 +154,9 @@ def refresh_script_paths():
 
 
 def register_class(cls):
-    ''' Register a subclass of a blender type in ( bpy.types.Panel , bpy.types.UIList , bpy.types.Menu , bpy.types.Header , bpy.types.Operator , bpy.types.KeyingSetInfo , bpy.types.RenderEngine ). If the class has a *register* class method it will be called before registration.
+    ''' Register a subclass of a Blender type class. :raises ValueError: if the class is not a subclass of a registerable blender class.
 
+    :param cls: bpy.types.Panel , bpy.types.UIList , bpy.types.Menu , bpy.types.Header , bpy.types.Operator , bpy.types.KeyingSetInfo , bpy.types.RenderEngine
     '''
 
     pass
@@ -298,6 +299,17 @@ def time_from_frame(frame, fps, fps_base):
 def time_to_frame(time, fps, fps_base):
     ''' 
 
+    '''
+
+    pass
+
+
+def unescape_identifier(string: str) -> str:
+    ''' Simple string un-escape function used for animation paths. This performs the reverse of escape_identifier .
+
+    :param string: text
+    :type string: str
+    :return: The un-escaped string.
     '''
 
     pass

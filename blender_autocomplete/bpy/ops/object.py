@@ -16,7 +16,7 @@ def add(radius: float = 1.0,
     :type radius: float
     :param type: Type
     :type type: typing.Union[int, str]
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -31,13 +31,20 @@ def add(radius: float = 1.0,
     pass
 
 
-def add_named(linked: bool = False, name: str = ""):
+def add_named(linked: bool = False,
+              name: str = "",
+              drop_x: int = 0,
+              drop_y: int = 0):
     ''' Add named object
 
     :param linked: Linked, Duplicate object but not object data, linking to the original data
     :type linked: bool
     :param name: Name, Object name to add
     :type name: str
+    :param drop_x: Drop X, X-coordinate (screen space) to place the new object under
+    :type drop_x: int
+    :param drop_y: Drop Y, Y-coordinate (screen space) to place the new object under
+    :type drop_y: int
     '''
 
     pass
@@ -47,13 +54,13 @@ def align(bb_quality: bool = True,
           align_mode: typing.Union[int, str] = 'OPT_2',
           relative_to: typing.Union[int, str] = 'OPT_4',
           align_axis: typing.Union[typing.Set[int], typing.Set[str]] = {}):
-    ''' Align Objects
+    ''' Align objects
 
     :param bb_quality: High Quality, Enables high quality calculation of the bounding box for perfect results on complex shape meshes with rotation/scale (Slow)
     :type bb_quality: bool
-    :param align_mode: Align Mode:, Side of object to use for alignment
+    :param align_mode: Align Mode, Side of object to use for alignment
     :type align_mode: typing.Union[int, str]
-    :param relative_to: Relative To:, Reference location to align to * OPT_1 Scene Origin, Use the Scene Origin as the position for the selected objects to align to. * OPT_2 3D Cursor, Use the 3D cursor as the position for the selected objects to align to. * OPT_3 Selection, Use the selected objects as the position for the selected objects to align to. * OPT_4 Active, Use the active object as the position for the selected objects to align to.
+    :param relative_to: Relative To, Reference location to align to * OPT_1 Scene Origin, Use the scene origin as the position for the selected objects to align to. * OPT_2 3D Cursor, Use the 3D cursor as the position for the selected objects to align to. * OPT_3 Selection, Use the selected objects as the position for the selected objects to align to. * OPT_4 Active, Use the active object as the position for the selected objects to align to.
     :type relative_to: typing.Union[int, str]
     :param align_axis: Align, Align to axis
     :type align_axis: typing.Union[typing.Set[int], typing.Set[str]]
@@ -63,7 +70,7 @@ def align(bb_quality: bool = True,
 
 
 def anim_transforms_to_deltas():
-    ''' Convert object animation for normal transforms to delta transforms :file: startup/bl_operators/object.py\:783 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$783> _
+    ''' Convert object animation for normal transforms to delta transforms :file: startup/bl_operators/object.py\:782 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$782> _
 
     '''
 
@@ -80,7 +87,7 @@ def armature_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -122,6 +129,7 @@ def bake(type: typing.Union[int, str] = 'COMBINED',
          normal_r: typing.Union[int, str] = 'POS_X',
          normal_g: typing.Union[int, str] = 'POS_Y',
          normal_b: typing.Union[int, str] = 'POS_Z',
+         target: typing.Union[int, str] = 'IMAGE_TEXTURES',
          save_mode: typing.Union[int, str] = 'INTERNAL',
          use_clear: bool = False,
          use_cage: bool = False,
@@ -158,9 +166,11 @@ def bake(type: typing.Union[int, str] = 'COMBINED',
     :type normal_g: typing.Union[int, str]
     :param normal_b: B, Axis to bake in blue channel
     :type normal_b: typing.Union[int, str]
-    :param save_mode: Save Mode, Choose how to save the baking map * INTERNAL Internal, Save the baking map in an internal image data-block. * EXTERNAL External, Save the baking map in an external file.
+    :param target: Target, Where to output the baked map * IMAGE_TEXTURES Image Textures, Bake to image data-blocks associated with active image texture nodes in materials. * VERTEX_COLORS Vertex Colors, Bake to active vertex color layer on meshes.
+    :type target: typing.Union[int, str]
+    :param save_mode: Save Mode, Where to save baked image textures * INTERNAL Internal, Save the baking map in an internal image data-block. * EXTERNAL External, Save the baking map in an external file.
     :type save_mode: typing.Union[int, str]
-    :param use_clear: Clear, Clear Images before baking (only for internal saving)
+    :param use_clear: Clear, Clear images before baking (only for internal saving)
     :type use_clear: bool
     :param use_cage: Cage, Cast rays to active object from a cage
     :type use_cage: bool
@@ -190,7 +200,7 @@ def camera_add(enter_editmode: bool = False,
                scale: typing.List[float] = (0.0, 0.0, 0.0)):
     ''' Add a camera object to the scene
 
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -218,7 +228,9 @@ def collection_instance_add(name: str = "Collection",
                             align: typing.Union[int, str] = 'WORLD',
                             location: typing.List[float] = (0.0, 0.0, 0.0),
                             rotation: typing.List[float] = (0.0, 0.0, 0.0),
-                            scale: typing.List[float] = (0.0, 0.0, 0.0)):
+                            scale: typing.List[float] = (0.0, 0.0, 0.0),
+                            drop_x: int = 0,
+                            drop_y: int = 0):
     ''' Add a collection instance
 
     :param name: Name, Collection name to add
@@ -233,6 +245,10 @@ def collection_instance_add(name: str = "Collection",
     :type rotation: typing.List[float]
     :param scale: Scale, Scale for the newly added object
     :type scale: typing.List[float]
+    :param drop_x: Drop X, X-coordinate (screen space) to place the new object under
+    :type drop_x: int
+    :param drop_y: Drop Y, Y-coordinate (screen space) to place the new object under
+    :type drop_y: int
     '''
 
     pass
@@ -283,7 +299,7 @@ def constraint_add(type: typing.Union[int, str] = ''):
 
 
 def constraint_add_with_targets(type: typing.Union[int, str] = ''):
-    ''' Add a constraint to the active object, with target (where applicable) set to the selected Objects/Bones
+    ''' Add a constraint to the active object, with target (where applicable) set to the selected objects/bones
 
     :param type: Type
     :type type: typing.Union[int, str]
@@ -293,7 +309,7 @@ def constraint_add_with_targets(type: typing.Union[int, str] = ''):
 
 
 def constraints_clear():
-    ''' Clear all the constraints for the active Object only
+    ''' Clear all the constraints for the active object only
 
     '''
 
@@ -317,7 +333,7 @@ def convert(target: typing.Union[int, str] = 'MESH',
             offset: float = 0.01):
     ''' Convert selected objects to another type
 
-    :param target: Target, Type of object to convert to
+    :param target: Target, Type of object to convert to * CURVE Curve, Curve from Mesh or Text objects. * MESH Mesh, Mesh from Curve, Surface, Metaball, or Text objects. * GPENCIL Grease Pencil, Grease Pencil from Curve or Mesh objects.
     :type target: typing.Union[int, str]
     :param keep_original: Keep Original, Keep original objects instead of replacing them
     :type keep_original: bool
@@ -336,11 +352,50 @@ def convert(target: typing.Union[int, str] = 'MESH',
     pass
 
 
+def convert_proxy_to_override():
+    ''' Convert a proxy to a local library override
+
+    '''
+
+    pass
+
+
 def correctivesmooth_bind(modifier: str = ""):
     ''' Bind base pose in Corrective Smooth modifier
 
     :param modifier: Modifier, Name of the modifier to edit
     :type modifier: str
+    '''
+
+    pass
+
+
+def data_instance_add(name: str = "Name",
+                      type: typing.Union[int, str] = 'ACTION',
+                      align: typing.Union[int, str] = 'WORLD',
+                      location: typing.List[float] = (0.0, 0.0, 0.0),
+                      rotation: typing.List[float] = (0.0, 0.0, 0.0),
+                      scale: typing.List[float] = (0.0, 0.0, 0.0),
+                      drop_x: int = 0,
+                      drop_y: int = 0):
+    ''' Add an object data instance
+
+    :param name: Name, ID name to add
+    :type name: str
+    :param type: Type
+    :type type: typing.Union[int, str]
+    :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
+    :type align: typing.Union[int, str]
+    :param location: Location, Location for the newly added object
+    :type location: typing.List[float]
+    :param rotation: Rotation, Rotation for the newly added object
+    :type rotation: typing.List[float]
+    :param scale: Scale, Scale for the newly added object
+    :type scale: typing.List[float]
+    :param drop_x: Drop X, X-coordinate (screen space) to place the new object under
+    :type drop_x: int
+    :param drop_y: Drop Y, Y-coordinate (screen space) to place the new object under
+    :type drop_y: int
     '''
 
     pass
@@ -370,7 +425,7 @@ def data_transfer(use_reverse_transfer: bool = False,
     :type use_reverse_transfer: bool
     :param use_freeze: Freeze Operator, Prevent changes to settings to re-run the operator, handy to change several things at once with heavy geometry
     :type use_freeze: bool
-    :param data_type: Data Type, Which data to transfer * VGROUP_WEIGHTS Vertex Group(s), Transfer active or all vertex groups. * BEVEL_WEIGHT_VERT Bevel Weight, Transfer bevel weights. * SHARP_EDGE Sharp, Transfer sharp mark. * SEAM UV Seam, Transfer UV seam mark. * CREASE Subdivision Crease, Transfer crease values. * BEVEL_WEIGHT_EDGE Bevel Weight, Transfer bevel weights. * FREESTYLE_EDGE Freestyle Mark, Transfer Freestyle edge mark. * CUSTOM_NORMAL Custom Normals, Transfer custom normals. * VCOL VCol, Vertex (face corners) colors. * UV UVs, Transfer UV layers. * SMOOTH Smooth, Transfer flat/smooth mark. * FREESTYLE_FACE Freestyle Mark, Transfer Freestyle face mark.
+    :param data_type: Data Type, Which data to transfer * VGROUP_WEIGHTS Vertex Group(s), Transfer active or all vertex groups. * BEVEL_WEIGHT_VERT Bevel Weight, Transfer bevel weights. * SHARP_EDGE Sharp, Transfer sharp mark. * SEAM UV Seam, Transfer UV seam mark. * CREASE Subdivision Crease, Transfer crease values. * BEVEL_WEIGHT_EDGE Bevel Weight, Transfer bevel weights. * FREESTYLE_EDGE Freestyle Mark, Transfer Freestyle edge mark. * CUSTOM_NORMAL Custom Normals, Transfer custom normals. * VCOL Vertex Colors, Vertex (face corners) colors. * UV UVs, Transfer UV layers. * SMOOTH Smooth, Transfer flat/smooth mark. * FREESTYLE_FACE Freestyle Mark, Transfer Freestyle face mark.
     :type data_type: typing.Union[int, str]
     :param use_create: Create Data, Add data layers on destination meshes if needed
     :type use_create: bool
@@ -378,7 +433,7 @@ def data_transfer(use_reverse_transfer: bool = False,
     :type vert_mapping: typing.Union[int, str]
     :param edge_mapping: Edge Mapping, Method used to map source edges to destination ones * TOPOLOGY Topology, Copy from identical topology meshes. * VERT_NEAREST Nearest Vertices, Copy from most similar edge (edge which vertices are the closest of destination edge's ones). * NEAREST Nearest Edge, Copy from closest edge (using midpoints). * POLY_NEAREST Nearest Face Edge, Copy from closest edge of closest face (using midpoints). * EDGEINTERP_VNORPROJ Projected Edge Interpolated, Interpolate all source edges hit by the projection of destination one along its own normal (from vertices).
     :type edge_mapping: typing.Union[int, str]
-    :param loop_mapping: Face Corner Mapping, Method used to map source faces' corners to destination ones * TOPOLOGY Topology, Copy from identical topology meshes. * NEAREST_NORMAL Nearest Corner And Best Matching Normal, Copy from nearest corner which has the best matching normal. * NEAREST_POLYNOR Nearest Corner And Best Matching Face Normal, Copy from nearest corner which has the face with the best matching normal to destination corner's face one. * NEAREST_POLY Nearest Corner Of Nearest Face, Copy from nearest corner of nearest polygon. * POLYINTERP_NEAREST Nearest Face Interpolated, Copy from interpolated corners of the nearest source polygon. * POLYINTERP_LNORPROJ Projected Face Interpolated, Copy from interpolated corners of the source polygon hit by corner normal projection.
+    :param loop_mapping: Face Corner Mapping, Method used to map source faces' corners to destination ones * TOPOLOGY Topology, Copy from identical topology meshes. * NEAREST_NORMAL Nearest Corner and Best Matching Normal, Copy from nearest corner which has the best matching normal. * NEAREST_POLYNOR Nearest Corner and Best Matching Face Normal, Copy from nearest corner which has the face with the best matching normal to destination corner's face one. * NEAREST_POLY Nearest Corner of Nearest Face, Copy from nearest corner of nearest polygon. * POLYINTERP_NEAREST Nearest Face Interpolated, Copy from interpolated corners of the nearest source polygon. * POLYINTERP_LNORPROJ Projected Face Interpolated, Copy from interpolated corners of the source polygon hit by corner normal projection.
     :type loop_mapping: typing.Union[int, str]
     :param poly_mapping: Face Mapping, Method used to map source faces to destination ones * TOPOLOGY Topology, Copy from identical topology meshes. * NEAREST Nearest Face, Copy from nearest polygon (using center points). * NORMAL Best Normal-Matching, Copy from source polygon which normal is the closest to destination one. * POLYINTERP_PNORPROJ Projected Face Interpolated, Interpolate all source polygons intersected by the projection of destination one along its own normal.
     :type poly_mapping: typing.Union[int, str]
@@ -416,7 +471,7 @@ def datalayout_transfer(modifier: str = "",
 
     :param modifier: Modifier, Name of the modifier to edit
     :type modifier: str
-    :param data_type: Data Type, Which data to transfer * VGROUP_WEIGHTS Vertex Group(s), Transfer active or all vertex groups. * BEVEL_WEIGHT_VERT Bevel Weight, Transfer bevel weights. * SHARP_EDGE Sharp, Transfer sharp mark. * SEAM UV Seam, Transfer UV seam mark. * CREASE Subdivision Crease, Transfer crease values. * BEVEL_WEIGHT_EDGE Bevel Weight, Transfer bevel weights. * FREESTYLE_EDGE Freestyle Mark, Transfer Freestyle edge mark. * CUSTOM_NORMAL Custom Normals, Transfer custom normals. * VCOL VCol, Vertex (face corners) colors. * UV UVs, Transfer UV layers. * SMOOTH Smooth, Transfer flat/smooth mark. * FREESTYLE_FACE Freestyle Mark, Transfer Freestyle face mark.
+    :param data_type: Data Type, Which data to transfer * VGROUP_WEIGHTS Vertex Group(s), Transfer active or all vertex groups. * BEVEL_WEIGHT_VERT Bevel Weight, Transfer bevel weights. * SHARP_EDGE Sharp, Transfer sharp mark. * SEAM UV Seam, Transfer UV seam mark. * CREASE Subdivision Crease, Transfer crease values. * BEVEL_WEIGHT_EDGE Bevel Weight, Transfer bevel weights. * FREESTYLE_EDGE Freestyle Mark, Transfer Freestyle edge mark. * CUSTOM_NORMAL Custom Normals, Transfer custom normals. * VCOL Vertex Colors, Vertex (face corners) colors. * UV UVs, Transfer UV layers. * SMOOTH Smooth, Transfer flat/smooth mark. * FREESTYLE_FACE Freestyle Mark, Transfer Freestyle face mark.
     :type data_type: typing.Union[int, str]
     :param use_delete: Exact Match, Also delete some data layers from destination if necessary, so that it matches exactly source
     :type use_delete: bool
@@ -527,7 +582,7 @@ def duplicates_make_real(use_base_parent: bool = False,
 
 
 def editmode_toggle():
-    ''' Toggle object's editmode
+    ''' Toggle object's edit mode
 
     '''
 
@@ -547,7 +602,7 @@ def effector_add(type: typing.Union[int, str] = 'FORCE',
     :type type: typing.Union[int, str]
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -624,7 +679,7 @@ def face_map_deselect():
 def face_map_move(direction: typing.Union[int, str] = 'UP'):
     ''' Move the active face map up/down in the list
 
-    :param direction: Direction, Direction to move, UP or DOWN
+    :param direction: Direction, Direction to move, up or down
     :type direction: typing.Union[int, str]
     '''
 
@@ -691,7 +746,7 @@ def gpencil_add(radius: float = 1.0,
 def gpencil_modifier_add(type: typing.Union[int, str] = 'CURVE'):
     ''' Add a procedural operation/effect to the active grease pencil object
 
-    :param type: Type * DATA_TRANSFER Data Transfer, Transfer several types of data (vertex groups, UV maps, vertex colors, custom normals) from one mesh to another. * MESH_CACHE Mesh Cache, Deform the mesh using an external frame-by-frame vertex transform cache. * MESH_SEQUENCE_CACHE Mesh Sequence Cache, Deform the mesh or curve using an external mesh cache in Alembic format. * NORMAL_EDIT Normal Edit, Modify the direction of the surface normals. * WEIGHTED_NORMAL Weighted Normal, Modify the direction of the surface normals using a weighting method. * UV_PROJECT UV Project, Project the UV map coordinates from the negative Z axis of another object. * UV_WARP UV Warp, Transform the UV map using the difference between two objects. * VERTEX_WEIGHT_EDIT Vertex Weight Edit, Modify of the weights of a vertex group. * VERTEX_WEIGHT_MIX Vertex Weight Mix, Mix the weights of two vertex groups. * VERTEX_WEIGHT_PROXIMITY Vertex Weight Proximity, Set the vertex group weights based on the distance to another target object. * ARRAY Array, Create copies of the shape with offsets. * BEVEL Bevel, Generate sloped corners by adding geometry to the mesh's edges or vertices. * BOOLEAN Boolean, Use another shape to cut, combine or perform a difference operation. * BUILD Build, Cause the faces of the mesh object to appear or disappear one after the other over time. * DECIMATE Decimate, Reduce the geometry density. * EDGE_SPLIT Edge Split, Split away joined faces at the edges. * MASK Mask, Dynamically hide vertices based on a vertex group or armature. * MIRROR Mirror, Mirror along the local X, Y and/or Z axes, over the object origin. * MULTIRES Multiresolution, Subdivide the mesh in a way that allows editing the higher subdivision levels. * REMESH Remesh, Generate new mesh topology based on the current shape. * SCREW Screw, Lathe around an axis, treating the input mesh as a profile. * SKIN Skin, Create a solid shape from vertices and edges, using the vertex radius to define the thickness. * SOLIDIFY Solidify, Make the surface thick. * SUBSURF Subdivision Surface, Split the faces into smaller parts, giving it a smoother appearance. * TRIANGULATE Triangulate, Convert all polygons to triangles. * WELD Weld, Find groups of vertices closer then dist and merges them together. * WIREFRAME Wireframe, Convert faces into thickened edges. * ARMATURE Armature, Deform the shape using an armature object. * CAST Cast, Shift the shape towards a predefined primitive. * CURVE Curve, Bend the mesh using a curve object. * DISPLACE Displace, Offset vertices based on a texture. * HOOK Hook, Deform specific points using another object. * LAPLACIANDEFORM Laplacian Deform, Deform based a series of anchor points. * LATTICE Lattice, Deform using the shape of a lattice object. * MESH_DEFORM Mesh Deform, Deform using a different mesh, which acts as a deformation cage. * SHRINKWRAP Shrinkwrap, Project the shape onto another object. * SIMPLE_DEFORM Simple Deform, Deform the shape by twisting, bending, tapering or stretching. * SMOOTH Smooth, Smooth the mesh by flattening the angles between adjacent faces. * CORRECTIVE_SMOOTH Smooth Corrective, Smooth the mesh while still preserving the volume. * LAPLACIANSMOOTH Smooth Laplacian, Reduce the noise on a mesh surface with minimal changes to its shape. * SURFACE_DEFORM Surface Deform, Transfer motion from another mesh. * WARP Warp, Warp parts of a mesh to a new location in a very flexible way thanks to 2 specified objects. * WAVE Wave, Adds a ripple-like motion to an object’s geometry. * CLOTH Cloth. * COLLISION Collision. * DYNAMIC_PAINT Dynamic Paint. * EXPLODE Explode, Break apart the mesh faces and let them follow particles. * FLUID Fluid. * OCEAN Ocean, Generate a moving ocean surface. * PARTICLE_INSTANCE Particle Instance. * PARTICLE_SYSTEM Particle System, Spawn particles from the shape. * SOFT_BODY Soft Body. * SURFACE Surface. * SIMULATION Simulation.
+    :param type: Type * DATA_TRANSFER Data Transfer, Transfer several types of data (vertex groups, UV maps, vertex colors, custom normals) from one mesh to another. * MESH_CACHE Mesh Cache, Deform the mesh using an external frame-by-frame vertex transform cache. * MESH_SEQUENCE_CACHE Mesh Sequence Cache, Deform the mesh or curve using an external mesh cache in Alembic format. * NORMAL_EDIT Normal Edit, Modify the direction of the surface normals. * WEIGHTED_NORMAL Weighted Normal, Modify the direction of the surface normals using a weighting method. * UV_PROJECT UV Project, Project the UV map coordinates from the negative Z axis of another object. * UV_WARP UV Warp, Transform the UV map using the difference between two objects. * VERTEX_WEIGHT_EDIT Vertex Weight Edit, Modify of the weights of a vertex group. * VERTEX_WEIGHT_MIX Vertex Weight Mix, Mix the weights of two vertex groups. * VERTEX_WEIGHT_PROXIMITY Vertex Weight Proximity, Set the vertex group weights based on the distance to another target object. * ARRAY Array, Create copies of the shape with offsets. * BEVEL Bevel, Generate sloped corners by adding geometry to the mesh's edges or vertices. * BOOLEAN Boolean, Use another shape to cut, combine or perform a difference operation. * BUILD Build, Cause the faces of the mesh object to appear or disappear one after the other over time. * DECIMATE Decimate, Reduce the geometry density. * EDGE_SPLIT Edge Split, Split away joined faces at the edges. * NODES Geometry Nodes. * MASK Mask, Dynamically hide vertices based on a vertex group or armature. * MIRROR Mirror, Mirror along the local X, Y and/or Z axes, over the object origin. * MESH_TO_VOLUME Mesh to Volume. * MULTIRES Multiresolution, Subdivide the mesh in a way that allows editing the higher subdivision levels. * REMESH Remesh, Generate new mesh topology based on the current shape. * SCREW Screw, Lathe around an axis, treating the input mesh as a profile. * SKIN Skin, Create a solid shape from vertices and edges, using the vertex radius to define the thickness. * SOLIDIFY Solidify, Make the surface thick. * SUBSURF Subdivision Surface, Split the faces into smaller parts, giving it a smoother appearance. * TRIANGULATE Triangulate, Convert all polygons to triangles. * VOLUME_TO_MESH Volume to Mesh. * WELD Weld, Find groups of vertices closer than dist and merge them together. * WIREFRAME Wireframe, Convert faces into thickened edges. * ARMATURE Armature, Deform the shape using an armature object. * CAST Cast, Shift the shape towards a predefined primitive. * CURVE Curve, Bend the mesh using a curve object. * DISPLACE Displace, Offset vertices based on a texture. * HOOK Hook, Deform specific points using another object. * LAPLACIANDEFORM Laplacian Deform, Deform based a series of anchor points. * LATTICE Lattice, Deform using the shape of a lattice object. * MESH_DEFORM Mesh Deform, Deform using a different mesh, which acts as a deformation cage. * SHRINKWRAP Shrinkwrap, Project the shape onto another object. * SIMPLE_DEFORM Simple Deform, Deform the shape by twisting, bending, tapering or stretching. * SMOOTH Smooth, Smooth the mesh by flattening the angles between adjacent faces. * CORRECTIVE_SMOOTH Smooth Corrective, Smooth the mesh while still preserving the volume. * LAPLACIANSMOOTH Smooth Laplacian, Reduce the noise on a mesh surface with minimal changes to its shape. * SURFACE_DEFORM Surface Deform, Transfer motion from another mesh. * WARP Warp, Warp parts of a mesh to a new location in a very flexible way thanks to 2 specified objects. * WAVE Wave, Adds a ripple-like motion to an object’s geometry. * VOLUME_DISPLACE Volume Displace, Deform volume based on noise or other vector fields. * CLOTH Cloth. * COLLISION Collision. * DYNAMIC_PAINT Dynamic Paint. * EXPLODE Explode, Break apart the mesh faces and let them follow particles. * FLUID Fluid. * OCEAN Ocean, Generate a moving ocean surface. * PARTICLE_INSTANCE Particle Instance. * PARTICLE_SYSTEM Particle System, Spawn particles from the shape. * SOFT_BODY Soft Body. * SURFACE Surface.
     :type type: typing.Union[int, str]
     '''
 
@@ -703,7 +758,7 @@ def gpencil_modifier_apply(apply_as: typing.Union[int, str] = 'DATA',
                            report: bool = False):
     ''' Apply modifier and remove from the stack
 
-    :param apply_as: Apply as, How to apply the modifier to the geometry * DATA Object Data, Apply modifier to the object's data. * SHAPE New Shape, Apply deform-only modifier to a new shape on this object.
+    :param apply_as: Apply As, How to apply the modifier to the geometry * DATA Object Data, Apply modifier to the object's data. * SHAPE New Shape, Apply deform-only modifier to a new shape on this object.
     :type apply_as: typing.Union[int, str]
     :param modifier: Modifier, Name of the modifier to edit
     :type modifier: str
@@ -716,6 +771,16 @@ def gpencil_modifier_apply(apply_as: typing.Union[int, str] = 'DATA',
 
 def gpencil_modifier_copy(modifier: str = ""):
     ''' Duplicate modifier at the same position in the stack
+
+    :param modifier: Modifier, Name of the modifier to edit
+    :type modifier: str
+    '''
+
+    pass
+
+
+def gpencil_modifier_copy_to_selected(modifier: str = ""):
+    ''' Copy the modifier from the active object to all selected objects
 
     :param modifier: Modifier, Name of the modifier to edit
     :type modifier: str
@@ -800,7 +865,7 @@ def hide_collection(collection_index: int = -1, toggle: bool = False):
 
 
 def hide_render_clear_all():
-    ''' Reveal all render objects by setting the hide render flag :file: startup/bl_operators/object.py\:690 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$690> _
+    ''' Reveal all render objects by setting the hide render flag :file: startup/bl_operators/object.py\:689 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$689> _
 
     '''
 
@@ -896,7 +961,7 @@ def hook_select(modifier: typing.Union[int, str] = ''):
 
 
 def instance_offset_from_cursor():
-    ''' Set offset used for collection instances based on cursor position :file: startup/bl_operators/object.py\:872 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$872> _
+    ''' Set offset used for collection instances based on cursor position :file: startup/bl_operators/object.py\:871 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$871> _
 
     '''
 
@@ -904,7 +969,7 @@ def instance_offset_from_cursor():
 
 
 def isolate_type_render():
-    ''' Hide unselected render objects of same type as active by setting the hide render flag :file: startup/bl_operators/object.py\:670 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$670> _
+    ''' Hide unselected render objects of same type as active by setting the hide render flag :file: startup/bl_operators/object.py\:669 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$669> _
 
     '''
 
@@ -928,7 +993,7 @@ def join_shapes():
 
 
 def join_uvs():
-    ''' Transfer UV Maps from active to selected objects (needs matching geometry) :file: startup/bl_operators/object.py\:584 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$584> _
+    ''' Transfer UV Maps from active to selected objects (needs matching geometry) :file: startup/bl_operators/object.py\:583 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$583> _
 
     '''
 
@@ -983,7 +1048,7 @@ def lightprobe_add(type: typing.Union[int, str] = 'CUBEMAP',
     :type type: typing.Union[int, str]
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1026,7 +1091,7 @@ def load_background_image(filepath: str = "",
     :type filter_image: bool
     :param filter_folder: filter_folder
     :type filter_folder: bool
-    :param view_align: Align to view
+    :param view_align: Align to View
     :type view_align: bool
     '''
 
@@ -1045,7 +1110,7 @@ def load_reference_image(filepath: str = "",
     :type filter_image: bool
     :param filter_folder: filter_folder
     :type filter_folder: bool
-    :param view_align: Align to view
+    :param view_align: Align to View
     :type view_align: bool
     '''
 
@@ -1063,7 +1128,7 @@ def location_clear(clear_delta: bool = False):
 
 
 def make_dupli_face():
-    ''' Convert objects into instanced faces :file: startup/bl_operators/object.py\:658 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$658> _
+    ''' Convert objects into instanced faces :file: startup/bl_operators/object.py\:657 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/object.py$657> _
 
     '''
 
@@ -1221,7 +1286,7 @@ def metaball_add(type: typing.Union[int, str] = 'BALL',
     :type type: typing.Union[int, str]
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1268,7 +1333,7 @@ def mode_set_with_submode(
 def modifier_add(type: typing.Union[int, str] = 'SUBSURF'):
     ''' Add a procedural operation/effect to the active object
 
-    :param type: Type * DATA_TRANSFER Data Transfer, Transfer several types of data (vertex groups, UV maps, vertex colors, custom normals) from one mesh to another. * MESH_CACHE Mesh Cache, Deform the mesh using an external frame-by-frame vertex transform cache. * MESH_SEQUENCE_CACHE Mesh Sequence Cache, Deform the mesh or curve using an external mesh cache in Alembic format. * NORMAL_EDIT Normal Edit, Modify the direction of the surface normals. * WEIGHTED_NORMAL Weighted Normal, Modify the direction of the surface normals using a weighting method. * UV_PROJECT UV Project, Project the UV map coordinates from the negative Z axis of another object. * UV_WARP UV Warp, Transform the UV map using the difference between two objects. * VERTEX_WEIGHT_EDIT Vertex Weight Edit, Modify of the weights of a vertex group. * VERTEX_WEIGHT_MIX Vertex Weight Mix, Mix the weights of two vertex groups. * VERTEX_WEIGHT_PROXIMITY Vertex Weight Proximity, Set the vertex group weights based on the distance to another target object. * ARRAY Array, Create copies of the shape with offsets. * BEVEL Bevel, Generate sloped corners by adding geometry to the mesh's edges or vertices. * BOOLEAN Boolean, Use another shape to cut, combine or perform a difference operation. * BUILD Build, Cause the faces of the mesh object to appear or disappear one after the other over time. * DECIMATE Decimate, Reduce the geometry density. * EDGE_SPLIT Edge Split, Split away joined faces at the edges. * MASK Mask, Dynamically hide vertices based on a vertex group or armature. * MIRROR Mirror, Mirror along the local X, Y and/or Z axes, over the object origin. * MULTIRES Multiresolution, Subdivide the mesh in a way that allows editing the higher subdivision levels. * REMESH Remesh, Generate new mesh topology based on the current shape. * SCREW Screw, Lathe around an axis, treating the input mesh as a profile. * SKIN Skin, Create a solid shape from vertices and edges, using the vertex radius to define the thickness. * SOLIDIFY Solidify, Make the surface thick. * SUBSURF Subdivision Surface, Split the faces into smaller parts, giving it a smoother appearance. * TRIANGULATE Triangulate, Convert all polygons to triangles. * WELD Weld, Find groups of vertices closer then dist and merges them together. * WIREFRAME Wireframe, Convert faces into thickened edges. * ARMATURE Armature, Deform the shape using an armature object. * CAST Cast, Shift the shape towards a predefined primitive. * CURVE Curve, Bend the mesh using a curve object. * DISPLACE Displace, Offset vertices based on a texture. * HOOK Hook, Deform specific points using another object. * LAPLACIANDEFORM Laplacian Deform, Deform based a series of anchor points. * LATTICE Lattice, Deform using the shape of a lattice object. * MESH_DEFORM Mesh Deform, Deform using a different mesh, which acts as a deformation cage. * SHRINKWRAP Shrinkwrap, Project the shape onto another object. * SIMPLE_DEFORM Simple Deform, Deform the shape by twisting, bending, tapering or stretching. * SMOOTH Smooth, Smooth the mesh by flattening the angles between adjacent faces. * CORRECTIVE_SMOOTH Smooth Corrective, Smooth the mesh while still preserving the volume. * LAPLACIANSMOOTH Smooth Laplacian, Reduce the noise on a mesh surface with minimal changes to its shape. * SURFACE_DEFORM Surface Deform, Transfer motion from another mesh. * WARP Warp, Warp parts of a mesh to a new location in a very flexible way thanks to 2 specified objects. * WAVE Wave, Adds a ripple-like motion to an object’s geometry. * CLOTH Cloth. * COLLISION Collision. * DYNAMIC_PAINT Dynamic Paint. * EXPLODE Explode, Break apart the mesh faces and let them follow particles. * FLUID Fluid. * OCEAN Ocean, Generate a moving ocean surface. * PARTICLE_INSTANCE Particle Instance. * PARTICLE_SYSTEM Particle System, Spawn particles from the shape. * SOFT_BODY Soft Body. * SURFACE Surface. * SIMULATION Simulation.
+    :param type: Type * DATA_TRANSFER Data Transfer, Transfer several types of data (vertex groups, UV maps, vertex colors, custom normals) from one mesh to another. * MESH_CACHE Mesh Cache, Deform the mesh using an external frame-by-frame vertex transform cache. * MESH_SEQUENCE_CACHE Mesh Sequence Cache, Deform the mesh or curve using an external mesh cache in Alembic format. * NORMAL_EDIT Normal Edit, Modify the direction of the surface normals. * WEIGHTED_NORMAL Weighted Normal, Modify the direction of the surface normals using a weighting method. * UV_PROJECT UV Project, Project the UV map coordinates from the negative Z axis of another object. * UV_WARP UV Warp, Transform the UV map using the difference between two objects. * VERTEX_WEIGHT_EDIT Vertex Weight Edit, Modify of the weights of a vertex group. * VERTEX_WEIGHT_MIX Vertex Weight Mix, Mix the weights of two vertex groups. * VERTEX_WEIGHT_PROXIMITY Vertex Weight Proximity, Set the vertex group weights based on the distance to another target object. * ARRAY Array, Create copies of the shape with offsets. * BEVEL Bevel, Generate sloped corners by adding geometry to the mesh's edges or vertices. * BOOLEAN Boolean, Use another shape to cut, combine or perform a difference operation. * BUILD Build, Cause the faces of the mesh object to appear or disappear one after the other over time. * DECIMATE Decimate, Reduce the geometry density. * EDGE_SPLIT Edge Split, Split away joined faces at the edges. * NODES Geometry Nodes. * MASK Mask, Dynamically hide vertices based on a vertex group or armature. * MIRROR Mirror, Mirror along the local X, Y and/or Z axes, over the object origin. * MESH_TO_VOLUME Mesh to Volume. * MULTIRES Multiresolution, Subdivide the mesh in a way that allows editing the higher subdivision levels. * REMESH Remesh, Generate new mesh topology based on the current shape. * SCREW Screw, Lathe around an axis, treating the input mesh as a profile. * SKIN Skin, Create a solid shape from vertices and edges, using the vertex radius to define the thickness. * SOLIDIFY Solidify, Make the surface thick. * SUBSURF Subdivision Surface, Split the faces into smaller parts, giving it a smoother appearance. * TRIANGULATE Triangulate, Convert all polygons to triangles. * VOLUME_TO_MESH Volume to Mesh. * WELD Weld, Find groups of vertices closer than dist and merge them together. * WIREFRAME Wireframe, Convert faces into thickened edges. * ARMATURE Armature, Deform the shape using an armature object. * CAST Cast, Shift the shape towards a predefined primitive. * CURVE Curve, Bend the mesh using a curve object. * DISPLACE Displace, Offset vertices based on a texture. * HOOK Hook, Deform specific points using another object. * LAPLACIANDEFORM Laplacian Deform, Deform based a series of anchor points. * LATTICE Lattice, Deform using the shape of a lattice object. * MESH_DEFORM Mesh Deform, Deform using a different mesh, which acts as a deformation cage. * SHRINKWRAP Shrinkwrap, Project the shape onto another object. * SIMPLE_DEFORM Simple Deform, Deform the shape by twisting, bending, tapering or stretching. * SMOOTH Smooth, Smooth the mesh by flattening the angles between adjacent faces. * CORRECTIVE_SMOOTH Smooth Corrective, Smooth the mesh while still preserving the volume. * LAPLACIANSMOOTH Smooth Laplacian, Reduce the noise on a mesh surface with minimal changes to its shape. * SURFACE_DEFORM Surface Deform, Transfer motion from another mesh. * WARP Warp, Warp parts of a mesh to a new location in a very flexible way thanks to 2 specified objects. * WAVE Wave, Adds a ripple-like motion to an object’s geometry. * VOLUME_DISPLACE Volume Displace, Deform volume based on noise or other vector fields. * CLOTH Cloth. * COLLISION Collision. * DYNAMIC_PAINT Dynamic Paint. * EXPLODE Explode, Break apart the mesh faces and let them follow particles. * FLUID Fluid. * OCEAN Ocean, Generate a moving ocean surface. * PARTICLE_INSTANCE Particle Instance. * PARTICLE_SYSTEM Particle System, Spawn particles from the shape. * SOFT_BODY Soft Body. * SURFACE Surface.
     :type type: typing.Union[int, str]
     '''
 
@@ -1290,7 +1355,7 @@ def modifier_apply(modifier: str = "", report: bool = False):
 def modifier_apply_as_shapekey(keep_modifier: bool = False,
                                modifier: str = "",
                                report: bool = False):
-    ''' Apply modifier as a new shapekey and remove from the stack
+    ''' Apply modifier as a new shape key and remove from the stack
 
     :param keep_modifier: Keep Modifier, Do not remove the modifier from stack
     :type keep_modifier: bool
@@ -1315,6 +1380,16 @@ def modifier_convert(modifier: str = ""):
 
 def modifier_copy(modifier: str = ""):
     ''' Duplicate modifier at the same position in the stack
+
+    :param modifier: Modifier, Name of the modifier to edit
+    :type modifier: str
+    '''
+
+    pass
+
+
+def modifier_copy_to_selected(modifier: str = ""):
+    ''' Copy the modifier from the active object to all selected objects
 
     :param modifier: Modifier, Name of the modifier to edit
     :type modifier: str
@@ -1367,6 +1442,16 @@ def modifier_remove(modifier: str = "", report: bool = False):
     pass
 
 
+def modifier_set_active(modifier: str = ""):
+    ''' Activate the modifier to use as the context
+
+    :param modifier: Modifier, Name of the modifier to edit
+    :type modifier: str
+    '''
+
+    pass
+
+
 def move_to_collection(collection_index: int = -1,
                        is_new: bool = False,
                        new_collection_name: str = ""):
@@ -1401,31 +1486,30 @@ def multires_external_pack():
     pass
 
 
-def multires_external_save(
-        filepath: str = "",
-        hide_props_region: bool = True,
-        check_existing: bool = True,
-        filter_blender: bool = False,
-        filter_backup: bool = False,
-        filter_image: bool = False,
-        filter_movie: bool = False,
-        filter_python: bool = False,
-        filter_font: bool = False,
-        filter_sound: bool = False,
-        filter_text: bool = False,
-        filter_archive: bool = False,
-        filter_btx: bool = True,
-        filter_collada: bool = False,
-        filter_alembic: bool = False,
-        filter_usd: bool = False,
-        filter_volume: bool = False,
-        filter_folder: bool = True,
-        filter_blenlib: bool = False,
-        filemode: int = 9,
-        relative_path: bool = True,
-        display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
-        modifier: str = ""):
+def multires_external_save(filepath: str = "",
+                           hide_props_region: bool = True,
+                           check_existing: bool = True,
+                           filter_blender: bool = False,
+                           filter_backup: bool = False,
+                           filter_image: bool = False,
+                           filter_movie: bool = False,
+                           filter_python: bool = False,
+                           filter_font: bool = False,
+                           filter_sound: bool = False,
+                           filter_text: bool = False,
+                           filter_archive: bool = False,
+                           filter_btx: bool = True,
+                           filter_collada: bool = False,
+                           filter_alembic: bool = False,
+                           filter_usd: bool = False,
+                           filter_volume: bool = False,
+                           filter_folder: bool = True,
+                           filter_blenlib: bool = False,
+                           filemode: int = 9,
+                           relative_path: bool = True,
+                           display_type: typing.Union[int, str] = 'DEFAULT',
+                           sort_method: typing.Union[int, str] = '',
+                           modifier: str = ""):
     ''' Save displacements to an external file
 
     :param filepath: File Path, Path to file
@@ -1472,7 +1556,7 @@ def multires_external_save(
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param modifier: Modifier, Name of the modifier to edit
     :type modifier: str
@@ -1558,7 +1642,7 @@ def origin_set(type: typing.Union[int, str] = 'GEOMETRY_ORIGIN',
                center: typing.Union[int, str] = 'MEDIAN'):
     ''' Set the object's origin, by either moving the data, or set to center of data, or use 3D cursor
 
-    :param type: Type * GEOMETRY_ORIGIN Geometry to Origin, Move object geometry to object origin. * ORIGIN_GEOMETRY Origin to Geometry, Calculate the center of geometry based on the current pivot point (median, otherwise bounding-box). * ORIGIN_CURSOR Origin to 3D Cursor, Move object origin to position of the 3D cursor. * ORIGIN_CENTER_OF_MASS Origin to Center of Mass (Surface), Calculate the center of mass from the surface area. * ORIGIN_CENTER_OF_VOLUME Origin to Center of Mass (Volume), Calculate the center of mass from the volume (must be manifold geometry with consistent normals).
+    :param type: Type * GEOMETRY_ORIGIN Geometry to Origin, Move object geometry to object origin. * ORIGIN_GEOMETRY Origin to Geometry, Calculate the center of geometry based on the current pivot point (median, otherwise bounding box). * ORIGIN_CURSOR Origin to 3D Cursor, Move object origin to position of the 3D cursor. * ORIGIN_CENTER_OF_MASS Origin to Center of Mass (Surface), Calculate the center of mass from the surface area. * ORIGIN_CENTER_OF_VOLUME Origin to Center of Mass (Volume), Calculate the center of mass from the volume (must be manifold geometry with consistent normals).
     :type type: typing.Union[int, str]
     :param center: Center
     :type center: typing.Union[int, str]
@@ -1685,14 +1769,14 @@ def posemode_toggle():
 def proxy_make(object: typing.Union[int, str] = 'DEFAULT'):
     ''' Add empty object to become local replacement data of a library-linked object
 
-    :param object: Proxy Object, Name of lib-linked/collection object to make a proxy for
+    :param object: Proxy Object, Name of library-linked/collection object to make a proxy for
     :type object: typing.Union[int, str]
     '''
 
     pass
 
 
-def quadriflow_remesh(use_paint_symmetry: bool = True,
+def quadriflow_remesh(use_mesh_symmetry: bool = True,
                       use_preserve_sharp: bool = False,
                       use_preserve_boundary: bool = False,
                       preserve_paint_mask: bool = False,
@@ -1705,8 +1789,8 @@ def quadriflow_remesh(use_paint_symmetry: bool = True,
                       seed: int = 0):
     ''' Create a new quad based mesh using the surface data of the current mesh. All data layers will be lost
 
-    :param use_paint_symmetry: Use Paint Symmetry, Generates a symmetrical mesh using the paint symmetry configuration
-    :type use_paint_symmetry: bool
+    :param use_mesh_symmetry: Use Mesh Symmetry, Generates a symmetrical mesh using the mesh symmetry configuration
+    :type use_mesh_symmetry: bool
     :param use_preserve_sharp: Preserve Sharp, Try to preserve sharp features on the mesh
     :type use_preserve_sharp: bool
     :param use_preserve_boundary: Preserve Mesh Boundary, Try to preserve mesh boundary on the mesh
@@ -1743,7 +1827,7 @@ def quick_explode(style: typing.Union[int, str] = 'EXPLODE',
 
     :param style: Explode Style
     :type style: typing.Union[int, str]
-    :param amount: Amount of pieces
+    :param amount: Number of Pieces
     :type amount: int
     :param frame_duration: Duration
     :type frame_duration: int
@@ -1808,7 +1892,7 @@ def randomize_transform(random_seed: int = 0,
                         use_scale: bool = True,
                         scale_even: bool = False,
                         scale: typing.List[float] = (1.0, 1.0, 1.0)):
-    ''' Randomize objects loc/rot/scale
+    ''' Randomize objects location, rotation, and scale
 
     :param random_seed: Random Seed, Seed value for the random generator
     :type random_seed: int
@@ -1892,7 +1976,7 @@ def select_grouped(extend: bool = False,
 
     :param extend: Extend, Extend selection instead of deselecting everything first
     :type extend: bool
-    :param type: Type * CHILDREN_RECURSIVE Children. * CHILDREN Immediate Children. * PARENT Parent. * SIBLINGS Siblings, Shared Parent. * TYPE Type, Shared object type. * COLLECTION Collection, Shared collection. * HOOK Hook. * PASS Pass, Render pass Index. * COLOR Color, Object Color. * KEYINGSET Keying Set, Objects included in active Keying Set. * LIGHT_TYPE Light Type, Matching light types.
+    :param type: Type * CHILDREN_RECURSIVE Children. * CHILDREN Immediate Children. * PARENT Parent. * SIBLINGS Siblings, Shared parent. * TYPE Type, Shared object type. * COLLECTION Collection, Shared collection. * HOOK Hook. * PASS Pass, Render pass index. * COLOR Color, Object color. * KEYINGSET Keying Set, Objects included in active Keying Set. * LIGHT_TYPE Light Type, Matching light types.
     :type type: typing.Union[int, str]
     '''
 
@@ -2014,6 +2098,16 @@ def shaderfx_add(type: typing.Union[int, str] = 'FX_BLUR'):
 
     :param type: Type * FX_BLUR Blur, Apply Gaussian Blur to object. * FX_COLORIZE Colorize, Apply different tint effects. * FX_FLIP Flip, Flip image. * FX_GLOW Glow, Create a glow effect. * FX_PIXEL Pixelate, Pixelate image. * FX_RIM Rim, Add a rim to the image. * FX_SHADOW Shadow, Create a shadow effect. * FX_SWIRL Swirl, Create a rotation distortion. * FX_WAVE Wave Distortion, Apply sinusoidal deformation.
     :type type: typing.Union[int, str]
+    '''
+
+    pass
+
+
+def shaderfx_copy(shaderfx: str = ""):
+    ''' Duplicate effect at the same position in the stack
+
+    :param shaderfx: Shader, Name of the shaderfx to edit
+    :type shaderfx: str
     '''
 
     pass
@@ -2175,7 +2269,7 @@ def speaker_add(enter_editmode: bool = False,
                 scale: typing.List[float] = (0.0, 0.0, 0.0)):
     ''' Add a speaker object to the scene
 
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -2191,7 +2285,7 @@ def speaker_add(enter_editmode: bool = False,
 
 
 def subdivision_set(level: int = 1, relative: bool = False):
-    ''' Sets a Subdivision Surface Level (1-5)
+    ''' Sets a Subdivision Surface level (1 to 5)
 
     :param level: Level
     :type level: int
@@ -2212,6 +2306,14 @@ def surfacedeform_bind(modifier: str = ""):
     pass
 
 
+def switch_object():
+    ''' Switches the active object and assigns the same mode to a new one under the mouse cursor, leaving the active mode in the current one
+
+    '''
+
+    pass
+
+
 def text_add(radius: float = 1.0,
              enter_editmode: bool = False,
              align: typing.Union[int, str] = 'WORLD',
@@ -2222,7 +2324,7 @@ def text_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -2334,7 +2436,7 @@ def vertex_group_clean(group_select_mode: typing.Union[int, str] = '',
                        keep_single: bool = False):
     ''' Remove vertex group assignments which are not required
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param limit: Limit, Remove vertices which weight is below or equal to this limit
     :type limit: float
@@ -2398,7 +2500,7 @@ def vertex_group_invert(group_select_mode: typing.Union[int, str] = '',
                         auto_remove: bool = True):
     ''' Invert active vertex group's weights
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param auto_assign: Add Weights, Add vertices from groups that have zero weight before inverting
     :type auto_assign: bool
@@ -2414,7 +2516,7 @@ def vertex_group_levels(group_select_mode: typing.Union[int, str] = '',
                         gain: float = 1.0):
     ''' Add some offset and multiply with some gain the weights of the active vertex group
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param offset: Offset, Value to add to weights
     :type offset: float
@@ -2429,7 +2531,7 @@ def vertex_group_limit_total(group_select_mode: typing.Union[int, str] = '',
                              limit: int = 4):
     ''' Limit deform weights associated with a vertex to a specified number by removing lowest weights
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param limit: Limit, Maximum number of deform weights
     :type limit: int
@@ -2492,7 +2594,7 @@ def vertex_group_normalize_all(group_select_mode: typing.Union[int, str] = '',
                                lock_active: bool = True):
     ''' Normalize all weights of all vertex groups, so that for each vertex, the sum of all weights is 1.0
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param lock_active: Lock Active, Keep the values of the active group while normalizing others
     :type lock_active: bool
@@ -2505,7 +2607,7 @@ def vertex_group_quantize(group_select_mode: typing.Union[int, str] = '',
                           steps: int = 4):
     ''' Set weights to a fixed number of steps
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param steps: Steps, Number of steps between 0 and 1
     :type steps: int
@@ -2563,7 +2665,7 @@ def vertex_group_smooth(group_select_mode: typing.Union[int, str] = '',
                         expand: float = 0.0):
     ''' Smooth weights for selected vertices
 
-    :param group_select_mode: Subset, Define which subset of Groups shall be used
+    :param group_select_mode: Subset, Define which subset of groups shall be used
     :type group_select_mode: typing.Union[int, str]
     :param factor: Factor
     :type factor: float
@@ -2579,7 +2681,7 @@ def vertex_group_smooth(group_select_mode: typing.Union[int, str] = '',
 def vertex_group_sort(sort_type: typing.Union[int, str] = 'NAME'):
     ''' Sort vertex groups
 
-    :param sort_type: Sort type, Sort type
+    :param sort_type: Sort Type, Sort type
     :type sort_type: typing.Union[int, str]
     '''
 
@@ -2670,8 +2772,10 @@ def volume_add(align: typing.Union[int, str] = 'WORLD',
 def volume_import(
         filepath: str = "",
         directory: str = "",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         hide_props_region: bool = True,
         filter_blender: bool = False,
         filter_backup: bool = False,
@@ -2692,7 +2796,7 @@ def volume_import(
         filemode: int = 9,
         relative_path: bool = True,
         display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+        sort_method: typing.Union[int, str] = '',
         use_sequence_detection: bool = True,
         align: typing.Union[int, str] = 'WORLD',
         location: typing.List[float] = (0.0, 0.0, 0.0),
@@ -2705,7 +2809,7 @@ def volume_import(
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param hide_props_region: Hide Operator Properties, Collapse the region displaying the operator settings
     :type hide_props_region: bool
     :param filter_blender: Filter .blend files
@@ -2746,7 +2850,7 @@ def volume_import(
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param use_sequence_detection: Detect Sequences, Automatically detect animated sequences in selected volume files (based on file names)
     :type use_sequence_detection: bool

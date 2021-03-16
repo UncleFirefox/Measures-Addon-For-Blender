@@ -14,7 +14,7 @@ class ChainPredicateIterator:
                  restrict_to_unvisited: bool = True,
                  begin: 'freestyle.types.ViewEdge' = None,
                  orientation: bool = True):
-        ''' Builds a ChainPredicateIterator from a unary predicate, a binary predicate, a starting ViewEdge and its orientation.
+        ''' __init__(brother) Builds a ChainPredicateIterator from a unary predicate, a binary predicate, a starting ViewEdge and its orientation or using the copy constructor.
 
         :param upred: The unary predicate that the next ViewEdge must satisfy.
         :type upred: 'freestyle.types.UnaryPredicate1D'
@@ -28,12 +28,6 @@ class ChainPredicateIterator:
         :type begin: 'freestyle.types.ViewEdge'
         :param orientation: If true, we'll look for the next ViewEdge among the ViewEdges that surround the ending ViewVertex of begin. If false, we'll search over the ViewEdges surrounding the ending ViewVertex of begin.
         :type orientation: bool
-        '''
-        pass
-
-    def __init__(self, brother: 'ChainPredicateIterator'):
-        ''' Copy constructor.
-
         :param brother: A ChainPredicateIterator object.
         :type brother: 'ChainPredicateIterator'
         '''
@@ -48,7 +42,7 @@ class ChainSilhouetteIterator:
                  restrict_to_selection: bool = True,
                  begin: 'freestyle.types.ViewEdge' = None,
                  orientation: bool = True):
-        ''' Builds a ChainSilhouetteIterator from the first ViewEdge used for iteration and its orientation.
+        ''' __init__(brother) Builds a ChainSilhouetteIterator from the first ViewEdge used for iteration and its orientation or the copy constructor.
 
         :param restrict_to_selection: Indicates whether to force the chaining to stay within the set of selected ViewEdges or not.
         :type restrict_to_selection: bool
@@ -56,12 +50,6 @@ class ChainSilhouetteIterator:
         :type begin: 'freestyle.types.ViewEdge'
         :param orientation: If true, we'll look for the next ViewEdge among the ViewEdges that surround the ending ViewVertex of begin. If false, we'll search over the ViewEdges surrounding the ending ViewVertex of begin.
         :type orientation: bool
-        '''
-        pass
-
-    def __init__(self, brother: 'ChainSilhouetteIterator'):
-        ''' Copy constructor.
-
         :param brother: A ChainSilhouetteIterator object.
         :type brother: 'ChainSilhouetteIterator'
         '''

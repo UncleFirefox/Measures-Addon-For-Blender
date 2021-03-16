@@ -61,21 +61,23 @@ def draw(error_threshold: float = 0.0,
          fit_method: typing.Union[int, str] = 'REFIT',
          corner_angle: float = 1.22173,
          use_cyclic: bool = True,
-         stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                              'bpy_prop_collection'] = None,
+         stroke: typing.
+         Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+               List['bpy.types.OperatorStrokeElement'],
+               'bpy_prop_collection'] = None,
          wait_for_input: bool = True):
     ''' Draw a freehand spline
 
     :param error_threshold: Error, Error distance threshold (in object units)
     :type error_threshold: float
-    :param fit_method: Fit Method * REFIT Refit, Incrementally re-fit the curve (high quality). * SPLIT Split, Split the curve until the tolerance is met (fast).
+    :param fit_method: Fit Method * REFIT Refit, Incrementally refit the curve (high quality). * SPLIT Split, Split the curve until the tolerance is met (fast).
     :type fit_method: typing.Union[int, str]
     :param corner_angle: Corner Angle
     :type corner_angle: float
     :param use_cyclic: Cyclic
     :type use_cyclic: bool
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param wait_for_input: Wait for Input
     :type wait_for_input: bool
     '''
@@ -177,7 +179,7 @@ def primitive_bezier_circle_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -202,7 +204,7 @@ def primitive_bezier_curve_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -227,7 +229,7 @@ def primitive_nurbs_circle_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -252,7 +254,7 @@ def primitive_nurbs_curve_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -277,7 +279,7 @@ def primitive_nurbs_path_add(radius: float = 1.0,
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -537,7 +539,7 @@ def split():
 def subdivide(number_cuts: int = 1):
     ''' Subdivide selected segments
 
-    :param number_cuts: Number of cuts
+    :param number_cuts: Number of Cuts
     :type number_cuts: int
     '''
 

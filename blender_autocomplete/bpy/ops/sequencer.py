@@ -26,8 +26,10 @@ def change_effect_type(type: typing.Union[int, str] = 'CROSS'):
 def change_path(
         filepath: str = "",
         directory: str = "",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         hide_props_region: bool = True,
         filter_blender: bool = False,
         filter_backup: bool = False,
@@ -48,7 +50,7 @@ def change_path(
         filemode: int = 9,
         relative_path: bool = True,
         display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+        sort_method: typing.Union[int, str] = '',
         use_placeholders: bool = False):
     ''' Undocumented, consider contributing <https://developer.blender.org/T51061> __.
 
@@ -57,7 +59,7 @@ def change_path(
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param hide_props_region: Hide Operator Properties, Collapse the region displaying the operator settings
     :type hide_props_region: bool
     :param filter_blender: Filter .blend files
@@ -98,7 +100,7 @@ def change_path(
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param use_placeholders: Use Placeholders, Use placeholders for missing frames of the strip
     :type use_placeholders: bool
@@ -190,7 +192,7 @@ def enable_proxies(proxy_25: bool = False,
                    proxy_75: bool = False,
                    proxy_100: bool = False,
                    overwrite: bool = False):
-    ''' Enable selected proxies on all selected Movie, Image and Meta strips
+    ''' Enable selected proxies on all selected Movie and Image strips
 
     :param proxy_25: 25%
     :type proxy_25: bool
@@ -228,7 +230,7 @@ def export_subtitles(filepath: str = "",
                      filter_blenlib: bool = False,
                      filemode: int = 8,
                      display_type: typing.Union[int, str] = 'DEFAULT',
-                     sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+                     sort_method: typing.Union[int, str] = ''):
     ''' Export .srt file containing text strips
 
     :param filepath: File Path, Path to file
@@ -273,7 +275,7 @@ def export_subtitles(filepath: str = "",
     :type filemode: int
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -286,7 +288,7 @@ def fades_add(duration_seconds: float = 1.0,
 
     :param duration_seconds: Fade Duration, Duration of the fade in seconds
     :type duration_seconds: float
-    :param type: Fade type, Fade in, out, both in and out, to, or from the current frame. Default is both in and out * IN_OUT Fade In And Out, Fade selected strips in and out. * IN Fade In, Fade in selected strips. * OUT Fade Out, Fade out selected strips. * CURSOR_FROM From Current Frame, Fade from the time cursor to the end of overlapping sequences. * CURSOR_TO To Current Frame, Fade from the start of sequences under the time cursor to the current frame.
+    :param type: Fade Type, Fade in, out, both in and out, to, or from the current frame. Default is both in and out * IN_OUT Fade In and Out, Fade selected strips in and out. * IN Fade In, Fade in selected strips. * OUT Fade Out, Fade out selected strips. * CURSOR_FROM From Current Frame, Fade from the time cursor to the end of overlapping sequences. * CURSOR_TO To Current Frame, Fade from the start of sequences under the time cursor to the current frame.
     :type type: typing.Union[int, str]
     '''
 
@@ -323,8 +325,10 @@ def gap_remove(all: bool = False):
 
 def image_strip_add(
         directory: str = "",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         filter_blender: bool = False,
         filter_backup: bool = False,
         filter_image: bool = True,
@@ -346,19 +350,20 @@ def image_strip_add(
         show_multiview: bool = False,
         use_multiview: bool = False,
         display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+        sort_method: typing.Union[int, str] = '',
         frame_start: int = 0,
         frame_end: int = 0,
         channel: int = 1,
         replace_sel: bool = True,
         overlap: bool = False,
+        fit_method: typing.Union[int, str] = 'FIT',
         use_placeholders: bool = False):
     ''' Add an image or image sequence to the sequencer
 
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param filter_blender: Filter .blend files
     :type filter_blender: bool
     :param filter_backup: Filter .blend files
@@ -401,7 +406,7 @@ def image_strip_add(
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param frame_start: Start Frame, Start frame of the sequence strip
     :type frame_start: int
@@ -413,6 +418,8 @@ def image_strip_add(
     :type replace_sel: bool
     :param overlap: Allow Overlap, Don't correct overlap on new sequence strips
     :type overlap: bool
+    :param fit_method: Fit Method, Scale fit method * FIT Scale to Fit, Scale image to fit within the canvas. * FILL Scale to Fill, Scale image to completely fill the canvas. * STRETCH Stretch to Fill, Stretch image to fill the canvas. * ORIGINAL Use Original Size, Keep image at its original size.
+    :type fit_method: typing.Union[int, str]
     :param use_placeholders: Use Placeholders, Use placeholders for missing frames of the strip
     :type use_placeholders: bool
     '''
@@ -487,8 +494,10 @@ def meta_toggle():
 def movie_strip_add(
         filepath: str = "",
         directory: str = "",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         filter_blender: bool = False,
         filter_backup: bool = False,
         filter_image: bool = False,
@@ -510,11 +519,12 @@ def movie_strip_add(
         show_multiview: bool = False,
         use_multiview: bool = False,
         display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+        sort_method: typing.Union[int, str] = '',
         frame_start: int = 0,
         channel: int = 1,
         replace_sel: bool = True,
         overlap: bool = False,
+        fit_method: typing.Union[int, str] = 'FIT',
         sound: bool = True,
         use_framerate: bool = True):
     ''' Add a movie strip to the sequencer
@@ -524,7 +534,7 @@ def movie_strip_add(
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param filter_blender: Filter .blend files
     :type filter_blender: bool
     :param filter_backup: Filter .blend files
@@ -567,7 +577,7 @@ def movie_strip_add(
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param frame_start: Start Frame, Start frame of the sequence strip
     :type frame_start: int
@@ -577,6 +587,8 @@ def movie_strip_add(
     :type replace_sel: bool
     :param overlap: Allow Overlap, Don't correct overlap on new sequence strips
     :type overlap: bool
+    :param fit_method: Fit Method, Scale fit method * FIT Scale to Fit, Scale image to fit within the canvas. * FILL Scale to Fill, Scale image to completely fill the canvas. * STRETCH Stretch to Fill, Stretch image to fill the canvas. * ORIGINAL Use Original Size, Keep image at its original size.
+    :type fit_method: typing.Union[int, str]
     :param sound: Sound, Load sound with the movie
     :type sound: bool
     :param use_framerate: Use Movie Framerate, Use framerate from the movie to keep sound and video in sync
@@ -626,9 +638,11 @@ def offset_clear():
     pass
 
 
-def paste():
+def paste(keep_offset: bool = False):
     ''' Paste strips from clipboard
 
+    :param keep_offset: Keep Offset, Keep strip offset to playhead when pasting
+    :type keep_offset: bool
     '''
 
     pass
@@ -785,7 +799,7 @@ def select_grouped(type: typing.Union[int, str] = 'TYPE',
                    use_active_channel: bool = False):
     ''' Select all strips grouped by various properties
 
-    :param type: Type * TYPE Type, Shared strip type. * TYPE_BASIC Global Type, All strips of same basic type (Graphical or Sound). * TYPE_EFFECT Effect Type, Shared strip effect type (if active strip is not an effect one, select all non-effect strips). * DATA Data, Shared data (scene, image, sound, etc.). * EFFECT Effect, Shared effects. * EFFECT_LINK Effect/Linked, Other strips affected by the active one (sharing some time, and below or effect-assigned). * OVERLAP Overlap, Overlapping time.
+    :param type: Type * TYPE Type, Shared strip type. * TYPE_BASIC Global Type, All strips of same basic type (graphical or sound). * TYPE_EFFECT Effect Type, Shared strip effect type (if active strip is not an effect one, select all non-effect strips). * DATA Data, Shared data (scene, image, sound, etc.). * EFFECT Effect, Shared effects. * EFFECT_LINK Effect/Linked, Other strips affected by the active one (sharing some time, and below or effect-assigned). * OVERLAP Overlap, Overlapping time.
     :type type: typing.Union[int, str]
     :param extend: Extend, Extend selection instead of deselecting everything first
     :type extend: bool
@@ -896,8 +910,10 @@ def snap(frame: int = 0):
 def sound_strip_add(
         filepath: str = "",
         directory: str = "",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         filter_blender: bool = False,
         filter_backup: bool = False,
         filter_image: bool = False,
@@ -917,7 +933,7 @@ def sound_strip_add(
         filemode: int = 9,
         relative_path: bool = True,
         display_type: typing.Union[int, str] = 'DEFAULT',
-        sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+        sort_method: typing.Union[int, str] = '',
         frame_start: int = 0,
         channel: int = 1,
         replace_sel: bool = True,
@@ -931,7 +947,7 @@ def sound_strip_add(
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param filter_blender: Filter .blend files
     :type filter_blender: bool
     :param filter_backup: Filter .blend files
@@ -970,7 +986,7 @@ def sound_strip_add(
     :type relative_path: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param frame_start: Start Frame, Start frame of the sequence strip
     :type frame_start: int
@@ -1015,7 +1031,7 @@ def split(frame: int = 0,
 
 
 def split_multicam(camera: int = 1):
-    ''' Split multi-cam strip and select camera
+    ''' Split multicam strip and select camera
 
     :param camera: Camera
     :type camera: int
@@ -1029,7 +1045,7 @@ def strip_jump(next: bool = True, center: bool = True):
 
     :param next: Next Strip
     :type next: bool
-    :param center: Use strip center
+    :param center: Use Strip Center
     :type center: bool
     '''
 
@@ -1074,6 +1090,26 @@ def strip_modifier_remove(name: str = "Name"):
 
     :param name: Name, Name of modifier to remove
     :type name: str
+    '''
+
+    pass
+
+
+def strip_transform_clear(property: typing.Union[int, str] = 'ALL'):
+    ''' Reset image transformation to default value
+
+    :param property: Property, Strip transform property to be reset * POSITION Position, Reset strip transform location. * SCALE Scale, Reset strip transform scale. * ROTATION Rotation, Reset strip transform rotation. * ALL All, Reset strip transform location, scale and rotation.
+    :type property: typing.Union[int, str]
+    '''
+
+    pass
+
+
+def strip_transform_fit(fit_method: typing.Union[int, str] = 'FIT'):
+    ''' Undocumented, consider contributing <https://developer.blender.org/T51061> __.
+
+    :param fit_method: Fit Method, Scale fit fit_method * FIT Scale to Fit, Scale image so fits in preview. * FILL Scale to Fill, Scale image so it fills preview completely. * STRETCH Stretch to Fill, Stretch image so it fills preview.
+    :type fit_method: typing.Union[int, str]
     '''
 
     pass
@@ -1152,7 +1188,7 @@ def view_ghost_border(xmin: int = 0,
                       ymin: int = 0,
                       ymax: int = 0,
                       wait_for_input: bool = True):
-    ''' Set the boundaries of the border used for offset-view
+    ''' Set the boundaries of the border used for offset view
 
     :param xmin: X Min
     :type xmin: int

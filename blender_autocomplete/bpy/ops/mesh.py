@@ -61,7 +61,7 @@ def bevel(offset_type: typing.Union[int, str] = 'OFFSET',
     :type segments: int
     :param profile: Profile, Controls profile shape (0.5 = round)
     :type profile: float
-    :param affect: Affect, Affect Edges or Vertices * VERTICES Vertices, Affect only vertices. * EDGES Edges, Affect only edges.
+    :param affect: Affect, Affect edges or vertices * VERTICES Vertices, Affect only vertices. * EDGES Edges, Affect only edges.
     :type affect: typing.Union[int, str]
     :param clamp_overlap: Clamp Overlap, Do not allow beveled edges/vertices to overlap each other
     :type clamp_overlap: bool
@@ -83,7 +83,7 @@ def bevel(offset_type: typing.Union[int, str] = 'OFFSET',
     :type miter_inner: typing.Union[int, str]
     :param spread: Spread, Amount to spread arcs for arc inner miters
     :type spread: float
-    :param vmesh_method: Vertex Mesh Method, The method to use to create meshes at intersections * ADJ Grid Fill, Default patterned fill. * CUTOFF Cutoff, A cut-off at each profile's end before the intersection.
+    :param vmesh_method: Vertex Mesh Method, The method to use to create meshes at intersections * ADJ Grid Fill, Default patterned fill. * CUTOFF Cutoff, A cutoff at each profile's end before the intersection.
     :type vmesh_method: typing.Union[int, str]
     :param release_confirm: Confirm on Release
     :type release_confirm: bool
@@ -102,6 +102,7 @@ def bisect(plane_co: typing.List[float] = (0.0, 0.0, 0.0),
            xend: int = 0,
            ystart: int = 0,
            yend: int = 0,
+           flip: bool = False,
            cursor: int = 5):
     ''' Cut geometry along a plane (click-drag to define plane)
 
@@ -125,6 +126,8 @@ def bisect(plane_co: typing.List[float] = (0.0, 0.0, 0.0),
     :type ystart: int
     :param yend: Y End
     :type yend: int
+    :param flip: Flip
+    :type flip: bool
     :param cursor: Cursor, Mouse cursor style to use during the modal operator
     :type cursor: int
     '''
@@ -450,7 +453,7 @@ def duplicate_move(MESH_OT_duplicate=None, TRANSFORM_OT_translate=None):
 
 
 def edge_collapse():
-    ''' Collapse isolated edges & faces regions, merging data such as UV's and vertex colors. This can collapse edge-rings as well as regions of connected faces into vertices
+    ''' Collapse isolated edge and face regions, merging data such as UV's and vertex colors. This can collapse edge-rings as well as regions of connected faces into vertices
 
     '''
 
@@ -478,7 +481,7 @@ def edge_rotate(use_ccw: bool = False):
 def edge_split(type: typing.Union[int, str] = 'EDGE'):
     ''' Split selected edges so that each neighbor face gets its own copy
 
-    :param type: Type, Method to use for splitting * EDGE Faces by Edges, Split faces along selected edges. * VERT Faces & Edges by Vertices, Split faces & edges connected to selected vertices.
+    :param type: Type, Method to use for splitting * EDGE Faces by Edges, Split faces along selected edges. * VERT Faces & Edges by Vertices, Split faces and edges connected to selected vertices.
     :type type: typing.Union[int, str]
     '''
 
@@ -505,7 +508,7 @@ def edgering_select(extend: bool = False,
 
 
 def edges_select_sharp(sharpness: float = 0.523599):
-    ''' Select all sharp-enough edges
+    ''' Select all sharp enough edges
 
     :param sharpness: Sharpness
     :type sharpness: float
@@ -682,6 +685,25 @@ def face_make_planar(factor: float = 1.0, repeat: int = 1):
     pass
 
 
+def face_set_extract(add_boundary_loop: bool = True,
+                     smooth_iterations: int = 4,
+                     apply_shrinkwrap: bool = True,
+                     add_solidify: bool = True):
+    ''' Create a new mesh object from the selected Face Set
+
+    :param add_boundary_loop: Add Boundary Loop, Add an extra edge loop to better preserve the shape when applying a subdivision surface modifier
+    :type add_boundary_loop: bool
+    :param smooth_iterations: Smooth Iterations, Smooth iterations applied to the extracted mesh
+    :type smooth_iterations: int
+    :param apply_shrinkwrap: Project to Sculpt, Project the extracted mesh into the original sculpt
+    :type apply_shrinkwrap: bool
+    :param add_solidify: Extract as Solid, Extract the mask as a solid object with a solidify modifier
+    :type add_solidify: bool
+    '''
+
+    pass
+
+
 def face_split_by_edges():
     ''' Weld loose edges into faces (splitting them into new faces)
 
@@ -812,7 +834,7 @@ def inset(use_boundary: bool = True,
     :type use_outset: bool
     :param use_select_inset: Select Outer, Select the new inset faces
     :type use_select_inset: bool
-    :param use_individual: Individual, Individual Face Inset
+    :param use_individual: Individual, Individual face inset
     :type use_individual: bool
     :param use_interpolate: Interpolate, Blend face data across the inset
     :type use_interpolate: bool
@@ -825,15 +847,18 @@ def inset(use_boundary: bool = True,
 
 def intersect(mode: typing.Union[int, str] = 'SELECT_UNSELECT',
               separate_mode: typing.Union[int, str] = 'CUT',
-              threshold: float = 1e-06):
+              threshold: float = 1e-06,
+              solver: typing.Union[int, str] = 'EXACT'):
     ''' Cut an intersection into faces
 
     :param mode: Source * SELECT Self Intersect, Self intersect selected faces. * SELECT_UNSELECT Selected/Unselected, Intersect selected with unselected faces.
     :type mode: typing.Union[int, str]
     :param separate_mode: Separate Mode * ALL All, Separate all geometry from intersections. * CUT Cut, Cut into geometry keeping each side separate (Selected/Unselected only). * NONE Merge, Merge all geometry from the intersection.
     :type separate_mode: typing.Union[int, str]
-    :param threshold: Merge threshold
+    :param threshold: Merge Threshold
     :type threshold: float
+    :param solver: Solver, Which Intersect solver to use * FAST Fast, Faster solver, some limitations. * EXACT Exact, Exact solver, slower, handles more cases.
+    :type solver: typing.Union[int, str]
     '''
 
     pass
@@ -841,24 +866,30 @@ def intersect(mode: typing.Union[int, str] = 'SELECT_UNSELECT',
 
 def intersect_boolean(operation: typing.Union[int, str] = 'DIFFERENCE',
                       use_swap: bool = False,
-                      threshold: float = 1e-06):
+                      use_self: bool = False,
+                      threshold: float = 1e-06,
+                      solver: typing.Union[int, str] = 'EXACT'):
     ''' Cut solid geometry from selected to unselected
 
-    :param operation: Boolean
+    :param operation: Boolean Operation, Which boolean operation to apply
     :type operation: typing.Union[int, str]
     :param use_swap: Swap, Use with difference intersection to swap which side is kept
     :type use_swap: bool
-    :param threshold: Merge threshold
+    :param use_self: Self, Do self-union or self-intersection
+    :type use_self: bool
+    :param threshold: Merge Threshold
     :type threshold: float
+    :param solver: Solver, Which Boolean solver to use * FAST Fast, Faster solver, some limitations. * EXACT Exact, Exact solver, slower, handles more cases.
+    :type solver: typing.Union[int, str]
     '''
 
     pass
 
 
 def knife_project(cut_through: bool = False):
-    ''' Use other objects outlines & boundaries to project knife cuts
+    ''' Use other objects outlines and boundaries to project knife cuts
 
-    :param cut_through: Cut through, Cut through all faces, not just visible ones
+    :param cut_through: Cut Through, Cut through all faces, not just visible ones
     :type cut_through: bool
     '''
 
@@ -1020,7 +1051,7 @@ def mod_weighted_strength(set: bool = False,
                           face_strength: typing.Union[int, str] = 'MEDIUM'):
     ''' Set/Get strength of face (used in Weighted Normal modifier)
 
-    :param set: Set value, Set Value of faces
+    :param set: Set Value, Set value of faces
     :type set: bool
     :param face_strength: Face Strength, Strength to use for assigning or selecting face influence for weighted normal modifier
     :type face_strength: typing.Union[int, str]
@@ -1043,7 +1074,7 @@ def normals_tools(mode: typing.Union[int, str] = 'COPY',
                   absolute: bool = False):
     ''' Custom normals tools using Normal Vector of UI
 
-    :param mode: Mode, Mode of tools taking input from Interface * COPY Copy Normal, Copy normal to buffer. * PASTE Paste Normal, Paste normal from buffer. * ADD Add Normal, Add normal vector with selection. * MULTIPLY Multiply Normal, Multiply normal vector with selection. * RESET Reset Normal, Reset buffer and/or normal of selected element.
+    :param mode: Mode, Mode of tools taking input from interface * COPY Copy Normal, Copy normal to buffer. * PASTE Paste Normal, Paste normal from buffer. * ADD Add Normal, Add normal vector with selection. * MULTIPLY Multiply Normal, Multiply normal vector with selection. * RESET Reset Normal, Reset buffer and/or normal of selected element.
     :type mode: typing.Union[int, str]
     :param absolute: Absolute Coordinates, Copy Absolute coordinates or Normal vector
     :type absolute: bool
@@ -1145,7 +1176,7 @@ def poke(offset: float = 0.0,
     :type offset: float
     :param use_relative_offset: Offset Relative, Scale the offset by surrounding geometry
     :type use_relative_offset: bool
-    :param center_mode: Poke Center, Poke Face Center Calculation * MEDIAN_WEIGHTED Weighted Median, Weighted median face center. * MEDIAN Median, Median face center. * BOUNDS Bounds, Face bounds center.
+    :param center_mode: Poke Center, Poke face center calculation * MEDIAN_WEIGHTED Weighted Median, Weighted median face center. * MEDIAN Median, Median face center. * BOUNDS Bounds, Face bounds center.
     :type center_mode: typing.Union[int, str]
     '''
 
@@ -1354,11 +1385,11 @@ def primitive_circle_add(vertices: int = 32,
     :type vertices: int
     :param radius: Radius
     :type radius: float
-    :param fill_type: Fill Type * NOTHING Nothing, Don't fill at all. * NGON Ngon, Use ngons. * TRIFAN Triangle Fan, Use triangle fans.
+    :param fill_type: Fill Type * NOTHING Nothing, Don't fill at all. * NGON N-Gon, Use n-gons. * TRIFAN Triangle Fan, Use triangle fans.
     :type fill_type: typing.Union[int, str]
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1394,11 +1425,11 @@ def primitive_cone_add(vertices: int = 32,
     :type radius2: float
     :param depth: Depth
     :type depth: float
-    :param end_fill_type: Base Fill Type * NOTHING Nothing, Don't fill at all. * NGON Ngon, Use ngons. * TRIFAN Triangle Fan, Use triangle fans.
+    :param end_fill_type: Base Fill Type * NOTHING Nothing, Don't fill at all. * NGON N-Gon, Use n-gons. * TRIFAN Triangle Fan, Use triangle fans.
     :type end_fill_type: typing.Union[int, str]
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1426,7 +1457,7 @@ def primitive_cube_add(size: float = 2.0,
     :type size: float
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1456,7 +1487,7 @@ def primitive_cube_add_gizmo(
 
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1491,11 +1522,11 @@ def primitive_cylinder_add(vertices: int = 32,
     :type radius: float
     :param depth: Depth
     :type depth: float
-    :param end_fill_type: Cap Fill Type * NOTHING Nothing, Don't fill at all. * NGON Ngon, Use ngons. * TRIFAN Triangle Fan, Use triangle fans.
+    :param end_fill_type: Cap Fill Type * NOTHING Nothing, Don't fill at all. * NGON N-Gon, Use n-gons. * TRIFAN Triangle Fan, Use triangle fans.
     :type end_fill_type: typing.Union[int, str]
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1529,7 +1560,7 @@ def primitive_grid_add(x_subdivisions: int = 10,
     :type size: float
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1560,7 +1591,7 @@ def primitive_ico_sphere_add(subdivisions: int = 2,
     :type radius: float
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1588,7 +1619,7 @@ def primitive_monkey_add(size: float = 2.0,
     :type size: float
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1616,7 +1647,7 @@ def primitive_plane_add(size: float = 2.0,
     :type size: float
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1654,7 +1685,7 @@ def primitive_torus_add(align: typing.Union[int, str] = 'WORLD',
     :type major_segments: int
     :param minor_segments: Minor Segments, Number of segments for the minor ring of the torus
     :type minor_segments: int
-    :param mode: Torus Dimensions * MAJOR_MINOR Major/Minor, Use the major/minor radii for torus dimensions. * EXT_INT Exterior/Interior, Use the exterior/interior radii for torus dimensions.
+    :param mode: Dimensions Mode * MAJOR_MINOR Major/Minor, Use the major/minor radii for torus dimensions. * EXT_INT Exterior/Interior, Use the exterior/interior radii for torus dimensions.
     :type mode: typing.Union[int, str]
     :param major_radius: Major Radius, Radius from the origin to the center of the cross sections
     :type major_radius: float
@@ -1690,7 +1721,7 @@ def primitive_uv_sphere_add(segments: int = 32,
     :type radius: float
     :param calc_uvs: Generate UVs, Generate a default UV map
     :type calc_uvs: bool
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -1709,9 +1740,9 @@ def quads_convert_to_tris(quad_method: typing.Union[int, str] = 'BEAUTY',
                           ngon_method: typing.Union[int, str] = 'BEAUTY'):
     ''' Triangulate selected faces
 
-    :param quad_method: Quad Method, Method for splitting the quads into triangles * BEAUTY Beauty , Split the quads in nice triangles, slower method. * FIXED Fixed, Split the quads on the first and third vertices. * FIXED_ALTERNATE Fixed Alternate, Split the quads on the 2nd and 4th vertices. * SHORTEST_DIAGONAL Shortest Diagonal, Split the quads based on the distance between the vertices.
+    :param quad_method: Quad Method, Method for splitting the quads into triangles * BEAUTY Beauty, Split the quads in nice triangles, slower method. * FIXED Fixed, Split the quads on the first and third vertices. * FIXED_ALTERNATE Fixed Alternate, Split the quads on the 2nd and 4th vertices. * SHORTEST_DIAGONAL Shortest Diagonal, Split the quads based on the distance between the vertices.
     :type quad_method: typing.Union[int, str]
-    :param ngon_method: Polygon Method, Method for splitting the polygons into triangles * BEAUTY Beauty, Arrange the new triangles evenly (slow). * CLIP Clip, Split the polygons with an ear clipping algorithm.
+    :param ngon_method: N-gon Method, Method for splitting the n-gons into triangles * BEAUTY Beauty, Arrange the new triangles evenly (slow). * CLIP Clip, Split the polygons with an ear clipping algorithm.
     :type ngon_method: typing.Union[int, str]
     '''
 
@@ -1726,13 +1757,17 @@ def region_to_loop():
     pass
 
 
-def remove_doubles(threshold: float = 0.0001, use_unselected: bool = False):
+def remove_doubles(threshold: float = 0.0001,
+                   use_unselected: bool = False,
+                   use_sharp_edge_from_normals: bool = False):
     ''' Merge vertices based on their proximity
 
     :param threshold: Merge Distance, Maximum distance between elements to merge
     :type threshold: float
     :param use_unselected: Unselected, Merge selected to other unselected vertices
     :type use_unselected: bool
+    :param use_sharp_edge_from_normals: Sharp Edges, Calculate sharp edges using custom normal data (when available)
+    :type use_sharp_edge_from_normals: bool
     '''
 
     pass
@@ -1945,6 +1980,7 @@ def select_linked(
 def select_linked_pick(
         deselect: bool = False,
         delimit: typing.Union[typing.Set[int], typing.Set[str]] = {'SEAM'},
+        object_index: int = -1,
         index: int = -1):
     ''' (De)select all vertices linked to the edge under the mouse cursor
 
@@ -1952,6 +1988,7 @@ def select_linked_pick(
     :type deselect: bool
     :param delimit: Delimit, Delimit selected region * NORMAL Normal, Delimit by face directions. * MATERIAL Material, Delimit by face material. * SEAM Seam, Delimit by edge seams. * SHARP Sharp, Delimit by sharp edges. * UV UVs, Delimit by UV coordinates.
     :type delimit: typing.Union[typing.Set[int], typing.Set[str]]
+    :type object_index: int
     :type index: int
     '''
 
@@ -2011,7 +2048,7 @@ def select_more(use_face_step: bool = True):
 
 
 def select_next_item():
-    ''' Select the next element (using selection order) :file: startup/bl_operators/mesh.py\:215 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/mesh.py$215> _
+    ''' Select the next element (using selection order) :file: startup/bl_operators/mesh.py\:212 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/mesh.py$212> _
 
     '''
 
@@ -2032,7 +2069,7 @@ def select_non_manifold(extend: bool = True,
     :type use_wire: bool
     :param use_boundary: Boundaries, Boundary edges
     :type use_boundary: bool
-    :param use_multi_face: Multiple Faces, Edges shared by 3+ faces
+    :param use_multi_face: Multiple Faces, Edges shared by more than two faces
     :type use_multi_face: bool
     :param use_non_contiguous: Non Contiguous, Edges between faces pointing in alternate directions
     :type use_non_contiguous: bool
@@ -2058,7 +2095,7 @@ def select_nth(skip: int = 1, nth: int = 1, offset: int = 0):
 
 
 def select_prev_item():
-    ''' Select the previous element (using selection order) :file: startup/bl_operators/mesh.py\:240 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/mesh.py$240> _
+    ''' Select the previous element (using selection order) :file: startup/bl_operators/mesh.py\:237 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/mesh.py$237> _
 
     '''
 
@@ -2228,7 +2265,7 @@ def sort_elements(
         seed: int = 0):
     ''' The order of selected vertices/edges/faces is modified, based on a given method
 
-    :param type: Type, Type of re-ordering operation to apply * VIEW_ZAXIS View Z Axis, Sort selected elements from farthest to nearest one in current view. * VIEW_XAXIS View X Axis, Sort selected elements from left to right one in current view. * CURSOR_DISTANCE Cursor Distance, Sort selected elements from nearest to farthest from 3D cursor. * MATERIAL Material, Sort selected elements from smallest to greatest material index (faces only!). * SELECTED Selected, Move all selected elements in first places, preserving their relative order (WARNING: this will affect unselected elements' indices as well!). * RANDOMIZE Randomize, Randomize order of selected elements. * REVERSE Reverse, Reverse current order of selected elements.
+    :param type: Type, Type of reordering operation to apply * VIEW_ZAXIS View Z Axis, Sort selected elements from farthest to nearest one in current view. * VIEW_XAXIS View X Axis, Sort selected elements from left to right one in current view. * CURSOR_DISTANCE Cursor Distance, Sort selected elements from nearest to farthest from 3D cursor. * MATERIAL Material, Sort selected elements from smallest to greatest material index (faces only!). * SELECTED Selected, Move all selected elements in first places, preserving their relative order (WARNING: this will affect unselected elements' indices as well!). * RANDOMIZE Randomize, Randomize order of selected elements. * REVERSE Reverse, Reverse current order of selected elements.
     :type type: typing.Union[int, str]
     :param elements: Elements, Which elements to affect (vertices, edges and/or faces)
     :type elements: typing.Union[typing.Set[int], typing.Set[str]]
@@ -2298,9 +2335,9 @@ def subdivide(number_cuts: int = 1,
     :type number_cuts: int
     :param smoothness: Smoothness, Smoothness factor
     :type smoothness: float
-    :param ngon: Create N-Gons, When disabled, newly created faces are limited to 3-4 sided faces
+    :param ngon: Create N-Gons, When disabled, newly created faces are limited to 3 and 4 sided faces
     :type ngon: bool
-    :param quadcorner: Quad Corner Type, How to subdivide quad corners (anything other than Straight Cut will prevent ngons)
+    :param quadcorner: Quad Corner Type, How to subdivide quad corners (anything other than Straight Cut will prevent n-gons)
     :type quadcorner: typing.Union[int, str]
     :param fractal: Fractal, Fractal randomness factor
     :type fractal: float
@@ -2318,7 +2355,7 @@ def subdivide_edgering(number_cuts: int = 10,
                        smoothness: float = 1.0,
                        profile_shape_factor: float = 0.0,
                        profile_shape: typing.Union[int, str] = 'SMOOTH'):
-    ''' Subdivide perpendicular edges to the selected edge ring
+    ''' Subdivide perpendicular edges to the selected edge-ring
 
     :param number_cuts: Number of Cuts
     :type number_cuts: int
@@ -2396,9 +2433,9 @@ def tris_convert_to_quads(face_threshold: float = 0.698132,
 
 
 def unsubdivide(iterations: int = 2):
-    ''' UnSubdivide selected edges & faces
+    ''' Un-subdivide selected edges and faces
 
-    :param iterations: Iterations, Number of times to unsubdivide
+    :param iterations: Iterations, Number of times to un-subdivide
     :type iterations: int
     '''
 
@@ -2406,7 +2443,7 @@ def unsubdivide(iterations: int = 2):
 
 
 def uv_texture_add():
-    ''' Add UV Map
+    ''' Add UV map
 
     '''
 
@@ -2414,7 +2451,7 @@ def uv_texture_add():
 
 
 def uv_texture_remove():
-    ''' Remove UV Map
+    ''' Remove UV map
 
     '''
 
@@ -2550,7 +2587,7 @@ def wireframe(use_boundary: bool = True,
               offset: float = 0.01,
               use_crease: bool = False,
               crease_weight: float = 0.01):
-    ''' Create a solid wire-frame from faces
+    ''' Create a solid wireframe from faces
 
     :param use_boundary: Boundary, Inset face boundaries
     :type use_boundary: bool
@@ -2566,7 +2603,7 @@ def wireframe(use_boundary: bool = True,
     :type offset: float
     :param use_crease: Crease, Crease hub edges for an improved subdivision surface
     :type use_crease: bool
-    :param crease_weight: Crease weight
+    :param crease_weight: Crease Weight
     :type crease_weight: float
     '''
 

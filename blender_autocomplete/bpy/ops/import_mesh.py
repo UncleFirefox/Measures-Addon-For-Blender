@@ -4,8 +4,10 @@ import bpy.types
 
 
 def ply(filepath: str = "",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         hide_props_region: bool = True,
         directory: str = "",
         filter_glob: str = "*.ply"):
@@ -14,7 +16,7 @@ def ply(filepath: str = "",
     :param filepath: File Path, Filepath used for importing the file
     :type filepath: str
     :param files: File Path, File path used for importing the PLY file
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param hide_props_region: Hide Operator Properties, Collapse the region displaying the operator settings
     :type hide_props_region: bool
     :param directory: directory
@@ -28,8 +30,10 @@ def ply(filepath: str = "",
 
 def stl(filepath: str = "",
         filter_glob: str = "*.stl",
-        files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                            'bpy_prop_collection'] = None,
+        files: typing.
+        Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+              List['bpy.types.OperatorFileListElement'],
+              'bpy_prop_collection'] = None,
         directory: str = "",
         global_scale: float = 1.0,
         use_scene_unit: bool = False,
@@ -43,7 +47,7 @@ def stl(filepath: str = "",
     :param filter_glob: filter_glob
     :type filter_glob: str
     :param files: File Path
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param directory: directory
     :type directory: str
     :param global_scale: Scale

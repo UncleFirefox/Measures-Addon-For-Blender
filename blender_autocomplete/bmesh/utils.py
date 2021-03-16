@@ -139,7 +139,7 @@ def vert_collapse_edge(vert: 'bmesh.types.BMVert',
 
 
 def vert_collapse_faces(vert: 'bmesh.types.BMVert', edge: 'bmesh.types.BMEdge',
-                        fac: float, join_faces) -> 'bmesh.types.BMEdge':
+                        fac: float, join_faces: bool) -> 'bmesh.types.BMEdge':
     ''' Collapses a vertex that has only two manifold edges onto a vertex it shares an edge with.
 
     :param vert: The vert that will be collapsed.
@@ -148,6 +148,8 @@ def vert_collapse_faces(vert: 'bmesh.types.BMVert', edge: 'bmesh.types.BMEdge',
     :type edge: 'bmesh.types.BMEdge'
     :param fac: The factor to use when merging customdata [0 - 1].
     :type fac: float
+    :param join_faces: When true the faces around the vertex will be joined otherwise collapse the vertex by merging the 2 edges this vertex connects to into one.
+    :type join_faces: bool
     :return: The resulting edge from the collapse operation.
     '''
 

@@ -13,7 +13,7 @@ def primitive_nurbs_surface_circle_add(
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -39,7 +39,7 @@ def primitive_nurbs_surface_curve_add(
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -65,7 +65,7 @@ def primitive_nurbs_surface_cylinder_add(
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -91,7 +91,7 @@ def primitive_nurbs_surface_sphere_add(
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -117,7 +117,7 @@ def primitive_nurbs_surface_surface_add(
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]
@@ -143,7 +143,7 @@ def primitive_nurbs_surface_torus_add(
 
     :param radius: Radius
     :type radius: float
-    :param enter_editmode: Enter Editmode, Enter editmode when adding this object
+    :param enter_editmode: Enter Edit Mode, Enter edit mode when adding this object
     :type enter_editmode: bool
     :param align: Align, The alignment of the new object * WORLD World, Align the new object to the world. * VIEW View, Align the new object to the view. * CURSOR 3D Cursor, Use the 3D cursor orientation for the new object.
     :type align: typing.Union[int, str]

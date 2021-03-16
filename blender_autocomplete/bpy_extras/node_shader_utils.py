@@ -238,6 +238,12 @@ class PrincipledBSDFWrapper(ShaderWrapper):
     emission_color_texture = None
     ''' '''
 
+    emission_strength = None
+    ''' '''
+
+    emission_strength_texture = None
+    ''' '''
+
     ior = None
     ''' '''
 
@@ -347,6 +353,24 @@ class PrincipledBSDFWrapper(ShaderWrapper):
         pass
 
     def emission_color_texture_get(self):
+        ''' 
+
+        '''
+        pass
+
+    def emission_strength_get(self):
+        ''' 
+
+        '''
+        pass
+
+    def emission_strength_set(self, value):
+        ''' 
+
+        '''
+        pass
+
+    def emission_strength_texture_get(self):
         ''' 
 
         '''

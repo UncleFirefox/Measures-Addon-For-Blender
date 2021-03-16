@@ -277,7 +277,7 @@ class PlaybackManager:
         pass
 
     @classmethod
-    def setVolume(cls, sound: 'bpy.types.Sound', catKey: int) -> 'Handle':
+    def play(cls, sound: 'bpy.types.Sound', catKey: int) -> 'Handle':
         ''' Plays a sound through the playback manager and assigns it to a category.
 
         :param sound: The sound to play.

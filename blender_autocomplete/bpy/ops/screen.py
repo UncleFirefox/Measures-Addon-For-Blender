@@ -229,7 +229,7 @@ def region_flip():
 
 
 def region_quadview():
-    ''' Split selected area into camera, front, right & top views
+    ''' Split selected area into camera, front, right, and top views
 
     '''
 
@@ -315,7 +315,7 @@ def screenshot(filepath: str = "",
                show_multiview: bool = False,
                use_multiview: bool = False,
                display_type: typing.Union[int, str] = 'DEFAULT',
-               sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA',
+               sort_method: typing.Union[int, str] = '',
                full: bool = True):
     ''' Capture a picture of the active area or whole Blender window
 
@@ -365,7 +365,7 @@ def screenshot(filepath: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     :param full: Full Screen, Capture the whole window (otherwise only capture the active area)
     :type full: bool
@@ -385,7 +385,7 @@ def space_context_cycle(direction: typing.Union[int, str] = 'NEXT'):
 
 
 def space_type_set_or_cycle(space_type: typing.Union[int, str] = 'EMPTY'):
-    ''' Set the space type or cycle sub-type
+    ''' Set the space type or cycle subtype
 
     :param space_type: Type * EMPTY Empty. * VIEW_3D 3D Viewport, Manipulate objects in a 3D environment. * IMAGE_EDITOR UV/Image Editor, View and edit images and UV Maps. * NODE_EDITOR Node Editor, Editor for node-based shading and compositing tools. * SEQUENCE_EDITOR Video Sequencer, Video editing tools. * CLIP_EDITOR Movie Clip Editor, Motion tracking tools. * DOPESHEET_EDITOR Dope Sheet, Adjust timing of keyframes. * GRAPH_EDITOR Graph Editor, Edit drivers and keyframe interpolation. * NLA_EDITOR Nonlinear Animation, Combine and layer Actions. * TEXT_EDITOR Text Editor, Edit scripts and in-file documentation. * CONSOLE Python Console, Interactive programmatic console for advanced editing and script development. * INFO Info, Log of operations, warnings and error messages. * TOPBAR Top Bar, Global bar at the top of the screen for global per-window settings. * STATUSBAR Status Bar, Global bar at the bottom of the screen for general status information. * OUTLINER Outliner, Overview of scene graph and all available data-blocks. * PROPERTIES Properties, Edit properties of active object and related data-blocks. * FILE_BROWSER File Browser, Browse for files and assets. * PREFERENCES Preferences, Edit persistent configuration settings.
     :type space_type: typing.Union[int, str]

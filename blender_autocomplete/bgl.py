@@ -21,7 +21,7 @@ class Buffer:
             type: int,
             dimensions: typing.Union[typing.List[int], typing.
                                      List['bpy.context.object']],
-            template=' None') -> typing.Union['Buffer', 'bpy.context.object']:
+            template=' None') -> typing.Union['bpy.context.object', 'Buffer']:
         ''' This will create a new Buffer object for use with other bgl OpenGL commands. Only the type of argument to store in the buffer and the dimensions of the buffer are necessary. Buffers are zeroed by default unless a template is supplied, in which case the buffer is initialized to the template.
 
         :param type: The format to store data in. The type should be one of GL_BYTE, GL_SHORT, GL_INT, or GL_FLOAT.
@@ -30,7 +30,7 @@ class Buffer:
         :type dimensions: typing.Union[typing.List[int], typing.List['bpy.context.object']]
         :param template: A sequence of matching dimensions which will be used to initialize the Buffer. If a template is not passed in all fields will be initialized to 0.
         :type template: typing.List['bpy.context.object']
-        :rtype: typing.Union['Buffer', 'bpy.context.object']
+        :rtype: typing.Union['bpy.context.object', 'Buffer']
         :return: The newly created buffer as a PyObject.
         '''
         pass
@@ -294,13 +294,13 @@ def glClearStencil(s: int):
 
 
 def glClipPlane(plane: typing.Union[int, str],
-                equation: typing.Union['Buffer', 'bpy.context.object']):
+                equation: typing.Union['bpy.context.object', 'Buffer']):
     ''' Specify a plane against which all geometry is clipped
 
     :param plane: Specifies which clipping plane is being positioned.
     :type plane: typing.Union[int, str]
     :param equation: Specifies the address of an array of four double- precision floating-point values. These values are interpreted as a plane equation.
-    :type equation: typing.Union['Buffer', 'bpy.context.object']
+    :type equation: typing.Union['bpy.context.object', 'Buffer']
     '''
 
     pass
@@ -318,18 +318,18 @@ def glColor(red, green, blue, alpha):
     pass
 
 
-def glColorMask(red: typing.Union[int, bool], green: typing.Union[int, bool],
-                blue: typing.Union[int, bool], alpha: typing.Union[int, bool]):
+def glColorMask(red: typing.Union[bool, int], green: typing.Union[bool, int],
+                blue: typing.Union[bool, int], alpha: typing.Union[bool, int]):
     ''' Enable and disable writing of frame buffer color components
 
     :param red: Specify whether red, green, blue, and alpha can or cannot be written into the frame buffer. The initial values are all GL_TRUE, indicating that the color components can be written.
-    :type red: typing.Union[int, bool]
+    :type red: typing.Union[bool, int]
     :param green: Specify whether red, green, blue, and alpha can or cannot be written into the frame buffer. The initial values are all GL_TRUE, indicating that the color components can be written.
-    :type green: typing.Union[int, bool]
+    :type green: typing.Union[bool, int]
     :param blue: Specify whether red, green, blue, and alpha can or cannot be written into the frame buffer. The initial values are all GL_TRUE, indicating that the color components can be written.
-    :type blue: typing.Union[int, bool]
+    :type blue: typing.Union[bool, int]
     :param alpha: Specify whether red, green, blue, and alpha can or cannot be written into the frame buffer. The initial values are all GL_TRUE, indicating that the color components can be written.
-    :type alpha: typing.Union[int, bool]
+    :type alpha: typing.Union[bool, int]
     '''
 
     pass
@@ -640,11 +640,11 @@ def glDepthFunc(func: typing.Union[int, str]):
     pass
 
 
-def glDepthMask(flag: typing.Union[int, bool]):
+def glDepthMask(flag: typing.Union[bool, int]):
     ''' Enable or disable writing into the depth buffer
 
     :param flag: Specifies whether the depth buffer is enabled for writing. If flag is GL_FALSE, depth buffer writing is disabled. Otherwise, it is enabled. Initially, depth buffer writing is enabled.
-    :type flag: typing.Union[int, bool]
+    :type flag: typing.Union[bool, int]
     '''
 
     pass
@@ -822,7 +822,7 @@ def glEvalPoint(i: int, j: int):
 
 
 def glFeedbackBuffer(size: int, type: typing.Union[int, str],
-                     buffer: typing.Union['Buffer', 'bpy.context.object']):
+                     buffer: typing.Union['bpy.context.object', 'Buffer']):
     ''' Controls feedback mode
 
     :param size: Specifies the maximum number of values that can be written into buffer.
@@ -830,7 +830,7 @@ def glFeedbackBuffer(size: int, type: typing.Union[int, str],
     :param type: Specifies a symbolic constant that describes the information that will be returned for each vertex.
     :type type: typing.Union[int, str]
     :param buffer: Returns the feedback data.
-    :type buffer: typing.Union['Buffer', 'bpy.context.object']
+    :type buffer: typing.Union['bpy.context.object', 'Buffer']
     '''
 
     pass
@@ -938,13 +938,13 @@ def glGenRenderbuffers(p0: int, p1: int):
 
 
 def glGenTextures(n: int,
-                  textures: typing.Union['Buffer', 'bpy.context.object']):
+                  textures: typing.Union['bpy.context.object', 'Buffer']):
     ''' Generate texture names
 
     :param n: Specifies the number of textures name to be generated.
     :type n: int
     :param textures: Specifies an array in which the generated textures names are stored.
-    :type textures: typing.Union['Buffer', 'bpy.context.object']
+    :type textures: typing.Union['bpy.context.object', 'Buffer']
     '''
 
     pass
@@ -1972,7 +1972,7 @@ def glReadBuffer(mode: typing.Union[int, str]):
 
 def glReadPixels(x: int, y: int, width: int, height: int,
                  format: typing.Union[int, str], type: typing.Union[int, str],
-                 pixels: typing.Union['Buffer', 'bpy.context.object']):
+                 pixels: typing.Union['bpy.context.object', 'Buffer']):
     ''' Read a block of pixels from the frame buffer
 
     :param x: Specify the window coordinates of the first pixel that is read from the frame buffer. This location is the lower left corner of a rectangular block of pixels.
@@ -1988,7 +1988,7 @@ def glReadPixels(x: int, y: int, width: int, height: int,
     :param type: Specifies the data type of the pixel data.
     :type type: typing.Union[int, str]
     :param pixels: Returns the pixel data.
-    :type pixels: typing.Union['Buffer', 'bpy.context.object']
+    :type pixels: typing.Union['bpy.context.object', 'Buffer']
     '''
 
     pass

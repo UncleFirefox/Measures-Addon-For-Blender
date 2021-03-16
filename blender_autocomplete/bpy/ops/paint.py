@@ -35,7 +35,7 @@ def add_texture_paint_slot(type: typing.Union[int, str] = 'BASE_COLOR',
     :type alpha: bool
     :param generated_type: Generated Type, Fill the image with a grid for UV map testing * BLANK Blank, Generate a blank image. * UV_GRID UV Grid, Generated grid to test UV mappings. * COLOR_GRID Color Grid, Generated improved UV grid to test UV mappings.
     :type generated_type: typing.Union[int, str]
-    :param float: 32 bit Float, Create image with 32 bit floating point bit depth
+    :param float: 32-bit Float, Create image with 32-bit floating-point bit depth
     :type float: bool
     '''
 
@@ -138,7 +138,7 @@ def face_select_reveal(select: bool = True):
 def grab_clone(delta: typing.List[float] = (0.0, 0.0)):
     ''' Move the clone source image
 
-    :param delta: Delta, Delta offset of clone image in 0.0..1.0 coordinates
+    :param delta: Delta, Delta offset of clone image in 0.0 to 1.0 coordinates
     :type delta: typing.List[float]
     '''
 
@@ -174,7 +174,7 @@ def hide_show(action: typing.Union[int, str] = 'HIDE',
 
 
 def image_from_view(filepath: str = ""):
-    ''' Make an image from biggest 3D view for re-projection
+    ''' Make an image from biggest 3D view for reprojection
 
     :param filepath: File Path, Name of the file
     :type filepath: str
@@ -183,16 +183,50 @@ def image_from_view(filepath: str = ""):
     pass
 
 
-def image_paint(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        mode: typing.Union[int, str] = 'NORMAL'):
+def image_paint(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None,
+                mode: typing.Union[int, str] = 'NORMAL'):
     ''' Paint a stroke into the image
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param mode: Stroke Mode, Action taken when a paint stroke is made * NORMAL Regular, Apply brush normally. * INVERT Invert, Invert action of brush for duration of stroke. * SMOOTH Smooth, Switch brush to smooth mode for duration of stroke.
     :type mode: typing.Union[int, str]
+    '''
+
+    pass
+
+
+def mask_box_gesture(xmin: int = 0,
+                     xmax: int = 0,
+                     ymin: int = 0,
+                     ymax: int = 0,
+                     wait_for_input: bool = True,
+                     use_front_faces_only: bool = False,
+                     use_limit_to_segment: bool = False,
+                     mode: typing.Union[int, str] = 'VALUE',
+                     value: float = 1.0):
+    ''' Add mask within the box as you move the brush
+
+    :param xmin: X Min
+    :type xmin: int
+    :param xmax: X Max
+    :type xmax: int
+    :param ymin: Y Min
+    :type ymin: int
+    :param ymax: Y Max
+    :type ymax: int
+    :param wait_for_input: Wait for Input
+    :type wait_for_input: bool
+    :param use_front_faces_only: Front Faces Only, Affect only faces facing towards the view
+    :type use_front_faces_only: bool
+    :param use_limit_to_segment: Limit to Segment, Apply the gesture action only to the area that is contained within the segment without extending its effect to the entire line
+    :type use_limit_to_segment: bool
+    :param mode: Mode * VALUE Value, Set mask to the level specified by the 'value' property. * VALUE_INVERSE Value Inverted, Set mask to the level specified by the inverted 'value' property. * INVERT Invert, Invert the mask.
+    :type mode: typing.Union[int, str]
+    :param value: Value, Mask level to use when mode is 'Value'; zero means no masking and one is fully masked
+    :type value: float
     '''
 
     pass
@@ -211,15 +245,58 @@ def mask_flood_fill(mode: typing.Union[int, str] = 'VALUE',
     pass
 
 
-def mask_lasso_gesture(
-        path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                           'bpy_prop_collection'] = None,
-        mode: typing.Union[int, str] = 'VALUE',
-        value: float = 1.0):
+def mask_lasso_gesture(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
+                       use_front_faces_only: bool = False,
+                       use_limit_to_segment: bool = False,
+                       mode: typing.Union[int, str] = 'VALUE',
+                       value: float = 1.0):
     ''' Add mask within the lasso as you move the brush
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :param use_front_faces_only: Front Faces Only, Affect only faces facing towards the view
+    :type use_front_faces_only: bool
+    :param use_limit_to_segment: Limit to Segment, Apply the gesture action only to the area that is contained within the segment without extending its effect to the entire line
+    :type use_limit_to_segment: bool
+    :param mode: Mode * VALUE Value, Set mask to the level specified by the 'value' property. * VALUE_INVERSE Value Inverted, Set mask to the level specified by the inverted 'value' property. * INVERT Invert, Invert the mask.
+    :type mode: typing.Union[int, str]
+    :param value: Value, Mask level to use when mode is 'Value'; zero means no masking and one is fully masked
+    :type value: float
+    '''
+
+    pass
+
+
+def mask_line_gesture(xstart: int = 0,
+                      xend: int = 0,
+                      ystart: int = 0,
+                      yend: int = 0,
+                      flip: bool = False,
+                      cursor: int = 5,
+                      use_front_faces_only: bool = False,
+                      use_limit_to_segment: bool = False,
+                      mode: typing.Union[int, str] = 'VALUE',
+                      value: float = 1.0):
+    ''' Add mask to the right of a line as you move the brush
+
+    :param xstart: X Start
+    :type xstart: int
+    :param xend: X End
+    :type xend: int
+    :param ystart: Y Start
+    :type ystart: int
+    :param yend: Y End
+    :type yend: int
+    :param flip: Flip
+    :type flip: bool
+    :param cursor: Cursor, Mouse cursor style to use during the modal operator
+    :type cursor: int
+    :param use_front_faces_only: Front Faces Only, Affect only faces facing towards the view
+    :type use_front_faces_only: bool
+    :param use_limit_to_segment: Limit to Segment, Apply the gesture action only to the area that is contained within the segment without extending its effect to the entire line
+    :type use_limit_to_segment: bool
     :param mode: Mode * VALUE Value, Set mask to the level specified by the 'value' property. * VALUE_INVERSE Value Inverted, Set mask to the level specified by the inverted 'value' property. * INVERT Invert, Invert the mask.
     :type mode: typing.Union[int, str]
     :param value: Value, Mask level to use when mode is 'Value'; zero means no masking and one is fully masked
@@ -379,14 +456,14 @@ def vertex_color_smooth():
     pass
 
 
-def vertex_paint(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        mode: typing.Union[int, str] = 'NORMAL'):
+def vertex_paint(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None,
+                 mode: typing.Union[int, str] = 'NORMAL'):
     ''' Paint a stroke in the active vertex color layer
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param mode: Stroke Mode, Action taken when a paint stroke is made * NORMAL Regular, Apply brush normally. * INVERT Invert, Invert action of brush for duration of stroke. * SMOOTH Smooth, Switch brush to smooth mode for duration of stroke.
     :type mode: typing.Union[int, str]
     '''
@@ -417,6 +494,7 @@ def weight_gradient(type: typing.Union[int, str] = 'LINEAR',
                     xend: int = 0,
                     ystart: int = 0,
                     yend: int = 0,
+                    flip: bool = False,
                     cursor: int = 5):
     ''' Draw a line to apply a weight gradient to selected vertices
 
@@ -430,6 +508,8 @@ def weight_gradient(type: typing.Union[int, str] = 'LINEAR',
     :type ystart: int
     :param yend: Y End
     :type yend: int
+    :param flip: Flip
+    :type flip: bool
     :param cursor: Cursor, Mouse cursor style to use during the modal operator
     :type cursor: int
     '''
@@ -437,14 +517,14 @@ def weight_gradient(type: typing.Union[int, str] = 'LINEAR',
     pass
 
 
-def weight_paint(
-        stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'],
-                             'bpy_prop_collection'] = None,
-        mode: typing.Union[int, str] = 'NORMAL'):
+def weight_paint(stroke: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.
+        List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection'] = None,
+                 mode: typing.Union[int, str] = 'NORMAL'):
     ''' Paint a stroke in the current vertex group's weights
 
     :param stroke: Stroke
-    :type stroke: typing.Union[typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
+    :type stroke: typing.Union[typing.Dict[str, 'bpy.types.OperatorStrokeElement'], typing.List['bpy.types.OperatorStrokeElement'], 'bpy_prop_collection']
     :param mode: Stroke Mode, Action taken when a paint stroke is made * NORMAL Regular, Apply brush normally. * INVERT Invert, Invert action of brush for duration of stroke. * SMOOTH Smooth, Switch brush to smooth mode for duration of stroke.
     :type mode: typing.Union[int, str]
     '''

@@ -1184,6 +1184,12 @@ class _defs_gpencil_paint:
         '''
         pass
 
+    def gpencil_primitive_toolbar(self, context, layout, tool, props):
+        ''' 
+
+        '''
+        pass
+
 
 class _defs_gpencil_sculpt:
     def generate_from_brushes(self, context):
@@ -1321,6 +1327,15 @@ class _defs_sculpt:
     color_filter = None
     ''' '''
 
+    face_set_box = None
+    ''' '''
+
+    face_set_edit = None
+    ''' '''
+
+    face_set_lasso = None
+    ''' '''
+
     hide_border = None
     ''' '''
 
@@ -1333,7 +1348,19 @@ class _defs_sculpt:
     mask_lasso = None
     ''' '''
 
+    mask_line = None
+    ''' '''
+
     mesh_filter = None
+    ''' '''
+
+    project_line = None
+    ''' '''
+
+    trim_box = None
+    ''' '''
+
+    trim_lasso = None
     ''' '''
 
     def generate_from_brushes(self, context):
@@ -1423,7 +1450,13 @@ class _defs_view3d_add:
     uv_sphere_add = None
     ''' '''
 
-    def draw_settings_interactive_add(self, layout, tool):
+    def description_interactive_add(self, context, _item, _km, prefix):
+        ''' 
+
+        '''
+        pass
+
+    def draw_settings_interactive_add(self, layout, tool, extra):
         ''' 
 
         '''

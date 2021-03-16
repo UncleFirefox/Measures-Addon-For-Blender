@@ -15895,7 +15895,7 @@ class VIEW3D_PT_tools_brush_settings_advanced(
         pass
 
 
-def draw_vpaint_symmetry(layout, vpaint):
+def draw_vpaint_symmetry(layout, vpaint, mesh):
     ''' 
 
     '''

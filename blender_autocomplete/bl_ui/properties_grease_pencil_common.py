@@ -31,12 +31,6 @@ class AnnotationDataPanel:
         '''
         pass
 
-    def poll(self, context):
-        ''' 
-
-        '''
-        pass
-
 
 class AnnotationDrawingToolsPanel:
     bl_category = None
@@ -2357,11 +2351,3 @@ class GreasePencilVertexcolorPanel:
 
         '''
         pass
-
-
-def gpencil_stroke_placement_settings(context, layout):
-    ''' 
-
-    '''
-
-    pass

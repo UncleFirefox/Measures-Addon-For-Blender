@@ -282,10 +282,10 @@ class BMEditSelIter:
 
 
 class BMEditSelSeq:
-    active: typing.Union['BMFace', 'BMVert', 'BMEdge'] = None
+    active: typing.Union['BMEdge', 'BMVert', 'BMFace'] = None
     ''' The last selected element or None (read-only).
 
-    :type: typing.Union['BMFace', 'BMVert', 'BMEdge']
+    :type: typing.Union['BMEdge', 'BMVert', 'BMFace']
     '''
 
     def add(self, element):
@@ -612,6 +612,9 @@ class BMLayerAccessEdge:
     :type: 'BMLayerCollection'
     '''
 
+    color = None
+    ''' Generic RGBA color with 8-bit precision custom-data layer. type: BMLayerCollection'''
+
     crease: 'BMLayerCollection' = None
     ''' Edge crease for subdivision surface - float in [0 - 1].
 
@@ -620,6 +623,12 @@ class BMLayerAccessEdge:
 
     float = None
     ''' Generic float custom-data layer. type: BMLayerCollection'''
+
+    float_color = None
+    ''' Generic RGBA color with float precision custom-data layer. type: BMLayerCollection'''
+
+    float_vector = None
+    ''' Generic 3D vector with float precision custom-data layer. type: BMLayerCollection'''
 
     freestyle = None
     ''' Accessor for Freestyle edge layer. type: BMLayerCollection'''
@@ -635,11 +644,20 @@ class BMLayerAccessFace:
     ''' Exposes custom-data layer attributes.
     '''
 
+    color = None
+    ''' Generic RGBA color with 8-bit precision custom-data layer. type: BMLayerCollection'''
+
     face_map = None
     ''' FaceMap custom-data layer. type: BMLayerCollection'''
 
     float = None
     ''' Generic float custom-data layer. type: BMLayerCollection'''
+
+    float_color = None
+    ''' Generic RGBA color with float precision custom-data layer. type: BMLayerCollection'''
+
+    float_vector = None
+    ''' Generic 3D vector with float precision custom-data layer. type: BMLayerCollection'''
 
     freestyle = None
     ''' Accessor for Freestyle face layer. type: BMLayerCollection'''
@@ -656,10 +674,16 @@ class BMLayerAccessLoop:
     '''
 
     color = None
-    ''' Accessor for vertex color layer. type: BMLayerCollection'''
+    ''' Generic RGBA color with 8-bit precision custom-data layer. type: BMLayerCollection'''
 
     float = None
     ''' Generic float custom-data layer. type: BMLayerCollection'''
+
+    float_color = None
+    ''' Generic RGBA color with float precision custom-data layer. type: BMLayerCollection'''
+
+    float_vector = None
+    ''' Generic 3D vector with float precision custom-data layer. type: BMLayerCollection'''
 
     int = None
     ''' Generic int custom-data layer. type: BMLayerCollection'''
@@ -681,11 +705,20 @@ class BMLayerAccessVert:
     :type: 'BMLayerCollection'
     '''
 
+    color = None
+    ''' Generic RGBA color with 8-bit precision custom-data layer. type: BMLayerCollection'''
+
     deform = None
     ''' Vertex deform weight BMDeformVert (TODO). type: BMLayerCollection'''
 
     float = None
     ''' Generic float custom-data layer. type: BMLayerCollection'''
+
+    float_color = None
+    ''' Generic RGBA color with float precision custom-data layer. type: BMLayerCollection'''
+
+    float_vector = None
+    ''' Generic 3D vector with float precision custom-data layer. type: BMLayerCollection'''
 
     int = None
     ''' Generic int custom-data layer. type: BMLayerCollection'''

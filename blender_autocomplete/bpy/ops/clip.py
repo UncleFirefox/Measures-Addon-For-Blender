@@ -95,7 +95,7 @@ def clean_tracks(frames: int = 0,
 
     :param frames: Tracked Frames, Effect on tracks which are tracked less than specified amount of frames
     :type frames: int
-    :param error: Reprojection Error, Effect on tracks which have got larger re-projection error
+    :param error: Reprojection Error, Effect on tracks which have got larger reprojection error
     :type error: float
     :param action: Action, Cleanup action to execute * SELECT Select, Select unclean tracks. * DELETE_TRACK Delete Track, Delete unclean tracks. * DELETE_SEGMENTS Delete Segments, Delete unclean segments of tracks.
     :type action: typing.Union[int, str]
@@ -116,7 +116,7 @@ def clear_track_path(action: typing.Union[int, str] = 'REMAINED',
                      clear_active: bool = False):
     ''' Clear tracks after/before current position or clear the whole track
 
-    :param action: Action, Clear action to execute * UPTO Clear up-to, Clear path up to current frame. * REMAINED Clear remained, Clear path at remaining frames (after current). * ALL Clear all, Clear the whole path.
+    :param action: Action, Clear action to execute * UPTO Clear Up To, Clear path up to current frame. * REMAINED Clear Remained, Clear path at remaining frames (after current). * ALL Clear All, Clear the whole path.
     :type action: typing.Union[int, str]
     :param clear_active: Clear Active, Clear active track only instead of all selected tracks
     :type clear_active: bool
@@ -417,8 +417,10 @@ def mode_set(mode: typing.Union[int, str] = 'TRACKING'):
 
 
 def open(directory: str = "",
-         files: typing.Union[typing.List['bpy.types.OperatorFileListElement'],
-                             'bpy_prop_collection'] = None,
+         files: typing.
+         Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.
+               List['bpy.types.OperatorFileListElement'],
+               'bpy_prop_collection'] = None,
          hide_props_region: bool = True,
          filter_blender: bool = False,
          filter_backup: bool = False,
@@ -441,13 +443,13 @@ def open(directory: str = "",
          show_multiview: bool = False,
          use_multiview: bool = False,
          display_type: typing.Union[int, str] = 'DEFAULT',
-         sort_method: typing.Union[int, str] = 'FILE_SORT_ALPHA'):
+         sort_method: typing.Union[int, str] = ''):
     ''' Load a sequence of frames or a movie file
 
     :param directory: Directory, Directory of the file
     :type directory: str
     :param files: Files
-    :type files: typing.Union[typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
+    :type files: typing.Union[typing.Dict[str, 'bpy.types.OperatorFileListElement'], typing.List['bpy.types.OperatorFileListElement'], 'bpy_prop_collection']
     :param hide_props_region: Hide Operator Properties, Collapse the region displaying the operator settings
     :type hide_props_region: bool
     :param filter_blender: Filter .blend files
@@ -492,7 +494,7 @@ def open(directory: str = "",
     :type use_multiview: bool
     :param display_type: Display Type * DEFAULT Default, Automatically determine display type for files. * LIST_VERTICAL Short List, Display files as short list. * LIST_HORIZONTAL Long List, Display files as a detailed list. * THUMBNAIL Thumbnails, Display files as thumbnails.
     :type display_type: typing.Union[int, str]
-    :param sort_method: File sorting mode * FILE_SORT_ALPHA Name, Sort the file list alphabetically. * FILE_SORT_EXTENSION Extension, Sort the file list by extension/type. * FILE_SORT_TIME Modified Date, Sort files by modification time. * FILE_SORT_SIZE Size, Sort files by size.
+    :param sort_method: File sorting mode
     :type sort_method: typing.Union[int, str]
     '''
 
@@ -617,20 +619,21 @@ def select_circle(x: int = 0,
 def select_grouped(group: typing.Union[int, str] = 'ESTIMATED'):
     ''' Select all tracks from specified group
 
-    :param group: Action, Clear action to execute * KEYFRAMED Keyframed tracks, Select all keyframed tracks. * ESTIMATED Estimated tracks, Select all estimated tracks. * TRACKED Tracked tracks, Select all tracked tracks. * LOCKED Locked tracks, Select all locked tracks. * DISABLED Disabled tracks, Select all disabled tracks. * COLOR Tracks with same color, Select all tracks with same color as active track. * FAILED Failed Tracks, Select all tracks which failed to be reconstructed.
+    :param group: Action, Clear action to execute * KEYFRAMED Keyframed Tracks, Select all keyframed tracks. * ESTIMATED Estimated Tracks, Select all estimated tracks. * TRACKED Tracked Tracks, Select all tracked tracks. * LOCKED Locked Tracks, Select all locked tracks. * DISABLED Disabled Tracks, Select all disabled tracks. * COLOR Tracks with Same Color, Select all tracks with same color as active track. * FAILED Failed Tracks, Select all tracks which failed to be reconstructed.
     :type group: typing.Union[int, str]
     '''
 
     pass
 
 
-def select_lasso(path: typing.Union[typing.List['bpy.types.OperatorMousePath'],
-                                    'bpy_prop_collection'] = None,
+def select_lasso(path: typing.Union[
+        typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.
+        List['bpy.types.OperatorMousePath'], 'bpy_prop_collection'] = None,
                  mode: typing.Union[int, str] = 'SET'):
     ''' Select markers using lasso selection
 
     :param path: Path
-    :type path: typing.Union[typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
+    :type path: typing.Union[typing.Dict[str, 'bpy.types.OperatorMousePath'], typing.List['bpy.types.OperatorMousePath'], 'bpy_prop_collection']
     :param mode: Mode * SET Set, Set a new selection. * ADD Extend, Extend existing selection. * SUB Subtract, Subtract existing selection.
     :type mode: typing.Union[int, str]
     '''
@@ -723,7 +726,7 @@ def set_solver_keyframe(keyframe: typing.Union[int, str] = 'KEYFRAME_A'):
 
 
 def set_viewport_background():
-    ''' Set current movie clip as a camera background in 3D view-port (works only when a 3D view-port is visible) :file: startup/bl_operators/clip.py\:433 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/clip.py$433> _
+    ''' Set current movie clip as a camera background in 3D Viewport (works only when a 3D Viewport is visible) :file: startup/bl_operators/clip.py\:433 <https://developer.blender.org/diffusion/B/browse/master/release/scripts/startup/bl_operators/clip.py$433> _
 
     '''
 
@@ -741,7 +744,7 @@ def setup_tracking_scene():
 def slide_marker(offset: typing.List[float] = (0.0, 0.0)):
     ''' Slide marker areas
 
-    :param offset: Offset, Offset in floating point units, 1.0 is the width and height of the image
+    :param offset: Offset, Offset in floating-point units, 1.0 is the width and height of the image
     :type offset: typing.List[float]
     '''
 
@@ -933,7 +936,7 @@ def view_ndof():
 def view_pan(offset: typing.List[float] = (0.0, 0.0)):
     ''' Pan the view
 
-    :param offset: Offset, Offset in floating point units, 1.0 is the width and height of the image
+    :param offset: Offset, Offset in floating-point units, 1.0 is the width and height of the image
     :type offset: typing.List[float]
     '''
 
@@ -973,7 +976,7 @@ def view_zoom_in(location: typing.List[float] = (0.0, 0.0)):
 def view_zoom_out(location: typing.List[float] = (0.0, 0.0)):
     ''' Zoom out the view
 
-    :param location: Location, Cursor location in normalized (0.0-1.0) coordinates
+    :param location: Location, Cursor location in normalized (0.0 to 1.0) coordinates
     :type location: typing.List[float]
     '''
 

@@ -49,6 +49,8 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             return self.handle_main(context, event)
         elif self.state == Geodesic_State.GRAB:
             return self.handle_grab(context, event)
+        elif self.state == Geodesic_State.ERASE:
+            return self.handle_erase(context, event)
 
         return {"RUNNING_MODAL"}  # Should not get here but you never know
 
@@ -65,6 +67,10 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Grab initiating
         elif event.type == 'G' and event.value == 'PRESS':
             self.state = Geodesic_State.GRAB  # Do grab mode
+
+        elif event.type == 'E' and event.value == 'PRESS':
+            context.window.cursor_set("ERASER")
+            self.state = Geodesic_State.ERASE  # Do erase mode
 
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
@@ -94,15 +100,16 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         }:
             return {'PASS_THROUGH'}
 
-        if event.type == 'MOUSEMOVE':
+        elif event.type == 'MOUSEMOVE':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
 
         # try to see if we are grabbing
-        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+        elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.geopath.grab_start()
 
-        if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
+        # stop grabbing when releasing
+        elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             self.geopath.grab_finish()
 
         # cancel grabbing
@@ -110,6 +117,33 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
               and event.value == 'PRESS'):
 
             self.geopath.grab_cancel()
+            self.state = Geodesic_State.MAIN
+
+        context.area.tag_redraw()
+        return {'RUNNING_MODAL'}
+
+    def handle_erase(self, context, event):
+
+        # Free navigation
+        if event.type in {
+            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
+            'WHEELINMOUSE', 'WHEELOUTMOUSE'
+        }:
+            return {'PASS_THROUGH'}
+
+        elif event.type == 'MOUSEMOVE':
+            x, y = (event.mouse_region_x, event.mouse_region_y)
+            self.geopath.erase_mouse_move(context, x, y)
+
+        elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self.geopath.erase_point()
+
+        # cancel erasing
+        elif (event.type in {'RIGHTMOUSE', 'ESC', 'E'}
+              and event.value == 'PRESS'):
+
+            self.geopath.erase_cancel()
+            context.window.cursor_set("DEFAULT")
             self.state = Geodesic_State.MAIN
 
         context.area.tag_redraw()

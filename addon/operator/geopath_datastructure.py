@@ -38,6 +38,7 @@ class GeoPath(object):
 
         self.epsilon = .0000001
         self.max_iters = 100000
+        self.distance_threshold = 0.006
 
         # geos, fixed, close, far
         self.geo_data = [None, None]
@@ -110,53 +111,6 @@ class GeoPath(object):
 
         # Finally move the key_point
         self.key_points[point_pos] = (hit_loc, hit_face)
-
-    def redo_geodesic_segment(self, segment_pos, start_loc,
-                              start_face, end_loc, end_face,
-                              cache_pos):
-
-        # Special case handling for weird algorithm behavior
-        should_reverse = cache_pos != 1
-
-        # Try using the cached structure before relaunching
-        # a new geodesic walk
-        cached_path = self.try_continue_geodesic_walk(
-            cache_pos, end_loc, end_face)
-
-        if cached_path:
-            self.cleanup_path(start_loc, end_loc, cached_path, should_reverse)
-            self.path_segments[segment_pos] = cached_path
-            return
-
-        geos, fixed, close, far = geodesic_walk(
-                self.bme.verts, start_face, start_loc,
-                end_face, self.max_iters)
-
-        path_elements, path = gradient_descent(
-                geos, end_face, end_loc, self.epsilon)
-
-        self.geo_data[cache_pos] = (geos, fixed, close, far)
-
-        self.cleanup_path(start_loc, end_loc, path, should_reverse)
-        self.path_segments[segment_pos] = path
-
-    def try_continue_geodesic_walk(self, cache_pos, hit_loc, hit_face):
-
-        # Data was not cached
-        if self.geo_data[cache_pos] is None:
-            return None
-
-        geos, fixed, close, far = self.geo_data[cache_pos]
-
-        if not all([v in fixed for v in hit_face.verts]):
-            continue_geodesic_walk(
-                geos, fixed, close, far,
-                hit_face, self.max_iters)
-
-        path_elements, path = gradient_descent(
-            geos, hit_face, hit_loc, self.epsilon)
-
-        return path
 
     def grab_start(self):
 
@@ -232,6 +186,105 @@ class GeoPath(object):
 
         return
 
+    def erase_mouse_move(self, context, x, y):
+
+        hit, hit_loc, face_ind = self.raycast(context, x, y)
+
+        if not hit:
+            return
+
+        # look for keypoints to hover
+        self.find_keypoint_hover(hit_loc)
+
+    def erase_point(self):
+
+        if (self.hover_point_index is None):
+            return
+
+        point_pos = self.hover_point_index
+
+        # Reset hovering point
+        self.hover_point_index = None
+
+        # I have a segment before point
+        segment_before = None
+        if point_pos > 0:
+            segment_before = self.path_segments[point_pos-1]
+
+        # I have a segment after point
+        segment_after = None
+        if point_pos < len(self.key_points)-1:
+            segment_after = self.path_segments[point_pos]
+
+        if segment_before:
+            self.path_segments.remove(segment_before)
+        if segment_after:
+            self.path_segments.remove(segment_after)
+
+        # Remove position from keypoints
+        self.key_points.pop(point_pos)
+
+        # Redo geodesic path if needed
+        if segment_before and segment_after:
+            start_loc, start_face = self.key_points[point_pos-1]
+            end_loc, end_face = self.key_points[point_pos]
+            # Recreate the position
+            self.path_segments.insert(point_pos-1, [])
+            self.redo_geodesic_segment(
+                point_pos-1, start_loc, start_face, end_loc, end_face, 0)
+            self.geo_data[0] = None
+
+    def erase_cancel(self):
+        # Reset hovering point
+        self.hover_point_index = None
+
+    def redo_geodesic_segment(self, segment_pos, start_loc,
+                              start_face, end_loc, end_face,
+                              cache_pos):
+
+        # Special case handling for weird algorithm behavior
+        should_reverse = cache_pos != 1
+
+        # Try using the cached structure before relaunching
+        # a new geodesic walk
+        cached_path = self.try_continue_geodesic_walk(
+            cache_pos, end_loc, end_face)
+
+        if cached_path:
+            self.cleanup_path(start_loc, end_loc, cached_path, should_reverse)
+            self.path_segments[segment_pos] = cached_path
+            return
+
+        geos, fixed, close, far = geodesic_walk(
+                self.bme.verts, start_face, start_loc,
+                end_face, self.max_iters)
+
+        path_elements, path = gradient_descent(
+                geos, end_face, end_loc, self.epsilon)
+
+        self.geo_data[cache_pos] = (geos, fixed, close, far)
+
+        self.cleanup_path(start_loc, end_loc, path, should_reverse)
+        self.path_segments[segment_pos] = path
+
+    def try_continue_geodesic_walk(self, cache_pos, hit_loc, hit_face):
+
+        # Data was not cached
+        if self.geo_data[cache_pos] is None:
+            return None
+
+        geos, fixed, close, far = self.geo_data[cache_pos]
+
+        if not all([v in fixed for v in hit_face.verts]):
+            continue_geodesic_walk(
+                geos, fixed, close, far,
+                hit_face, self.max_iters)
+
+        path_elements, path = gradient_descent(
+            geos, hit_face, hit_loc, self.epsilon)
+
+        return path
+
     def draw(self, context, plugin_state):
 
         mx = self.selected_obj.matrix_world
@@ -252,7 +305,7 @@ class GeoPath(object):
                                 self.point_size,
                                 self.point_select_color)
 
-        if plugin_state == Geodesic_State.GRAB:
+        if plugin_state in {Geodesic_State.GRAB, Geodesic_State.ERASE}:
             draw.draw_3d_circles(context, points,
                                  self.circle_radius, self.point_color)
             if point_highlight_idx is not None:
@@ -311,7 +364,8 @@ class GeoPath(object):
         key_points = [key_point for (key_point, key_face) in self.key_points]
 
         selected_keypoints = list(
-            filter(lambda x: (x-point).length <= 0.006, key_points)
+            filter(lambda x: (x-point).length <= self.distance_threshold,
+                   key_points)
         )
 
         if selected_keypoints:
@@ -322,3 +376,4 @@ class GeoPath(object):
 class Geodesic_State(Enum):
     MAIN = 1
     GRAB = 2
+    ERASE = 3

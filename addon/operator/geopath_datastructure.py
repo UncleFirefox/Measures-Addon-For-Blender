@@ -232,6 +232,8 @@ class GeoPath(object):
             self.path_segments.insert(point_pos-1, [])
             self.redo_geodesic_segment(
                 point_pos-1, start_loc, start_face, end_loc, end_face, 0)
+
+            # Avoid having garbage in the geo cache
             self.geo_data[0] = None
 
     def erase_cancel(self):

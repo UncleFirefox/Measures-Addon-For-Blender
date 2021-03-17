@@ -176,7 +176,6 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         for i in range(1, len(path)):
             edges.append(bm.edges.new((vertices[i-1], vertices[i])))
-            # print("adding {:3f} - {:3f}".format(i-1, i))
 
         me = bpy.data.meshes.new("GeodesicPath")
         bm.to_mesh(me)

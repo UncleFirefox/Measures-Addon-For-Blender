@@ -78,18 +78,7 @@ def draw_polyline_from_3dpoints(context, points, color, thickness):
 def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
 
     projected_points = get_2d_points(context, points)
-
-    bgl.glEnable(bgl.GL_BLEND)
-    bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
-
-    shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
-    batch = batch_for_shader(shader, 'POINTS', {"pos": projected_points})
-    bgl.glPointSize(size)
-    shader.bind()
-    shader.uniform_float("color", color)
-    batch.draw(shader)
-    del shader
-    del batch
+    draw_2d_points(size, color, projected_points)
 
     return
 
@@ -97,14 +86,33 @@ def draw_3d_points(context, points, size, color=(1, 0, 0, 1)):
 def draw_3d_circles(context, points, radius, color):
 
     projected_points = get_2d_points(context, points)
+    draw_2d_circles(radius, color, projected_points)
+
+    return
+
+
+def draw_2d_points(size, color, projected_points):
 
     bgl.glEnable(bgl.GL_BLEND)
     bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
 
+    shader = gpu.shader.from_builtin('2D_UNIFORM_COLOR')
+    batch = batch_for_shader(shader, 'POINTS', {"pos": projected_points})
+
+    bgl.glPointSize(size)
+    shader.bind()
+    shader.uniform_float("color", color)
+    batch.draw(shader)
+
+    del shader
+    del batch
+
+
+def draw_2d_circles(radius, color, projected_points):
+    bgl.glEnable(bgl.GL_BLEND)
+    bgl.glBlendFunc(bgl.GL_SRC_ALPHA, bgl.GL_ONE_MINUS_SRC_ALPHA)
     for point in projected_points:
         draw_circle_2d(point, color, radius)
-
-    return
 
 
 def get_2d_points(context, points):

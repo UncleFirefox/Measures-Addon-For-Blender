@@ -5,6 +5,8 @@ from functools import reduce
 from enum import Enum
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
+from mathutils import Vector
+from mathutils.geometry import intersect_point_line
 from ..utility import draw
 
 
@@ -44,6 +46,10 @@ class GeoPath(object):
         self.geo_data = [None, None]
         self.hover_point_index = None
         self.selected_point_index = None
+
+        self.insert_key_point = None
+        self.insert_segment_index = None
+        self.is_inserting = False
 
     def click_add_point(self, context, x, y):
 
@@ -240,6 +246,152 @@ class GeoPath(object):
         # Reset hovering point
         self.hover_point_index = None
 
+    def insert_mouse_move(self, context, x, y):
+
+        hit, hit_loc, face_ind = self.raycast(context, x, y)
+
+        if not hit:
+            self.insert_key_point = None
+            self.insert_segment_index = None
+            context.window.cursor_set("DEFAULT")
+            return
+
+        context.window.cursor_set("NONE")
+        hit_face = self.bme.faces[face_ind]
+
+        # establish the key point
+        self.insert_key_point = (hit_loc, hit_face)
+
+        if self.is_inserting:
+
+            # Reassign key point
+            self.key_points[self.insert_segment_index+1] = \
+                self.insert_key_point
+
+            # First segment locations
+            start_loc, start_face = self.key_points[self.insert_segment_index]
+            end_loc, end_face = self.insert_key_point
+
+            # Recreate the segment
+            self.redo_geodesic_segment(
+                self.insert_segment_index,
+                start_loc, start_face, end_loc, end_face, 0)
+
+            # Second segment locations
+            start_loc, start_face = \
+                self.key_points[self.insert_segment_index+2]
+
+            end_loc, end_face = \
+                self.key_points[self.insert_segment_index+1]
+
+            # Recreate the segment
+            self.redo_geodesic_segment(
+                self.insert_segment_index+1,
+                start_loc, start_face, end_loc, end_face, 1)
+
+            return
+
+        # Try find an intersection with a segment
+        intersect_index = self.get_segment_point_intersection(
+            hit_loc, 0.0009)  # TODO: Is epsilon good enough?
+
+        if (intersect_index is None):
+            self.insert_segment_index = None
+            return
+
+        self.insert_segment_index = intersect_index
+
+    def insert_start(self):
+
+        if self.insert_segment_index is None:
+            return
+
+        # Add new segment
+        self.path_segments.insert(self.insert_segment_index, [])
+
+        # First segment locations
+        start_loc, start_face = self.key_points[self.insert_segment_index]
+        end_loc, end_face = self.insert_key_point
+
+        # Recreate the position
+        self.redo_geodesic_segment(
+            self.insert_segment_index,
+            start_loc, start_face, end_loc, end_face, 0)
+
+        # Add the new key_point
+        self.key_points.insert(self.insert_segment_index+1,
+                               self.insert_key_point)
+
+        # Avoid having garbage in the geo cache
+        self.geo_data[0] = None
+
+        # Second segment locations
+        start_loc, start_face = self.insert_key_point
+        end_loc, end_face = self.key_points[self.insert_segment_index+2]
+
+        # Recreate the geodesic path on next segment
+        self.redo_geodesic_segment(
+            self.insert_segment_index+1,
+            start_loc, start_face, end_loc, end_face, 0)
+
+        # Avoid having garbage in the geo cache
+        self.geo_data[0] = None
+
+        # Set a flag por grabbing until not released
+        self.is_inserting = True
+
+    def insert_finish(self):
+        self.insert_key_point = None
+        self.insert_segment_index = None
+        self.is_inserting = False
+        self.geo_data = [None, None]
+
+    def insert_cancel(self):
+        self.insert_key_point = None
+        self.insert_segment_index = None
+        self.is_inserting = False
+        self.geo_data = [None, None]
+
+    def get_segment_point_intersection(self, hit_loc, epsilon):
+
+        # Find closest segment to point
+        segment_index = self.get_closest_segment_index(
+            hit_loc, self.path_segments)
+
+        # Within that segment, look for the closest subsegment
+        # We'll create the subsegment zipping pair by pair
+        segment = self.path_segments[segment_index]
+        inner_segment_index = self.get_closest_segment_index(
+            hit_loc, list(zip(segment[:-1], segment[1:])))
+
+        segment_distance = self.point_segment_distance(
+            hit_loc, segment[inner_segment_index],
+            segment[inner_segment_index+1])
+
+        # If the distance is very close
+        # we can safely assume we're in the segment
+        if (segment_distance <= epsilon):
+            return segment_index
+            # print("Found! Segment {}, Subsegment {}".format(
+            #     segment_index, inner_segment_index))
+
+        return None
+
+    def get_closest_segment_index(self, hit_loc, segment_list):
+
+        distances = list(map(lambda x:
+                             self.point_segment_distance(hit_loc, x[0], x[-1]),
+                             segment_list))
+
+        index_min = min(range(len(distances)), key=distances.__getitem__)
+
+        return index_min
+
+    def point_segment_distance(self, point, segment_start, segment_end):
+        return (point - (intersect_point_line(point,
+                                              segment_start,
+                                              segment_end)[0])).length
+
     def redo_geodesic_segment(self, segment_pos, start_loc,
                               start_face, end_loc, end_face,
                               cache_pos):
@@ -316,6 +468,18 @@ class GeoPath(object):
                                      self.circle_radius,
                                      self.point_select_color)
 
+        elif (plugin_state == Geodesic_State.INSERT
+              and self.insert_key_point):
+
+            color = self.point_select_color \
+                    if self.insert_segment_index is not None \
+                    else self.point_color
+
+            draw.draw_3d_circles(context, [mx @ self.insert_key_point[0]],
+                                 self.circle_radius, color)
+            draw.draw_3d_points(context, [mx @ self.insert_key_point[0]],
+                                self.point_size, color)
+
         # Draw segments
         if len(self.path_segments):
             draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
@@ -379,3 +543,4 @@ class Geodesic_State(Enum):
     MAIN = 1
     GRAB = 2
     ERASE = 3
+    INSERT = 4

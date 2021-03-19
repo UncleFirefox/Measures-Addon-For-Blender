@@ -3,7 +3,7 @@ bl_info = {
     "author": "Albert Rodriguez",
     "description": "Tools to take measures for Avatar",
     "blender": (2, 92, 0),
-    "version": (0, 4, 5),
+    "version": (0, 4, 8),
     "location": "View3D > Toolshelf",
     "warning": "This plugin is only compatible with Blender 2.92",
     "category": "Add measures",

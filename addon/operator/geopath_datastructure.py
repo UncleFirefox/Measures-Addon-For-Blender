@@ -6,6 +6,7 @@ from enum import Enum
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
 from mathutils import Vector
+from mathutils.geometry import intersect_point_line
 from ..utility import draw
 
 
@@ -47,6 +48,7 @@ class GeoPath(object):
         self.selected_point_index = None
 
         self.insert_point_location = None
+        self.insert_point_intersecting = False
 
     def click_add_point(self, context, x, y):
 
@@ -249,16 +251,66 @@ class GeoPath(object):
 
         if not hit:
             self.insert_point_location = None
+            self.insert_point_intersecting = False
             context.window.cursor_set("DEFAULT")
             return
 
         context.window.cursor_set("NONE")
         self.insert_point_location = hit_loc
 
-        return
+        # Try find an intersection with a segment
+        intersect_index = self.get_segment_point_intersection(
+            hit_loc, 0.0009)  # TODO: Is epsilon good enough?
+
+        if (intersect_index is None):
+            self.insert_point_intersecting = False
+            return
+
+        self.insert_point_intersecting = True
 
     def insert_cancel(self):
         self.insert_point_location = None
+        self.insert_point_intersecting = False
+
+    def get_segment_point_intersection(self, hit_loc, epsilon):
+
+        # Find closest segment to point
+        segment_index = self.get_closest_segment_index(
+            hit_loc, self.path_segments)
+
+        # Within that segment, look for the closest subsegment
+        # We'll create the subsegment zipping pair by pair
+        segment = self.path_segments[segment_index]
+        inner_segment_index = self.get_closest_segment_index(
+            hit_loc, list(zip(segment[:-1], segment[1:])))
+
+        segment_distance = self.point_segment_distance(
+            hit_loc, segment[inner_segment_index],
+            segment[inner_segment_index+1])
+
+        # If the distance is very close
+        # we can safely assume we're in the segment
+        if (segment_distance <= epsilon):
+            return segment_index
+            # print("Found! Segment {}, Subsegment {}".format(
+            #     segment_index, inner_segment_index))
+
+        return None
+
+    def get_closest_segment_index(self, hit_loc, segment_list):
+
+        distances = list(map(lambda x:
+                             self.point_segment_distance(hit_loc, x[0], x[-1]),
+                             segment_list))
+
+        index_min = min(range(len(distances)), key=distances.__getitem__)
+
+        return index_min
+
+    def point_segment_distance(self, point, segment_start, segment_end):
+        return (point - (intersect_point_line(point,
+                                              segment_start,
+                                              segment_end)[0])).length
 
     def redo_geodesic_segment(self, segment_pos, start_loc,
                               start_face, end_loc, end_face,
@@ -338,26 +390,18 @@ class GeoPath(object):
 
         elif (plugin_state == Geodesic_State.INSERT
               and self.insert_point_location):
-
+            color = self.point_select_color if self.insert_point_intersecting \
+                else self.point_color
             draw.draw_3d_circles(context, [mx @ self.insert_point_location],
-                                 self.circle_radius, self.point_color)
+                                 self.circle_radius, color)
             draw.draw_3d_points(context, [mx @ self.insert_point_location],
-                                self.point_size, self.point_color)
+                                self.point_size, color)
 
         # Draw segments
         if len(self.path_segments):
             draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
                                              self.line_color,
                                              self.line_thickness)
-
-    def get_mouse_position(self, context):
-        if context.area.type == 'VIEW_3D' and context.region.type == "WINDOW":
-            result = Vector((context.area.x, context.area.y, 0))
-            print("Mouse position was: {}".format(result))
-            print(context.scene.cursor.location)
-            return result
-        else:
-            return None
 
     def cleanup_path(self, start_location, target_location,
                      path, should_reverse=True):

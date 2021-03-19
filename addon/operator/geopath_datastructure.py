@@ -5,6 +5,7 @@ from functools import reduce
 from enum import Enum
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
+from mathutils import Vector
 from ..utility import draw
 
 
@@ -44,6 +45,8 @@ class GeoPath(object):
         self.geo_data = [None, None]
         self.hover_point_index = None
         self.selected_point_index = None
+
+        self.insert_point_location = None
 
     def click_add_point(self, context, x, y):
 
@@ -240,6 +243,23 @@ class GeoPath(object):
         # Reset hovering point
         self.hover_point_index = None
 
+    def insert_mouse_move(self, context, x, y):
+
+        hit, hit_loc, face_ind = self.raycast(context, x, y)
+
+        if not hit:
+            self.insert_point_location = None
+            context.window.cursor_set("DEFAULT")
+            return
+
+        context.window.cursor_set("NONE")
+        self.insert_point_location = hit_loc
+
+        return
+
+    def insert_cancel(self):
+        self.insert_point_location = None
+
     def redo_geodesic_segment(self, segment_pos, start_loc,
                               start_face, end_loc, end_face,
                               cache_pos):
@@ -316,11 +336,28 @@ class GeoPath(object):
                                      self.circle_radius,
                                      self.point_select_color)
 
+        elif (plugin_state == Geodesic_State.INSERT
+              and self.insert_point_location):
+
+            draw.draw_3d_circles(context, [mx @ self.insert_point_location],
+                                 self.circle_radius, self.point_color)
+            draw.draw_3d_points(context, [mx @ self.insert_point_location],
+                                self.point_size, self.point_color)
+
         # Draw segments
         if len(self.path_segments):
             draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
                                              self.line_color,
                                              self.line_thickness)
+
+    def get_mouse_position(self, context):
+        if context.area.type == 'VIEW_3D' and context.region.type == "WINDOW":
+            result = Vector((context.area.x, context.area.y, 0))
+            print("Mouse position was: {}".format(result))
+            print(context.scene.cursor.location)
+            return result
+        else:
+            return None
 
     def cleanup_path(self, start_location, target_location,
                      path, should_reverse=True):
@@ -379,3 +416,4 @@ class Geodesic_State(Enum):
     MAIN = 1
     GRAB = 2
     ERASE = 3
+    INSERT = 4

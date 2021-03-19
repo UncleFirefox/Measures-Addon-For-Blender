@@ -42,6 +42,13 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     # Running in loop until we leave the modal
     def modal(self, context, event):
 
+        # Free navigation
+        if event.type in {
+            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
+            'WHEELINMOUSE', 'WHEELOUTMOUSE'
+        }:
+            return {'PASS_THROUGH'}
+
         if event.type == 'MOUSEMOVE':
             self.detect_collision(context, event)
 
@@ -51,26 +58,24 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             return self.handle_grab(context, event)
         elif self.state == Geodesic_State.ERASE:
             return self.handle_erase(context, event)
+        elif self.state == Geodesic_State.INSERT:
+            return self.handle_insert(context, event)
 
         return {"RUNNING_MODAL"}  # Should not get here but you never know
 
     # Handles events in main mode
     def handle_main(self, context, event):
 
-        # Free navigation
-        if event.type in {
-            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
-            'WHEELINMOUSE', 'WHEELOUTMOUSE'
-        }:
-            return {'PASS_THROUGH'}
-
         # Grab initiating
-        elif event.type == 'G' and event.value == 'PRESS':
+        if event.type == 'G' and event.value == 'PRESS':
             self.state = Geodesic_State.GRAB  # Do grab mode
 
         elif event.type == 'E' and event.value == 'PRESS':
             context.window.cursor_set("ERASER")
             self.state = Geodesic_State.ERASE  # Do erase mode
+
+        elif event.type == 'I' and event.value == 'PRESS':
+            self.state = Geodesic_State.INSERT  # Do erase mode
 
         # Adding points
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
@@ -93,14 +98,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     def handle_grab(self, context, event):
 
-        # Free navigation
-        if event.type in {
-            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
-            'WHEELINMOUSE', 'WHEELOUTMOUSE'
-        }:
-            return {'PASS_THROUGH'}
-
-        elif event.type == 'MOUSEMOVE':
+        if event.type == 'MOUSEMOVE':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
 
@@ -124,14 +122,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     def handle_erase(self, context, event):
 
-        # Free navigation
-        if event.type in {
-            'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
-            'WHEELINMOUSE', 'WHEELOUTMOUSE'
-        }:
-            return {'PASS_THROUGH'}
-
-        elif event.type == 'MOUSEMOVE':
+        if event.type == 'MOUSEMOVE':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.erase_mouse_move(context, x, y)
 
@@ -143,6 +134,23 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
               and event.value == 'PRESS'):
 
             self.geopath.erase_cancel()
+            context.window.cursor_set("DEFAULT")
+            self.state = Geodesic_State.MAIN
+
+        context.area.tag_redraw()
+        return {'RUNNING_MODAL'}
+
+    def handle_insert(self, context, event):
+
+        if event.type == 'MOUSEMOVE':
+            x, y = (event.mouse_region_x, event.mouse_region_y)
+            self.geopath.insert_mouse_move(context, x, y)
+
+        # cancel inserting
+        elif (event.type in {'RIGHTMOUSE', 'ESC', 'I'}
+              and event.value == 'PRESS'):
+
+            self.geopath.insert_cancel()
             context.window.cursor_set("DEFAULT")
             self.state = Geodesic_State.MAIN
 

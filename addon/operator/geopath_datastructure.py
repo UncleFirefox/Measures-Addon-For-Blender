@@ -49,6 +49,7 @@ class GeoPath(object):
 
         self.insert_key_point = None
         self.insert_segment_index = None
+        self.is_inserting = False
 
     def click_add_point(self, context, x, y):
 
@@ -257,7 +258,38 @@ class GeoPath(object):
 
         context.window.cursor_set("NONE")
         hit_face = self.bme.faces[face_ind]
+
+        # establish the key point
         self.insert_key_point = (hit_loc, hit_face)
+
+        if self.is_inserting:
+
+            # Reassign key point
+            self.key_points[self.insert_segment_index+1] = \
+                self.insert_key_point
+
+            # First segment locations
+            start_loc, start_face = self.key_points[self.insert_segment_index]
+            end_loc, end_face = self.insert_key_point
+
+            # Recreate the segment
+            self.redo_geodesic_segment(
+                self.insert_segment_index,
+                start_loc, start_face, end_loc, end_face, 0)
+
+            # Second segment locations
+            start_loc, start_face = \
+                self.key_points[self.insert_segment_index+2]
+
+            end_loc, end_face = \
+                self.key_points[self.insert_segment_index+1]
+
+            # Recreate the segment
+            self.redo_geodesic_segment(
+                self.insert_segment_index+1,
+                start_loc, start_face, end_loc, end_face, 1)
+
+            return
 
         # Try find an intersection with a segment
         intersect_index = self.get_segment_point_intersection(
@@ -269,17 +301,19 @@ class GeoPath(object):
 
         self.insert_segment_index = intersect_index
 
-    def insert_point(self):
+    def insert_start(self):
 
         if self.insert_segment_index is None:
             return
+
+        # Add new segment
+        self.path_segments.insert(self.insert_segment_index, [])
 
         # First segment locations
         start_loc, start_face = self.key_points[self.insert_segment_index]
         end_loc, end_face = self.insert_key_point
 
         # Recreate the position
-        self.path_segments.insert(self.insert_segment_index, [])
         self.redo_geodesic_segment(
             self.insert_segment_index,
             start_loc, start_face, end_loc, end_face, 0)
@@ -303,9 +337,20 @@ class GeoPath(object):
         # Avoid having garbage in the geo cache
         self.geo_data[0] = None
 
+        # Set a flag por grabbing until not released
+        self.is_inserting = True
+
+    def insert_finish(self):
+        self.insert_key_point = None
+        self.insert_segment_index = None
+        self.is_inserting = False
+        self.geo_data = [None, None]
+
     def insert_cancel(self):
         self.insert_key_point = None
         self.insert_segment_index = None
+        self.is_inserting = False
+        self.geo_data = [None, None]
 
     def get_segment_point_intersection(self, hit_loc, epsilon):
 

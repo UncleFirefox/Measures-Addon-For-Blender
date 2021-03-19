@@ -147,7 +147,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.geopath.insert_mouse_move(context, x, y)
 
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
-            self.geopath.insert_point()
+            self.geopath.insert_start()
 
         # cancel inserting
         elif (event.type in {'RIGHTMOUSE', 'ESC', 'I'}
@@ -156,6 +156,10 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.geopath.insert_cancel()
             context.window.cursor_set("DEFAULT")
             self.state = Geodesic_State.MAIN
+
+        # stop inserting when releasing
+        elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
+            self.geopath.insert_finish()
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}

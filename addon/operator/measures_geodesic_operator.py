@@ -146,6 +146,9 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.insert_mouse_move(context, x, y)
 
+        elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self.geopath.insert_point()
+
         # cancel inserting
         elif (event.type in {'RIGHTMOUSE', 'ESC', 'I'}
               and event.value == 'PRESS'):

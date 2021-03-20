@@ -37,6 +37,7 @@ class GeoPath(object):
         self.point_select_color = (0, 1, 0, 1)
         self.line_color = (.2, .1, .8, 1)
         self.line_thickness = 3
+        self.debug_color = (1, 1, 0, 1)
 
         self.epsilon = .0000001
         self.max_iters = 100000
@@ -50,6 +51,8 @@ class GeoPath(object):
         self.insert_key_point = None
         self.insert_segment_index = None
         self.is_inserting = False
+
+        self.is_debugging = False
 
     def click_add_point(self, context, x, y):
 
@@ -352,6 +355,9 @@ class GeoPath(object):
         self.is_inserting = False
         self.geo_data = [None, None]
 
+    def toggle_debugging(self):
+        self.is_debugging = not self.is_debugging
+
     def get_segment_point_intersection(self, hit_loc, epsilon):
 
         # Find closest segment to point
@@ -482,9 +488,15 @@ class GeoPath(object):
 
         # Draw segments
         if len(self.path_segments):
+            path = self.get_whole_path()
             draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
                                              self.line_color,
                                              self.line_thickness)
+            # Debugging points
+            if self.is_debugging:
+                draw.draw_3d_points(context, path,
+                                    self.point_size * .45,
+                                    self.debug_color)
 
     def cleanup_path(self, start_location, target_location,
                      path, should_reverse=True):

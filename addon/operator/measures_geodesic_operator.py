@@ -43,15 +43,22 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     def modal(self, context, event):
 
         # Free navigation
-        if event.type in {
+        pass_through_events = {
             'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
             'WHEELINMOUSE', 'WHEELOUTMOUSE'
-        }:
+        }
+        if event.type in pass_through_events:
             return {'PASS_THROUGH'}
 
+        # Movement capture for debugging
         if event.type == 'MOUSEMOVE':
             self.detect_collision(context, event)
 
+        # Enable visual debugging
+        if event.type == 'SPACE' and event.value == 'PRESS':
+            self.geopath.toggle_debugging()
+
+        # State handling
         if self.state == Geodesic_State.MAIN:
             return self.handle_main(context, event)
         elif self.state == Geodesic_State.GRAB:

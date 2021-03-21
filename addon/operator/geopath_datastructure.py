@@ -5,7 +5,6 @@ from functools import reduce
 from enum import Enum
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
-from mathutils import Vector
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
 
@@ -552,7 +551,7 @@ class GeoPath(object):
 
 
 class Geodesic_State(Enum):
-    MAIN = 1
+    POINTS = 1
     GRAB = 2
     ERASE = 3
     INSERT = 4

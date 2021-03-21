@@ -7,6 +7,54 @@ from math import pi, cos, sin
 from gpu_extras.batch import batch_for_shader
 from bpy_extras.view3d_utils import location_3d_to_region_2d
 from gpu_extras.presets import draw_circle_2d
+from .addon import get_prefs
+
+
+def draw_messages(context, messages):
+
+    prefs = get_prefs()
+    font_size = prefs.settings.font_size
+    background_dolor = prefs.color.bg_color
+    font_color = prefs.color.font_color
+
+    padding = 8
+    bottom_offset = 20
+
+    # Make message appear in ç
+    # the order they were added
+    messages.reverse()
+
+    for message in messages:
+
+        # Props
+        dims = get_blf_text_dims(message, font_size)
+        area_width = context.area.width
+
+        over_all_width = dims[0] + padding * 2
+        over_all_height = dims[1] + padding * 2
+
+        left_offset = abs((area_width - over_all_width) * .5)
+
+        top_left = (left_offset, bottom_offset + over_all_height)
+        bot_left = (left_offset, bottom_offset)
+        top_right = (left_offset + over_all_width,
+                     bottom_offset + over_all_height)
+        bot_right = (left_offset + over_all_width, bottom_offset)
+
+        # Draw Quad
+        verts = [top_left, bot_left, top_right, bot_right]
+        draw_quad(vertices=verts, color=background_dolor)
+
+        # Draw Text
+        x = left_offset + padding
+        y = bottom_offset + padding
+        draw_text(
+            text=message, x=x, y=y, size=font_size,
+            color=font_color
+        )
+
+        # Accumulate height
+        bottom_offset += over_all_height
 
 
 def draw_quad(vertices=[], color=(1, 1, 1, 1)):

@@ -3,8 +3,7 @@ import bpy
 import bmesh
 import traceback
 
-from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
-from ..utility.addon import get_prefs
+from ..utility.draw import draw_messages
 from ..utility.ray import mouse_raycast_to_scene
 from .geopath_datastructure import GeoPath, Geodesic_State
 
@@ -31,7 +30,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         # Initialize some props
         self.hit_point = None
         self.geopath = GeoPath(context, context.object)
-        self.state = Geodesic_State.MAIN
+        self.state = Geodesic_State.POINTS
 
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
@@ -42,18 +41,37 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     # Running in loop until we leave the modal
     def modal(self, context, event):
 
+        # Confirm path an exit gracefully
+        if event.type == 'RET' and event.value == 'PRESS':
+            self.execute(context)
+            self.remove_shaders(context)
+            return {'FINISHED'}
+
+        # Cancel
+        elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
+            context.window.cursor_set("DEFAULT")
+            self.remove_shaders(context)
+            return {'CANCELLED'}
+
         # Free navigation
-        if event.type in {
+        pass_through_events = {
             'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE',
             'WHEELINMOUSE', 'WHEELOUTMOUSE'
-        }:
+        }
+        if event.type in pass_through_events:
             return {'PASS_THROUGH'}
 
+        # Movement capture for debugging
         if event.type == 'MOUSEMOVE':
             self.detect_collision(context, event)
 
-        if self.state == Geodesic_State.MAIN:
-            return self.handle_main(context, event)
+        # Enable visual debugging
+        if event.type == 'SPACE' and event.value == 'PRESS':
+            self.geopath.toggle_debugging()
+
+        # State handling
+        if self.state == Geodesic_State.POINTS:
+            return self.handle_points(context, event)
         elif self.state == Geodesic_State.GRAB:
             return self.handle_grab(context, event)
         elif self.state == Geodesic_State.ERASE:
@@ -63,35 +81,21 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
         return {"RUNNING_MODAL"}  # Should not get here but you never know
 
-    # Handles events in main mode
-    def handle_main(self, context, event):
-
-        # Grab initiating
-        if event.type == 'G' and event.value == 'PRESS':
-            self.state = Geodesic_State.GRAB  # Do grab mode
-
-        elif event.type == 'E' and event.value == 'PRESS':
-            context.window.cursor_set("ERASER")
-            self.state = Geodesic_State.ERASE  # Do erase mode
-
-        elif event.type == 'I' and event.value == 'PRESS':
-            self.state = Geodesic_State.INSERT  # Do erase mode
+    def handle_points(self, context, event):
 
         # Adding points
-        elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.click_add_point(context, x, y)
 
-        # Confirm path an exit gracefully
-        elif event.type == 'RET' and event.value == 'PRESS':
-            self.execute(context)
-            self.remove_shaders(context)
-            return {'FINISHED'}
+        elif event.type == 'G' and event.value == 'PRESS':
+            self.state = Geodesic_State.GRAB
 
-        # Cancel
-        elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
-            self.remove_shaders(context)
-            return {'CANCELLED'}
+        elif event.type == 'E' and event.value == 'PRESS':
+            self.state = Geodesic_State.ERASE
+
+        elif event.type == 'I' and event.value == 'PRESS':
+            self.state = Geodesic_State.INSERT
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
@@ -102,20 +106,23 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             x, y = (event.mouse_region_x, event.mouse_region_y)
             self.geopath.grab_mouse_move(context, x, y)
 
-        # try to see if we are grabbing
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.geopath.grab_start()
 
-        # stop grabbing when releasing
         elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             self.geopath.grab_finish()
 
-        # cancel grabbing
-        elif (event.type in {'RIGHTMOUSE', 'ESC', 'G'}
-              and event.value == 'PRESS'):
-
+        elif event.type == 'P' and event.value == 'PRESS':
             self.geopath.grab_cancel()
-            self.state = Geodesic_State.MAIN
+            self.state = Geodesic_State.POINTS
+
+        elif event.type == 'E' and event.value == 'PRESS':
+            self.geopath.grab_cancel()
+            self.state = Geodesic_State.ERASE
+
+        elif event.type == 'I' and event.value == 'PRESS':
+            self.geopath.grab_cancel()
+            self.state = Geodesic_State.INSERT
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
@@ -129,13 +136,17 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.geopath.erase_point()
 
-        # cancel erasing
-        elif (event.type in {'RIGHTMOUSE', 'ESC', 'E'}
-              and event.value == 'PRESS'):
+        elif event.type == 'P' and event.value == 'PRESS':
+            self.geopath.erase_cancel(context)
+            self.state = Geodesic_State.POINTS
 
-            self.geopath.erase_cancel()
-            context.window.cursor_set("DEFAULT")
-            self.state = Geodesic_State.MAIN
+        elif event.type == 'G' and event.value == 'PRESS':
+            self.geopath.erase_cancel(context)
+            self.state = Geodesic_State.GRAB
+
+        elif event.type == 'I' and event.value == 'PRESS':
+            self.geopath.erase_cancel(context)
+            self.state = Geodesic_State.INSERT
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
@@ -149,17 +160,20 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.geopath.insert_start()
 
-        # cancel inserting
-        elif (event.type in {'RIGHTMOUSE', 'ESC', 'I'}
-              and event.value == 'PRESS'):
-
-            self.geopath.insert_cancel()
-            context.window.cursor_set("DEFAULT")
-            self.state = Geodesic_State.MAIN
-
-        # stop inserting when releasing
         elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             self.geopath.insert_finish()
+
+        elif event.type == 'P' and event.value == 'PRESS':
+            self.geopath.insert_cancel(context)
+            self.state = Geodesic_State.POINTS
+
+        elif event.type == 'G' and event.value == 'PRESS':
+            self.geopath.insert_cancel(context)
+            self.state = Geodesic_State.GRAB
+
+        elif event.type == 'E' and event.value == 'PRESS':
+            self.geopath.insert_cancel(context)
+            self.state = Geodesic_State.ERASE
 
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
@@ -222,65 +236,40 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
 
     def draw_debug_panel(self, context):
 
-        if (self.hit_point is None):
-            return
+        messages = []
 
-        prefs = get_prefs()
+        mode = "Plugin mode: {}".format(self.state.name)
 
-        # Props
-        text = "X : {:.3f}, Y : {:.3f}, Z : {:.3f}".format(
-            self.hit_point.x, self.hit_point.y, self.hit_point.z
-        )
+        if self.geopath.is_debugging:
+            mode += " | Visual Debug: ON"
 
-        font_size = prefs.settings.font_size
-        dims = get_blf_text_dims(text, font_size)
-        area_width = context.area.width
-        padding = 8
+        messages.append(mode)
 
-        over_all_width = dims[0] + padding * 2
-        over_all_height = dims[1] + padding * 2
-
-        left_offset = abs((area_width - over_all_width) * .5)
-        bottom_offset = 20
-
-        top_left = (left_offset, bottom_offset + over_all_height)
-        bot_left = (left_offset, bottom_offset)
-        top_right = (left_offset + over_all_width,
-                     bottom_offset + over_all_height)
-        bot_right = (left_offset + over_all_width, bottom_offset)
-
-        # Draw Quad
-        verts = [top_left, bot_left, top_right, bot_right]
-        draw_quad(vertices=verts, color=prefs.color.bg_color)
-
-        # Draw Text
-        x = left_offset + padding
-        y = bottom_offset + padding
-        draw_text(
-            text=text, x=x, y=y, size=font_size,
-            color=prefs.color.font_color
-        )
-
-        # Draw path
-        text = ""
+        # Path information
+        num_segments = 0
+        total_length = 0
 
         if len(self.geopath.path_segments) > 0:
+            total_length = reduce(lambda a, b:
+                                  a + self.get_segment_length(b),
+                                  self.geopath.path_segments, 0)
 
-            total_path_length = reduce(lambda a, b:
-                                       a + self.get_segment_length(b),
-                                       self.geopath.path_segments, 0)
+            num_segments = len(self.geopath.path_segments)
 
-            text += "#SEGMENTS: {}, LENGTH: {:.3f}".format(
-                len(self.geopath.path_segments),
-                total_path_length
+        messages.append(
+            "#SEGMENTS: {}, LENGTH: {:.3f}".format(
+                num_segments,
+                total_length)
+        )
+
+        # Hit point information
+        if (self.hit_point):
+            messages.append(
+                "X : {:.3f}, Y : {:.3f}, Z : {:.3f}".format(
+                 self.hit_point.x, self.hit_point.y, self.hit_point.z)
             )
 
-        if len(text) != 0:
-            draw_text(
-                text=text, x=x, y=y + over_all_height + padding,
-                size=font_size,
-                color=prefs.color.font_color
-            )
+        draw_messages(context, messages)
 
     def get_segment_length(self, segment):
         result = 0

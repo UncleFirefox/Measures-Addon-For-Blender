@@ -5,7 +5,6 @@ from functools import reduce
 from enum import Enum
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
-from mathutils import Vector
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
 
@@ -37,6 +36,7 @@ class GeoPath(object):
         self.point_select_color = (0, 1, 0, 1)
         self.line_color = (.2, .1, .8, 1)
         self.line_thickness = 3
+        self.debug_color = (1, 1, 0, 1)
 
         self.epsilon = .0000001
         self.max_iters = 100000
@@ -50,6 +50,8 @@ class GeoPath(object):
         self.insert_key_point = None
         self.insert_segment_index = None
         self.is_inserting = False
+
+        self.is_debugging = False
 
     def click_add_point(self, context, x, y):
 
@@ -197,7 +199,10 @@ class GeoPath(object):
         hit, hit_loc, face_ind = self.raycast(context, x, y)
 
         if not hit:
+            context.window.cursor_set("DEFAULT")
             return
+
+        context.window.cursor_set("ERASER")
 
         # look for keypoints to hover
         self.find_keypoint_hover(hit_loc)
@@ -242,9 +247,10 @@ class GeoPath(object):
             # Avoid having garbage in the geo cache
             self.geo_data[0] = None
 
-    def erase_cancel(self):
+    def erase_cancel(self, context):
         # Reset hovering point
         self.hover_point_index = None
+        context.window.cursor_set("DEFAULT")
 
     def insert_mouse_move(self, context, x, y):
 
@@ -346,11 +352,15 @@ class GeoPath(object):
         self.is_inserting = False
         self.geo_data = [None, None]
 
-    def insert_cancel(self):
+    def insert_cancel(self, context):
         self.insert_key_point = None
         self.insert_segment_index = None
         self.is_inserting = False
         self.geo_data = [None, None]
+        context.window.cursor_set("DEFAULT")
+
+    def toggle_debugging(self):
+        self.is_debugging = not self.is_debugging
 
     def get_segment_point_intersection(self, hit_loc, epsilon):
 
@@ -482,9 +492,15 @@ class GeoPath(object):
 
         # Draw segments
         if len(self.path_segments):
+            path = self.get_whole_path()
             draw.draw_polyline_from_3dpoints(context, self.get_whole_path(),
                                              self.line_color,
                                              self.line_thickness)
+            # Debugging points
+            if self.is_debugging:
+                draw.draw_3d_points(context, path,
+                                    self.point_size * .45,
+                                    self.debug_color)
 
     def cleanup_path(self, start_location, target_location,
                      path, should_reverse=True):
@@ -540,7 +556,7 @@ class GeoPath(object):
 
 
 class Geodesic_State(Enum):
-    MAIN = 1
+    POINTS = 1
     GRAB = 2
     ERASE = 3
     INSERT = 4

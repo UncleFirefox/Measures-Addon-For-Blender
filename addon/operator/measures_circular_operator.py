@@ -5,8 +5,7 @@ import traceback
 import math
 
 from mathutils import Euler, Matrix, Vector
-from ..utility.draw import draw_quad, draw_text, get_blf_text_dims
-from ..utility.addon import get_prefs
+from ..utility.draw import draw_messages
 from ..utility.ray import mouse_raycast_to_scene
 from functools import reduce
 
@@ -186,58 +185,27 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     def safe_draw_shader_2d(self, context):
 
         try:
-            self.draw_shaders_2d(context)
+            self.draw_debug_panel(context)
         except Exception:
             print("2D Shader Failed in Ray Caster")
             traceback.print_exc()
             self.remove_shaders(context)
 
-    def draw_shaders_2d(self, context):
+    def draw_debug_panel(self, context):
 
-        if (self.hit_point is None):
-            return
-
-        prefs = get_prefs()
-
-        # Props
-        text = "X : {:.3f}, Y : {:.3f}, Z : {:.3f}".format(
-            self.hit_point.x, self.hit_point.y, self.hit_point.z
-        )
-
-        font_size = prefs.settings.font_size
-        dims = get_blf_text_dims(text, font_size)
-        area_width = context.area.width
-        padding = 8
-
-        over_all_width = dims[0] + padding * 2
-        over_all_height = dims[1] + padding * 2
-
-        left_offset = abs((area_width - over_all_width) * .5)
-        bottom_offset = 20
-
-        top_left = (left_offset, bottom_offset + over_all_height)
-        bot_left = (left_offset, bottom_offset)
-        top_right = (left_offset + over_all_width,
-                     bottom_offset + over_all_height)
-        bot_right = (left_offset + over_all_width, bottom_offset)
-
-        # Draw Quad
-        verts = [top_left, bot_left, top_right, bot_right]
-        draw_quad(vertices=verts, color=prefs.color.bg_color)
-
-        # Draw Text
-        x = left_offset + padding
-        y = bottom_offset + padding
-        draw_text(
-            text=text, x=x, y=y, size=font_size,
-            color=prefs.color.font_color
-        )
+        messages = []
 
         # Draw measurement length
         if self.total_length != 0:
-            text = "LENGTH: {:.3f}".format(self.total_length)
-            draw_text(
-                text=text, x=x, y=y + over_all_height + padding,
-                size=font_size,
-                color=prefs.color.font_color
+            messages.append(
+                "LENGTH: {:.3f}".format(self.total_length)
             )
+
+        # Hit point information
+        if (self.hit_point):
+            messages.append(
+                "X : {:.3f}, Y : {:.3f}, Z : {:.3f}".format(
+                 self.hit_point.x, self.hit_point.y, self.hit_point.z)
+            )
+
+        draw_messages(context, messages)

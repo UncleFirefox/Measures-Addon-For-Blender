@@ -92,7 +92,6 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.state = Geodesic_State.GRAB
 
         elif event.type == 'E' and event.value == 'PRESS':
-            context.window.cursor_set("ERASER")
             self.state = Geodesic_State.ERASE
 
         elif event.type == 'I' and event.value == 'PRESS':
@@ -118,7 +117,6 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.state = Geodesic_State.POINTS
 
         elif event.type == 'E' and event.value == 'PRESS':
-            context.window.cursor_set("ERASER")
             self.geopath.grab_cancel()
             self.state = Geodesic_State.ERASE
 
@@ -139,18 +137,15 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.geopath.erase_point()
 
         elif event.type == 'P' and event.value == 'PRESS':
-            self.geopath.erase_cancel()
-            context.window.cursor_set("DEFAULT")
+            self.geopath.erase_cancel(context)
             self.state = Geodesic_State.POINTS
 
         elif event.type == 'G' and event.value == 'PRESS':
-            self.geopath.erase_cancel()
-            context.window.cursor_set("DEFAULT")
+            self.geopath.erase_cancel(context)
             self.state = Geodesic_State.GRAB
 
         elif event.type == 'I' and event.value == 'PRESS':
-            self.geopath.erase_cancel()
-            context.window.cursor_set("DEFAULT")
+            self.geopath.erase_cancel(context)
             self.state = Geodesic_State.INSERT
 
         context.area.tag_redraw()
@@ -169,18 +164,15 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
             self.geopath.insert_finish()
 
         elif event.type == 'P' and event.value == 'PRESS':
-            self.geopath.insert_cancel()
-            context.window.cursor_set("DEFAULT")
+            self.geopath.insert_cancel(context)
             self.state = Geodesic_State.POINTS
 
         elif event.type == 'G' and event.value == 'PRESS':
-            self.geopath.insert_cancel()
-            context.window.cursor_set("DEFAULT")
+            self.geopath.insert_cancel(context)
             self.state = Geodesic_State.GRAB
 
         elif event.type == 'E' and event.value == 'PRESS':
-            self.geopath.insert_cancel()
-            context.window.cursor_set("DEFAULT")
+            self.geopath.insert_cancel(context)
             self.state = Geodesic_State.ERASE
 
         context.area.tag_redraw()

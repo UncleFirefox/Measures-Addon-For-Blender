@@ -199,7 +199,10 @@ class GeoPath(object):
         hit, hit_loc, face_ind = self.raycast(context, x, y)
 
         if not hit:
+            context.window.cursor_set("DEFAULT")
             return
+
+        context.window.cursor_set("ERASER")
 
         # look for keypoints to hover
         self.find_keypoint_hover(hit_loc)
@@ -244,9 +247,10 @@ class GeoPath(object):
             # Avoid having garbage in the geo cache
             self.geo_data[0] = None
 
-    def erase_cancel(self):
+    def erase_cancel(self, context):
         # Reset hovering point
         self.hover_point_index = None
+        context.window.cursor_set("DEFAULT")
 
     def insert_mouse_move(self, context, x, y):
 
@@ -348,11 +352,12 @@ class GeoPath(object):
         self.is_inserting = False
         self.geo_data = [None, None]
 
-    def insert_cancel(self):
+    def insert_cancel(self, context):
         self.insert_key_point = None
         self.insert_segment_index = None
         self.is_inserting = False
         self.geo_data = [None, None]
+        context.window.cursor_set("DEFAULT")
 
     def toggle_debugging(self):
         self.is_debugging = not self.is_debugging

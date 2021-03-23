@@ -448,9 +448,8 @@ class GeoPath(object):
 
         if target_vert not in fixed:
             continue_geodesic_walk(
-                target_vert,
                 geos, fixed, close, far,
-                self.max_iters)
+                target_vert, self.max_iters)
 
         path_elements, path = gradient_descent(
             geos, target_vert, self.epsilon)

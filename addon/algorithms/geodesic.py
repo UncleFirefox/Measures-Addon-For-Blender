@@ -74,7 +74,7 @@ def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
                     else:
                         geos[nv] = T
 
-    stop_targets.add(end_vert)
+    stop_targets.update(end_vert)
 
     iters = 0
 
@@ -93,9 +93,8 @@ def continue_geodesic_walk(target_vert,
                            max_iters):
 
     stop_targets = set()
-
-    stop_targets = set()
-    stop_targets.add(target_vert)
+    if target_vert not in fixed_verts:
+        stop_targets.add(target_vert)
 
     iters = 0
 
@@ -197,8 +196,7 @@ def begin_loop(close, far, geos, fixed_verts, stop_targets):
 
             if cv not in close:
                 close.add(cv)
-                if cv in far:
-                    far.remove(cv)
+                far.remove(cv)
 
             T = calc_T(cv, trial_v, fv, f, geos)
             if cv in geos:
@@ -225,11 +223,7 @@ def gradient_descent(geos, start_vert, epsilon=.0000001):
         '''
         walk down from a vert
         '''
-        eds = list(filter(
-             lambda e: e.other_vert(v) in geos
-             and v in geos
-             and geos[e.other_vert(v)] <= geos[v],
-             v.link_edges))
+        eds = [ed for ed in v.link_edges if geos[ed.other_vert(v)] <= geos[v]]
 
         if len(eds) == 0:
             # print('lowest vert or local minima')
@@ -240,7 +234,7 @@ def gradient_descent(geos, start_vert, epsilon=.0000001):
         for ed in eds:
             fs.update(ed.link_faces)
 
-        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts if vrt in geos]))
+        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts]))
 
         for ed in minf.edges:
             if v not in ed.verts:

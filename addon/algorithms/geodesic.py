@@ -16,22 +16,22 @@ from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
 
 
-def geodesic_walk(vertices, seed, seed_location, target_location,
-                  max_iters=10000):
+def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
+
     '''
     vertices - list of vertices
 
-    seed - a vertex or a face
+    start_vert - Starting Vertex -> BMVert
 
-    seed_location - mathutils.Vector.
-                    vertex.location or a point on the seed face
-                    (eg, from ray_cast)
-
-    target_location - BMVert or BMFace.
-              Algo will stop when target is found
+    end_vert - Ending Vertex -> BMVert
 
     max_iters - limits number of marching steps
     '''
+
+    # Copy the bmesh to do manipulations
+    # on the object without affecting the caller
+    # TODO: Clone only if necessary
+    # my_bm = bm.copy()
 
     geos = dict()
 
@@ -42,100 +42,60 @@ def geodesic_walk(vertices, seed, seed_location, target_location,
 
     far = set(vertices)
 
-    if isinstance(seed, bmesh.types.BMVert):
-        # initiate seeds with 0 values
-        fixed_verts.add(seed)
-        far.remove(seed)
-        geos[seed] = 0
+    # initiate seeds with 0 values
+    fixed_verts.add(start_vert)
+    far.remove(start_vert)
+    geos[start_vert] = 0
 
-        vs = ring_neighbors(seed)
+    vs = ring_neighbors(start_vert)
 
-        # v = min(vs, key = lambda x: (x.co - seed.co).length)
-        for v in vs:
-            # euclidian distance to initialize
-            geos[v] = (v.co - seed.co).length
+    for v in vs:
+        geos[v] = (v.co - start_vert.co).length
 
-        fixed_verts.update(vs)
+    fixed_verts.update(vs)
 
-        # old method, adding all link  faces to fixed
-        for f in seed.link_faces:
-            for e in f.edges:
-                # the edges which make perpendiculars
-                if e not in seed.link_edges:
-                    close_edges.add(e)
-                    nv = next_vert(e, f)
-                    if nv:
-                        close.add(nv)
-                        v1 = min(e.verts, key=geos.get)
-                        v2 = max(e.verts, key=geos.get)
-                        ef = [fc for fc in e.link_faces if fc != f][0]
-                        T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
-                        if nv in geos:
-                            # perhaps min() is better but its supposed to be
-                            # monotonicly increasing!
-                            geos[nv] = max(geos[nv], T)
-                        else:
-                            geos[nv] = T
+    # old method, adding all link faces to fixed
+    for f in start_vert.link_faces:
+        for e in f.edges:
+            # the edges which make perpendiculars
+            if e not in start_vert.link_edges:
+                close_edges.add(e)
+                nv = next_vert(e, f)
+                if nv:
+                    close.add(nv)
+                    v1 = min(e.verts, key=geos.get)
+                    v2 = max(e.verts, key=geos.get)
+                    ef = [fc for fc in e.link_faces if fc != f][0]
+                    T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
+                    if nv in geos:
+                        # perhaps min() is better but its supposed to be
+                        # monotonicly increasing!
+                        geos[nv] = max(geos[nv], T)
+                    else:
+                        geos[nv] = T
 
-        stop_targets.update(target_location)
-
-    elif isinstance(seed, bmesh.types.BMFace):
-        for v in seed.verts:
-            T = (v.co - seed_location).length
-            geos[v] = T
-
-        fixed_verts.update(seed.verts)
-        far.difference_update(seed.verts)
-
-        for ed in seed.edges:
-            efs = [fc for fc in ed.link_faces if fc != seed]
-
-            if not len(efs):
-                continue  # seed on border case
-
-            ef = efs[0]
-            nv = next_vert(ed, seed)
-
-            if nv is None:
-                continue  # more safety
-
-            close.add(nv)
-            v1 = min(ed.verts, key=geos.get)
-            v2 = max(ed.verts, key=geos.get)
-
-            T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
-            if nv in geos:
-                # perhaps min() is better but its supposed
-                # to be monotonicly increasing!
-                geos[nv] = max(geos[nv], T)
-            else:
-                geos[nv] = T
-
-        stop_targets.update(target_location.verts)
+    stop_targets.add(end_vert)
 
     iters = 0
 
     while (should_algorithm_continue(far, close, iters, max_iters,
                                      stop_targets)):
+
         begin_loop(close, far, geos, fixed_verts, stop_targets)
         iters += 1
 
+    print("Algorithm finished at {} iterations".format(iters))
     return geos, fixed_verts, close, far
 
 
-def continue_geodesic_walk(geos, fixed_verts, close, far,
-                           target_location, max_iters):
+def continue_geodesic_walk(target_vert,
+                           geos, fixed_verts, close, far,
+                           max_iters):
 
     stop_targets = set()
 
-    if isinstance(target_location, bmesh.types.BMFace):
-        for v in target_location.verts:
-            if v not in fixed_verts:
-                stop_targets.add(v)
-
-    elif isinstance(target_location, bmesh.types.BMVert):
-        if target_location not in fixed_verts:
-            stop_targets.add(target_location)
+    stop_targets = set()
+    stop_targets.add(target_vert)
 
     iters = 0
 
@@ -145,6 +105,7 @@ def continue_geodesic_walk(geos, fixed_verts, close, far,
         begin_loop(close, far, geos, fixed_verts, stop_targets)
         iters += 1
 
+    print("Algorithm finished at {} iterations".format(iters))
     return
 
 
@@ -236,7 +197,8 @@ def begin_loop(close, far, geos, fixed_verts, stop_targets):
 
             if cv not in close:
                 close.add(cv)
-                far.remove(cv)
+                if cv in far:
+                    far.remove(cv)
 
             T = calc_T(cv, trial_v, fv, f, geos)
             if cv in geos:
@@ -257,14 +219,17 @@ def should_algorithm_continue(far, close, iters, max_iters,
             (len(stop_targets)))
 
 
-def gradient_descent(geos, start_element,
-                     start_location, epsilon=.0000001):
+def gradient_descent(geos, start_vert, epsilon=.0000001):
 
     def grad_v(v):
         '''
         walk down from a vert
         '''
-        eds = [ed for ed in v.link_edges if geos[ed.other_vert(v)] <= geos[v]]
+        eds = list(filter(
+             lambda e: e.other_vert(v) in geos
+             and v in geos
+             and geos[e.other_vert(v)] <= geos[v],
+             v.link_edges))
 
         if len(eds) == 0:
             # print('lowest vert or local minima')
@@ -275,7 +240,7 @@ def gradient_descent(geos, start_element,
         for ed in eds:
             fs.update(ed.link_faces)
 
-        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts]))
+        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts if vrt in geos]))
 
         for ed in minf.edges:
             if v not in ed.verts:
@@ -359,59 +324,13 @@ def gradient_descent(geos, start_element,
         vret = min(ed.verts, key=geos.get)
         return vret.co, vret, None
 
-    def start_grad_f(f, p):
-        g = gradient_face(f, geos)
-        L = f.calc_perimeter()
-
-        # test for vert intersection
-        for v in f.verts:
-            v_inter, pct = intersect_point_line(v.co, p, p-L*g)
-            delta = v.co - v_inter
-
-            if delta.length < epsilon:
-                # print('intersects vert')
-                return v, v.co, None
-
-        for e in f.edges:
-            v0, v1 = intersect_line_line(
-                e.verts[0].co, e.verts[1].co, p, p-L * g)
-            V = v0 - e.verts[0].co
-            edV = e.verts[1].co - e.verts[0].co
-            Vi = v0 - p
-
-            if V.length - edV.length > epsilon:
-                # print('intersects outside segment')
-                continue
-            elif V.dot(edV) < 0:
-                # print('intersects behind')
-                continue
-            # remember we watnt to travel DOWN the gradient
-            elif Vi.dot(g) > 0:
-                # print('shoots out the face, not across the face')
-                continue
-            else:
-                # print('regular face edge crossing')
-                return v0, e, f
-
-        # we didn't intersect across an edge, or on a vert,
-        # therefore, we should travel ALONG the edge
-
-        vret = min(f.verts, key=geos.get)
-        return vret.co, vret, None
-
     iters = 0
     path_elements = []
     path_coords = []
 
-    if isinstance(start_element, bmesh.types.BMVert):
-        new_ele = start_element
-        new_coord = start_element.co
-        last_face = None
-
-    elif isinstance(start_element, bmesh.types.BMFace):
-        f = start_element
-        p = start_location
-        new_coord, new_ele, last_face = start_grad_f(f, p)
+    new_ele = start_vert
+    new_coord = start_vert.co
+    last_face = None
 
     while new_ele is not None and iters < 1000:
         if new_ele not in path_elements:

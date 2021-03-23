@@ -1,8 +1,11 @@
 import bmesh
+from bmesh.types import BMFace, BMesh
 
 from bpy_extras import view3d_utils
 from functools import reduce
 from enum import Enum
+
+from mathutils import Vector
 from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
 from mathutils.geometry import intersect_point_line
@@ -26,8 +29,10 @@ class GeoPath(object):
         non_tris = [f for f in self.bme.faces if len(f.verts) > 3]
         bmesh.ops.triangulate(self.bme, faces=non_tris)
 
-        self.key_points = []
+        self.key_verts = []
         self.path_segments = []
+
+        self.grab_undo_vert = None
         self.grab_undo_segment = []
 
         self.point_size = 8
@@ -61,22 +66,28 @@ class GeoPath(object):
             return
 
         hit_face = self.bme.faces[face_ind]
-        self.key_points.append((hit_location, hit_face))
 
-        if len(self.key_points) < 2:
+        vert = self.decide_vert_from_face(self.bme, hit_location, hit_face,
+                                          self.distance_threshold)
+
+        self.key_verts.append(vert)
+
+        if len(self.key_verts) < 2:
             return
 
         #  The elements just before the ones we just pushed
-        start_loc, start_face = self.key_points[-2]
+        start_vert = self.key_verts[-2]
 
         geos, fixed, close, far = geodesic_walk(
-            self.bme.verts, start_face, start_loc,
-            hit_face, self.max_iters)
+            self.bme.verts, start_vert, vert,
+            self.max_iters
+        )
 
         path_elements, path = gradient_descent(
-            geos, hit_face, hit_location, self.epsilon)
+            geos, vert, self.epsilon)
 
-        self.cleanup_path(start_loc, hit_location, path)
+        # Gradient goes from vert to start_vert
+        path.reverse()
 
         self.path_segments.append(path)
 
@@ -105,20 +116,21 @@ class GeoPath(object):
 
         # I have a segment before point
         if point_pos > 0:
-            start_loc, start_face = self.key_points[point_pos-1]
-            end_loc, end_face = self.key_points[point_pos]
+            start_vert = self.key_verts[point_pos-1]
+            end_vert = self.key_verts[point_pos]
             self.redo_geodesic_segment(
-                point_pos-1, start_loc, start_face, end_loc, end_face, 0)
+                point_pos-1, start_vert, end_vert, 0)
 
         # I have a segment after point
-        if point_pos < len(self.key_points)-1:
-            start_loc, start_face = self.key_points[point_pos+1]
-            end_loc, end_face = self.key_points[point_pos]
+        if point_pos < len(self.key_verts)-1:
+            start_vert = self.key_verts[point_pos+1]
+            end_vert = self.key_verts[point_pos]
             self.redo_geodesic_segment(
-                point_pos, start_loc, start_face, end_loc, end_face, 1)
+                point_pos, start_vert, end_vert, 1)
 
         # Finally move the key_point
-        self.key_points[point_pos] = (hit_loc, hit_face)
+        self.key_verts[point_pos] = self.decide_vert_from_face(
+            self.bme, hit_loc, hit_face, self.distance_threshold)
 
     def grab_start(self):
 
@@ -128,8 +140,8 @@ class GeoPath(object):
         self.selected_point_index = self.hover_point_index
         self.hover_point_index = None
 
-        self.grab_undo_loc, self.grab_undo_face = \
-            self.key_points[self.selected_point_index]
+        self.grab_undo_vert = \
+            self.key_verts[self.selected_point_index]
 
         # start, only add the segment with its same index
         if self.selected_point_index == 0:
@@ -137,7 +149,7 @@ class GeoPath(object):
                 self.path_segments[self.selected_point_index]
             )
         # end, only the previous one
-        elif self.selected_point_index == len(self.key_points)-1:
+        elif self.selected_point_index == len(self.key_verts)-1:
             self.grab_undo_segment.append(
                 self.path_segments[self.selected_point_index-1]
             )
@@ -159,15 +171,15 @@ class GeoPath(object):
         if self.selected_point_index is None:
             return
 
-        self.key_points[self.selected_point_index] = \
-            (self.grab_undo_loc, self.grab_undo_face)
+        self.key_verts[self.selected_point_index] = \
+            self.grab_undo_vert
 
         # start, only add the segment with its same index
         if self.selected_point_index == 0:
             self.path_segments[self.selected_point_index] = \
                 self.grab_undo_segment[0]
         # end, only the previous one
-        elif self.selected_point_index == len(self.key_points)-1:
+        elif self.selected_point_index == len(self.key_verts)-1:
             self.path_segments[self.selected_point_index-1] = \
                 self.grab_undo_segment[0]
         # in the middle of two segments
@@ -182,8 +194,7 @@ class GeoPath(object):
         return
 
     def grab_finish(self):
-        self.grab_undo_loc = None
-        self.grab_undo_face = None
+        self.grab_undo_vert = None
         self.grab_undo_segment = []
 
         # Small trick to keep hovering on the point after releasing mouse
@@ -224,7 +235,7 @@ class GeoPath(object):
 
         # I have a segment after point
         segment_after = None
-        if point_pos < len(self.key_points)-1:
+        if point_pos < len(self.key_verts)-1:
             segment_after = self.path_segments[point_pos]
 
         if segment_before:
@@ -233,16 +244,16 @@ class GeoPath(object):
             self.path_segments.remove(segment_after)
 
         # Remove position from keypoints
-        self.key_points.pop(point_pos)
+        self.key_verts.pop(point_pos)
 
         # Redo geodesic path if needed
         if segment_before and segment_after:
-            start_loc, start_face = self.key_points[point_pos-1]
-            end_loc, end_face = self.key_points[point_pos]
+            start_vert = self.key_verts[point_pos-1]
+            end_vert = self.key_verts[point_pos]
             # Recreate the position
             self.path_segments.insert(point_pos-1, [])
             self.redo_geodesic_segment(
-                point_pos-1, start_loc, start_face, end_loc, end_face, 0)
+                point_pos-1, start_vert, end_vert, 0)
 
             # Avoid having garbage in the geo cache
             self.geo_data[0] = None
@@ -266,34 +277,36 @@ class GeoPath(object):
         hit_face = self.bme.faces[face_ind]
 
         # establish the key point
-        self.insert_key_point = (hit_loc, hit_face)
+        # self.insert_key_point = (hit_loc, hit_face)
+        self.insert_key_point = self.decide_vert_from_face(
+            self.bme, hit_loc, hit_face, self.distance_threshold)
 
         if self.is_inserting:
 
             # Reassign key point
-            self.key_points[self.insert_segment_index+1] = \
+            self.key_verts[self.insert_segment_index+1] = \
                 self.insert_key_point
 
             # First segment locations
-            start_loc, start_face = self.key_points[self.insert_segment_index]
-            end_loc, end_face = self.insert_key_point
+            start_vert = self.key_verts[self.insert_segment_index]
+            end_vert = self.insert_key_point
 
             # Recreate the segment
             self.redo_geodesic_segment(
                 self.insert_segment_index,
-                start_loc, start_face, end_loc, end_face, 0)
+                start_vert, end_vert, 0)
 
             # Second segment locations
-            start_loc, start_face = \
-                self.key_points[self.insert_segment_index+2]
+            start_vert = \
+                self.key_verts[self.insert_segment_index+2]
 
-            end_loc, end_face = \
-                self.key_points[self.insert_segment_index+1]
+            end_vert = \
+                self.key_verts[self.insert_segment_index+1]
 
             # Recreate the segment
             self.redo_geodesic_segment(
                 self.insert_segment_index+1,
-                start_loc, start_face, end_loc, end_face, 1)
+                start_vert, end_vert, 1)
 
             return
 
@@ -316,29 +329,29 @@ class GeoPath(object):
         self.path_segments.insert(self.insert_segment_index, [])
 
         # First segment locations
-        start_loc, start_face = self.key_points[self.insert_segment_index]
-        end_loc, end_face = self.insert_key_point
+        start_vert = self.key_verts[self.insert_segment_index]
+        end_vert = self.insert_key_point
 
         # Recreate the position
         self.redo_geodesic_segment(
             self.insert_segment_index,
-            start_loc, start_face, end_loc, end_face, 0)
+            start_vert, end_vert, 0)
 
         # Add the new key_point
-        self.key_points.insert(self.insert_segment_index+1,
-                               self.insert_key_point)
+        self.key_verts.insert(self.insert_segment_index+1,
+                              self.insert_key_point)
 
         # Avoid having garbage in the geo cache
         self.geo_data[0] = None
 
         # Second segment locations
-        start_loc, start_face = self.insert_key_point
-        end_loc, end_face = self.key_points[self.insert_segment_index+2]
+        start_vert = self.insert_key_point
+        end_vert = self.key_verts[self.insert_segment_index+2]
 
         # Recreate the geodesic path on next segment
         self.redo_geodesic_segment(
             self.insert_segment_index+1,
-            start_loc, start_face, end_loc, end_face, 0)
+            start_vert, end_vert, 0)
 
         # Avoid having garbage in the geo cache
         self.geo_data[0] = None
@@ -402,36 +415,30 @@ class GeoPath(object):
                                               segment_start,
                                               segment_end)[0])).length
 
-    def redo_geodesic_segment(self, segment_pos, start_loc,
-                              start_face, end_loc, end_face,
+    def redo_geodesic_segment(self, segment_pos,
+                              start_vert, end_vert,
                               cache_pos):
-
-        # Special case handling for weird algorithm behavior
-        should_reverse = cache_pos != 1
 
         # Try using the cached structure before relaunching
         # a new geodesic walk
         cached_path = self.try_continue_geodesic_walk(
-            cache_pos, end_loc, end_face)
+            cache_pos, end_vert)
 
         if cached_path:
-            self.cleanup_path(start_loc, end_loc, cached_path, should_reverse)
             self.path_segments[segment_pos] = cached_path
             return
 
         geos, fixed, close, far = geodesic_walk(
-                self.bme.verts, start_face, start_loc,
-                end_face, self.max_iters)
+                self.bme.verts, start_vert, end_vert, self.max_iters)
 
         path_elements, path = gradient_descent(
-                geos, end_face, end_loc, self.epsilon)
+                geos, end_vert, self.epsilon)
 
         self.geo_data[cache_pos] = (geos, fixed, close, far)
 
-        self.cleanup_path(start_loc, end_loc, path, should_reverse)
         self.path_segments[segment_pos] = path
 
-    def try_continue_geodesic_walk(self, cache_pos, hit_loc, hit_face):
+    def try_continue_geodesic_walk(self, cache_pos, target_vert):
 
         # Data was not cached
         if self.geo_data[cache_pos] is None:
@@ -439,13 +446,14 @@ class GeoPath(object):
 
         geos, fixed, close, far = self.geo_data[cache_pos]
 
-        if not all([v in fixed for v in hit_face.verts]):
+        if target_vert not in fixed:
             continue_geodesic_walk(
+                target_vert,
                 geos, fixed, close, far,
-                hit_face, self.max_iters)
+                self.max_iters)
 
         path_elements, path = gradient_descent(
-            geos, hit_face, hit_loc, self.epsilon)
+            geos, target_vert, self.epsilon)
 
         return path
 
@@ -453,7 +461,7 @@ class GeoPath(object):
 
         mx = self.selected_obj.matrix_world
 
-        points = [mx @ location for (location, face) in self.key_points]
+        points = [mx @ location.co for location in self.key_verts]
 
         point_highlight_idx = \
             self.hover_point_index if self.hover_point_index is not None \
@@ -464,7 +472,7 @@ class GeoPath(object):
                             self.point_size, self.point_color)
 
         if point_highlight_idx is not None:
-            point = self.key_points[point_highlight_idx][0]
+            point = self.key_verts[point_highlight_idx].co
             draw.draw_3d_points(context, [mx @ point],
                                 self.point_size,
                                 self.point_select_color)
@@ -473,7 +481,7 @@ class GeoPath(object):
             draw.draw_3d_circles(context, points,
                                  self.circle_radius, self.point_color)
             if point_highlight_idx is not None:
-                point = self.key_points[point_highlight_idx][0]
+                point = self.key_verts[point_highlight_idx].co
                 draw.draw_3d_circles(context, [mx @ point],
                                      self.circle_radius,
                                      self.point_select_color)
@@ -502,23 +510,6 @@ class GeoPath(object):
                                     self.point_size * .45,
                                     self.debug_color)
 
-    def cleanup_path(self, start_location, target_location,
-                     path, should_reverse=True):
-
-        # Depending on the direction of the descent
-        # we need to apply some tinkering in the direction
-        if should_reverse:
-            path.reverse()
-            path.pop(0)
-            path.pop(0)
-            path.insert(0, start_location)
-            path.append(target_location)
-        else:
-            path.pop()
-            path.pop()
-            path.insert(0, target_location)
-            path.append(start_location)
-
     def get_whole_path(self):
         mx = self.selected_obj.matrix_world
         return reduce(lambda a, b: a + [mx @ point for point in b],
@@ -543,16 +534,75 @@ class GeoPath(object):
 
         self.hover_point_index = None
 
-        key_points = [key_point for (key_point, key_face) in self.key_points]
-
         selected_keypoints = list(
-            filter(lambda x: (x-point).length <= self.distance_threshold,
-                   key_points)
+            filter(lambda x: (x.co-point).length <= self.distance_threshold,
+                   self.key_verts)
         )
 
         if selected_keypoints:
-            self.hover_point_index = key_points.index(selected_keypoints[0])
-            # print("Point found {}".format(self.hover_point_index))
+            self.hover_point_index = \
+                self.key_verts.index(selected_keypoints[0])
+
+    def decide_vert_from_face(self, bm: BMesh, point: Vector,
+                              face: BMFace, epsilon):
+
+        # Case 1: If any of the verts in the face is close enough,
+        # start from that vert
+        distances = list(map(lambda x: (x.co-point).length,
+                         face.verts))
+        index_min = min(range(len(distances)), key=distances.__getitem__)
+
+        if distances[index_min] <= epsilon:
+            print("Case 1: Vertex close enough")
+            return face.verts[index_min]
+
+        # Case 2: Am I close enough to an edge?
+        # Create a vertex of the collision point
+        # Create four faces out of the 2 we have connecting to the new vertex
+        # set the created vertex as seed
+        distances = list(map(lambda x: self.point_edge_distance(point, x),
+                         face.edges))
+        index_min = min(range(len(distances)), key=distances.__getitem__)
+
+        if distances[index_min] <= epsilon:
+            edge = face.edges[index_min]
+            new_vert = bm.verts.new(point)
+            faces = list(edge.link_faces)
+            for f in faces:
+                opposed_vert = [v for v in f.verts if v not in edge.verts][0]
+                bm.faces.remove(f)
+                for vert in edge.verts:
+                    bm.faces.new((new_vert, vert, opposed_vert))
+
+            # Refresh the structures
+            bm.verts.ensure_lookup_table()
+            bm.edges.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+
+            print("Case 2: Edge was close enough")
+            return new_vert
+
+        # Case 3: If not case 1 or 2
+        # Create 3 faces out of the old one, all connecting to the collision
+        new_vert = bm.verts.new(point)
+        for e in face.edges:
+            bm.faces.new((e.verts[0], e.verts[1], new_vert))
+
+        bm.faces.remove(face)
+
+        # Refresh the structures
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+
+        print("Case 3: Collision was quite at the center")
+        return new_vert
+
+    def point_edge_distance(self, point, edge):
+        return (point - (intersect_point_line(point,
+                                              edge.verts[0].co,
+                                              edge.verts[1].co)[0])
+                ).length
 
 
 class Geodesic_State(Enum):

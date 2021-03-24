@@ -74,7 +74,7 @@ def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
                     else:
                         geos[nv] = T
 
-    stop_targets.update(end_vert)
+    stop_targets.add(end_vert)
 
     iters = 0
 
@@ -88,9 +88,8 @@ def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
     return geos, fixed_verts, close, far
 
 
-def continue_geodesic_walk(target_vert,
-                           geos, fixed_verts, close, far,
-                           max_iters):
+def continue_geodesic_walk(geos, fixed_verts, close, far,
+                           target_vert, max_iters):
 
     stop_targets = set()
     if target_vert not in fixed_verts:

@@ -36,56 +36,59 @@ def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
     geos = dict()
 
     fixed_verts = set()
-    close_edges = set()  # used to flip over to get new near verts
-    close = set()
+    close_verts = set()
     stop_targets = set()
 
     far = set(vertices)
 
-    # initiate seeds with 0 values
-    fixed_verts.add(start_vert)
-    far.remove(start_vert)
     geos[start_vert] = 0
 
-    vs = ring_neighbors(start_vert)
+    # Simulating face neighbors
+    neighbors = [(e.calc_length(), e.other_vert(start_vert))
+                 for e in start_vert.link_edges]
 
-    for v in vs:
-        geos[v] = (v.co - start_vert.co).length
+    for (distance, neighbor) in neighbors:
+        geos[neighbor] = distance
 
-    fixed_verts.update(vs)
+    fixed_verts.update([start_vert])
+    far.difference_update([start_vert])
 
-    # old method, adding all link faces to fixed
-    for f in start_vert.link_faces:
-        for e in f.edges:
-            # the edges which make perpendiculars
-            if e not in start_vert.link_edges:
-                close_edges.add(e)
-                nv = next_vert(e, f)
-                if nv:
-                    close.add(nv)
-                    v1 = min(e.verts, key=geos.get)
-                    v2 = max(e.verts, key=geos.get)
-                    ef = [fc for fc in e.link_faces if fc != f][0]
-                    T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
-                    if nv in geos:
-                        # perhaps min() is better but its supposed to be
-                        # monotonicly increasing!
-                        geos[nv] = max(geos[nv], T)
-                    else:
-                        geos[nv] = T
+    for ed in start_vert.link_edges:
+
+        efs = [fc for fc in ed.link_faces if start_vert in fc.verts]
+
+        if not len(efs):
+            continue  # seed on border case
+
+        ef = efs[0]
+
+        nv = ed.other_vert(start_vert)
+
+        close_verts.add(nv)
+        v1 = min(ed.verts, key=geos.get)
+        v2 = max(ed.verts, key=geos.get)
+
+        T = calc_T(nv, v2, v1, ef, geos, ignore_obtuse=True)
+
+        if nv in geos:
+            # perhaps min() is better but its supposed
+            # to be monotonicly increasing!
+            geos[nv] = max(geos[nv], T)
+        else:
+            geos[nv] = T
 
     stop_targets.add(end_vert)
 
     iters = 0
 
-    while (should_algorithm_continue(far, close, iters, max_iters,
+    while (should_algorithm_continue(far, close_verts, iters, max_iters,
                                      stop_targets)):
 
-        begin_loop(close, far, geos, fixed_verts, stop_targets)
+        begin_loop(close_verts, far, geos, fixed_verts, stop_targets)
         iters += 1
 
     print("Algorithm finished at {} iterations".format(iters))
-    return geos, fixed_verts, close, far
+    return geos, fixed_verts, close_verts, far
 
 
 def continue_geodesic_walk(geos, fixed_verts, close, far,
@@ -152,9 +155,10 @@ def calc_T(v3, v2, v1, f, geos, ignore_obtuse=False):
     x = 1/2 * (v2x**2 + Tv1**2 - Tv2**2)/(v2x)
     y = 1/2 * ((A-B)**.5)/v2x
 
-    # if isinstance(x, complex):
-    #     # print('x is complex')
-    #     # print(x)
+    if isinstance(x, complex):
+        # print('x is complex')
+        # print(x)
+        x = 0
     if isinstance(y, complex):
         # print('y is complex, setting to 0')
         # print(A-B)
@@ -195,7 +199,8 @@ def begin_loop(close, far, geos, fixed_verts, stop_targets):
 
             if cv not in close:
                 close.add(cv)
-                far.remove(cv)
+                if cv in far:
+                    far.remove(cv)
 
             T = calc_T(cv, trial_v, fv, f, geos)
             if cv in geos:
@@ -222,7 +227,9 @@ def gradient_descent(geos, start_vert, epsilon=.0000001):
         '''
         walk down from a vert
         '''
-        eds = [ed for ed in v.link_edges if geos[ed.other_vert(v)] <= geos[v]]
+        eds = [ed for ed in v.link_edges
+               if ed.other_vert(v) in geos
+               and geos[ed.other_vert(v)] <= geos[v]]
 
         if len(eds) == 0:
             # print('lowest vert or local minima')
@@ -233,7 +240,16 @@ def gradient_descent(geos, start_vert, epsilon=.0000001):
         for ed in eds:
             fs.update(ed.link_faces)
 
-        minf = min(fs, key=lambda x: sum([geos[vrt] for vrt in x.verts]))
+        ffs = []
+        for f in fs:
+            if all([vert in geos for vert in f.verts]):
+                ffs.append(f)
+
+        # fs = set(filter(lambda x: all(vert in geos for vert in x.verts), fs))
+
+        minf = min(ffs,
+                   key=lambda x:
+                   sum([geos[vrt] for vrt in x.verts if vrt in geos]))
 
         for ed in minf.edges:
             if v not in ed.verts:

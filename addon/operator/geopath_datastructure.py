@@ -60,6 +60,7 @@ class GeoPath(object):
 
     def click_add_point(self, context, x, y):
 
+        print("Calling add point")
         hit, hit_location, face_ind = self.raycast(context, x, y)
 
         if not hit:
@@ -541,6 +542,16 @@ class GeoPath(object):
         if selected_keypoints:
             self.hover_point_index = \
                 self.key_verts.index(selected_keypoints[0])
+
+    def decide_vert_from_face_2(self, bm: BMesh, point: Vector,
+                                face: BMFace, epsilon):
+        # Case 1: If any of the verts in the face is close enough,
+        # start from that vert
+        distances = list(map(lambda x: (x.co-point).length,
+                         face.verts))
+        index_min = min(range(len(distances)), key=distances.__getitem__)
+
+        return face.verts[index_min]
 
     def decide_vert_from_face(self, bm: BMesh, point: Vector,
                               face: BMFace, epsilon):

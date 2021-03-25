@@ -3,7 +3,7 @@ import bmesh
 from bpy_extras import view3d_utils
 from functools import reduce
 from enum import Enum
-from ..algorithms.geodesic_original import \
+from ..algorithms.geodesic import \
     geodesic_walk, continue_geodesic_walk, gradient_descent
 from mathutils.geometry import intersect_point_line
 from ..utility import draw

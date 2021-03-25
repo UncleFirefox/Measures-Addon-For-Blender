@@ -60,16 +60,17 @@ class GeoPath(object):
 
     def click_add_point(self, context, x, y):
 
-        print("Calling add point")
         hit, hit_location, face_ind = self.raycast(context, x, y)
 
         if not hit:
             return
 
+        print("Calling add point")
+
         hit_face = self.bme.faces[face_ind]
 
         vert = self.decide_vert_from_face(self.bme, hit_location, hit_face,
-                                          self.distance_threshold)
+                                          self.distance_threshold*0.5)
 
         self.key_verts.append(vert)
 
@@ -113,25 +114,25 @@ class GeoPath(object):
 
         # otherwise move the selected point
         point_pos = self.selected_point_index
-        hit_face = self.bme.faces[face_ind]
+
+        new_vert = self.decide_vert_from_face(
+            self.bme, hit_loc, self.bme.faces[face_ind],
+            self.distance_threshold)
 
         # I have a segment before point
         if point_pos > 0:
             start_vert = self.key_verts[point_pos-1]
-            end_vert = self.key_verts[point_pos]
             self.redo_geodesic_segment(
-                point_pos-1, start_vert, end_vert, 0)
+                point_pos-1, start_vert, new_vert, 0)
 
         # I have a segment after point
         if point_pos < len(self.key_verts)-1:
             start_vert = self.key_verts[point_pos+1]
-            end_vert = self.key_verts[point_pos]
             self.redo_geodesic_segment(
-                point_pos, start_vert, end_vert, 1)
+                point_pos, start_vert, new_vert, 1)
 
         # Finally move the key_point
-        self.key_verts[point_pos] = self.decide_vert_from_face(
-            self.bme, hit_loc, hit_face, self.distance_threshold)
+        self.key_verts[point_pos] = new_vert
 
     def grab_start(self):
 
@@ -278,7 +279,6 @@ class GeoPath(object):
         hit_face = self.bme.faces[face_ind]
 
         # establish the key point
-        # self.insert_key_point = (hit_loc, hit_face)
         self.insert_key_point = self.decide_vert_from_face(
             self.bme, hit_loc, hit_face, self.distance_threshold)
 
@@ -396,8 +396,6 @@ class GeoPath(object):
         # we can safely assume we're in the segment
         if (segment_distance <= epsilon):
             return segment_index
-            # print("Found! Segment {}, Subsegment {}".format(
-            #     segment_index, inner_segment_index))
 
         return None
 
@@ -423,7 +421,7 @@ class GeoPath(object):
         # Try using the cached structure before relaunching
         # a new geodesic walk
         cached_path = self.try_continue_geodesic_walk(
-            cache_pos, end_vert)
+            start_vert, end_vert, cache_pos)
 
         if cached_path:
             self.path_segments[segment_pos] = cached_path
@@ -439,7 +437,7 @@ class GeoPath(object):
 
         self.path_segments[segment_pos] = path
 
-    def try_continue_geodesic_walk(self, cache_pos, target_vert):
+    def try_continue_geodesic_walk(self, start_vert, end_vert, cache_pos):
 
         # Data was not cached
         if self.geo_data[cache_pos] is None:
@@ -447,13 +445,20 @@ class GeoPath(object):
 
         geos, fixed, close, far = self.geo_data[cache_pos]
 
-        if target_vert not in fixed:
+        # We'll have to recalculate
+        if start_vert not in geos or end_vert not in geos:
+            return None
+
+        if end_vert not in fixed:
             continue_geodesic_walk(
                 geos, fixed, close, far,
-                target_vert, self.max_iters)
+                end_vert, self.max_iters)
 
         path_elements, path = gradient_descent(
-            geos, target_vert, self.epsilon)
+            geos, end_vert, self.epsilon)
+
+        if cache_pos == 0:
+            path.reverse
 
         return path
 
@@ -583,11 +588,16 @@ class GeoPath(object):
                 bm.faces.remove(f)
                 for vert in edge.verts:
                     bm.faces.new((new_vert, vert, opposed_vert))
+            bm.edges.remove(edge)
 
             # Refresh the structures
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
+
+            # Update object back
+            bm.to_mesh(self.selected_obj.data)
+            self.selected_obj.data.update()
 
             print("Case 2: Edge was close enough")
             return new_vert
@@ -604,6 +614,10 @@ class GeoPath(object):
         bm.verts.ensure_lookup_table()
         bm.edges.ensure_lookup_table()
         bm.faces.ensure_lookup_table()
+
+        # Update object back
+        bm.to_mesh(self.selected_obj.data)
+        self.selected_obj.data.update()
 
         print("Case 3: Collision was quite at the center")
         return new_vert

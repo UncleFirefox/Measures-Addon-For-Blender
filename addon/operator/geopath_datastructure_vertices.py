@@ -93,9 +93,9 @@ class GeoPath(object):
 
         self.path_segments.append(path)
 
-        print("Added segment with index {:} which goes from {} to {}"
-              .format(len(self.path_segments)-1, path[0], path[-1])
-              )
+        # print("Added segment with index {:} which goes from {} to {}"
+        #       .format(len(self.path_segments)-1, path[0], path[-1])
+        #       )
 
         self.geo_data.append((geos, fixed, close, far))
 

@@ -5,8 +5,8 @@ import traceback
 
 from ..utility.draw import draw_messages
 from ..utility.ray import mouse_raycast_to_scene
-from .geopath_datastructure import GeoPath, Geodesic_State
-# from .geopath_datastructure_vertices import GeoPath, Geodesic_State
+# from .geopath_datastructure import GeoPath, Geodesic_State
+from .geopath_datastructure_vertices import GeoPath, Geodesic_State
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):

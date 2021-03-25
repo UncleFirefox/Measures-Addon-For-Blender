@@ -87,7 +87,7 @@ def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
         begin_loop(close_verts, far, geos, fixed_verts, stop_targets)
         iters += 1
 
-    print("Algorithm finished at {} iterations".format(iters))
+    # print("Algorithm finished at {} iterations".format(iters))
     return geos, fixed_verts, close_verts, far
 
 
@@ -106,7 +106,7 @@ def continue_geodesic_walk(geos, fixed_verts, close, far,
         begin_loop(close, far, geos, fixed_verts, stop_targets)
         iters += 1
 
-    print("Algorithm finished at {} iterations".format(iters))
+    # print("Algorithm finished at {} iterations".format(iters))
     return
 
 

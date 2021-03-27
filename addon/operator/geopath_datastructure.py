@@ -554,6 +554,9 @@ class GeoPath(object):
             self.hover_point_index = key_points.index(selected_keypoints[0])
             # print("Point found {}".format(self.hover_point_index))
 
+    def finish(self):
+        self.bme.free()
+
 
 class Geodesic_State(Enum):
     POINTS = 1

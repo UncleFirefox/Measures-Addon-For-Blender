@@ -5,7 +5,8 @@ import traceback
 
 from ..utility.draw import draw_messages
 from ..utility.ray import mouse_raycast_to_scene
-from .geopath_datastructure import GeoPath, Geodesic_State
+# from .geopath_datastructure import GeoPath, Geodesic_State
+from .geopath_datastructure_vertices import GeoPath, Geodesic_State
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):
@@ -51,6 +52,7 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         elif event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
             context.window.cursor_set("DEFAULT")
             self.remove_shaders(context)
+            self.geopath.finish()
             return {'CANCELLED'}
 
         # Free navigation
@@ -213,6 +215,8 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
         obj.select_set(True)
 
         bm.free()
+
+        self.geopath.finish()
 
         return {'FINISHED'}
 

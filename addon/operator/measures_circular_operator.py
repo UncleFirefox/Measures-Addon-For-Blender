@@ -215,6 +215,3 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
             )
 
         draw_messages(context, messages)
-
-    def cancel(self, context):
-        print("End")

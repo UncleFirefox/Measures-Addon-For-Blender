@@ -238,6 +238,7 @@ class GeoPath(object):
         if not hit:
             self.insert_cursor_info = None
             self.insert_segment_index = None
+            self.insert_vert = None
             context.window.cursor_set("DEFAULT")
             return
 
@@ -302,6 +303,14 @@ class GeoPath(object):
         insert_vert = self.decide_vert_from_face(
             location, face, self.distance_threshold)
 
+        # Very edge case but if we get a vertex
+        # that was already assigned this will protect
+        # from deleting and recreating geometry
+        # making the whole chain blow up
+        if insert_vert in self.key_verts:
+            # print("I wont do insertion here, bye!")
+            return
+
         # Add new segment
         self.path_segments.insert(self.insert_segment_index, [])
 
@@ -327,7 +336,8 @@ class GeoPath(object):
             self.insert_segment_index+1,
             start_vert, end_vert)
 
-        # Set a flag por grabbing until not released
+        # Set vertex property that will remain
+        # until we release the mouse button
         self.insert_vert = insert_vert
 
     def insert_finish(self):

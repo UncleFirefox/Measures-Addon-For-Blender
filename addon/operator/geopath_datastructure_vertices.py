@@ -26,6 +26,10 @@ class GeoPath(object):
         self.bme.verts.ensure_lookup_table()
         self.bme.edges.ensure_lookup_table()
         self.bme.faces.ensure_lookup_table()
+
+        # Keep a backup of the original structure
+        self.original_bme = self.bme.copy()
+
         self.sub_vert_undo = dict()
 
         non_tris = [f for f in self.bme.faces if len(f.verts) > 3]
@@ -621,6 +625,12 @@ class GeoPath(object):
                                               edge.verts[0].co,
                                               edge.verts[1].co)[0])
                 ).length
+
+    def finish(self):
+        self.bme.free()
+        self.bme = self.original_bme
+        self.save_bm_to_object()
+        self.bme.free()
 
 
 class Geodesic_State(Enum):

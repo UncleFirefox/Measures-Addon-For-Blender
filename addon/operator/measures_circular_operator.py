@@ -33,6 +33,9 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
     def poll(cls, context):
         # If you want to verify the conditions of your operator
         # before it launches, put your code here
+        if context.object is None:
+            return False
+
         return True
 
     # Called after poll
@@ -41,6 +44,18 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         self.height = 0
         self.hit_point = None
         self.total_length = 0
+
+        self.bm = bmesh.new()
+        self.bm.from_object(
+            context.object,  # default to selected object
+            context.evaluated_depsgraph_get()
+        )
+        bmesh.ops.transform(
+            self.bm,
+            verts=self.bm.verts,
+            matrix=context.object.matrix_world
+        )
+
         # Do some setup
         self.draw_handle = bpy.types.SpaceView3D.draw_handler_add(
             self.safe_draw_shader_2d, (context,), 'WINDOW', 'POST_PIXEL')
@@ -88,60 +103,51 @@ class MEASURES_CIRCULAR_OT(bpy.types.Operator):
         layout.prop(self, 'normal_rotation')
 
     def execute(self, context):
-        dg = context.evaluated_depsgraph_get()
-        ob = context.object  # default to selected object
 
-        if ob:
-            rotation = Matrix()
+        rotation = Matrix()
 
-            if self.normal_rotation != Euler():
-                rotation = self.normal_rotation.to_matrix().to_4x4()
+        if self.normal_rotation != Euler():
+            rotation = self.normal_rotation.to_matrix().to_4x4()
 
-            plane_co = self.hit_point
-            if self.height != 0:
-                plane_co.z = self.height
+        plane_co = self.hit_point
+        if self.height != 0:
+            plane_co.z = self.height
 
-            plane_no = rotation @ Vector((0, 0, 1))
-            bm = bmesh.new()
-            bm.from_object(ob, dg)
-            bmesh.ops.transform(
-                bm,
-                verts=bm.verts,
-                matrix=ob.matrix_world
-            )
+        plane_no = rotation @ Vector((0, 0, 1))
+        bm = self.bm.copy()
 
-            # Perform bisection
-            bmesh.ops.bisect_plane(
-                bm,
-                geom=bm.faces[:] + bm.edges[:] + bm.verts[:],
-                clear_inner=True,
-                clear_outer=True,
-                plane_co=plane_co,
-                plane_no=plane_no
-            )
+        # Perform bisection
+        bmesh.ops.bisect_plane(
+            bm,
+            geom=bm.faces[:] + bm.edges[:] + bm.verts[:],
+            clear_inner=True,
+            clear_outer=True,
+            plane_co=plane_co,
+            plane_no=plane_no
+        )
 
-            # Bisection cleanup
-            closest_edge = self.find_closest_edge(bm, self.hit_point)
+        # Bisection cleanup
+        closest_edge = self.find_closest_edge(bm, self.hit_point)
 
-            # Could be that the angle of plane finds
-            # no vertices after bisection
-            if closest_edge is not None:
-                vertex_list = self.get_reachable_vertices(closest_edge)
-                for v in [v for v in bm.verts if v not in vertex_list]:
-                    bm.verts.remove(v)
+        # Could be that the angle of plane finds
+        # no vertices after bisection
+        if closest_edge is not None:
+            vertex_list = self.get_reachable_vertices(closest_edge)
+            for v in [v for v in bm.verts if v not in vertex_list]:
+                bm.verts.remove(v)
 
-                # Object creation and addition to scene
-                bisect_obj = bpy.data.objects.get("Bisect")
-                if bisect_obj is not None:
-                    bpy.data.objects.remove(bisect_obj, do_unlink=True)
+            # Object creation and addition to scene
+            bisect_obj = bpy.data.objects.get("Bisect")
+            if bisect_obj is not None:
+                bpy.data.objects.remove(bisect_obj, do_unlink=True)
 
-                me = bpy.data.meshes.new("Bisect")
-                bm.to_mesh(me)
-                ob = bpy.data.objects.new("Bisect", me)
-                context.collection.objects.link(ob)
-                ob.select_set(True)
+            me = bpy.data.meshes.new("Bisect")
+            bm.to_mesh(me)
+            ob = bpy.data.objects.new("Bisect", me)
+            context.collection.objects.link(ob)
+            ob.select_set(True)
 
-            bm.free()
+        bm.free()
 
         return {'FINISHED'}
 

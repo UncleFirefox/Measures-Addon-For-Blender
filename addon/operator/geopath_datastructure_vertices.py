@@ -118,6 +118,14 @@ class GeoPath(object):
         point_pos = self.selected_point_index
         vert_moving = self.key_verts[point_pos]
 
+        # If a vertex of the raycasted face is found in our key verts
+        # it means we might make a mess if we carry on
+        # we won't do any changes
+        if any(x != vert_moving and x in self.key_verts
+               for x in self.bme.faces[face_ind].verts):
+            # print("I won't do any grabbing, bye!")
+            return
+
         # Before deciding, try undoing
         if self.try_undo_subdivision(vert_moving) is True:
             # We'll need to do another raycast to get the new hit face
@@ -166,8 +174,6 @@ class GeoPath(object):
         return
 
     def grab_finish(self):
-
-        # print("grab finish")
 
         # Small trick to keep hovering on the point after releasing mouse
         self.hover_point_index = self.selected_point_index

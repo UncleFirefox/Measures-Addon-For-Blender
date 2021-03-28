@@ -16,7 +16,8 @@ from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
 
 
-def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
+def geodesic_walk(vertices, start_vert, end_vert,
+                  max_iters=100000, epsilon=.0000001):
 
     '''
     vertices - list of vertices
@@ -87,27 +88,14 @@ def geodesic_walk(vertices, start_vert, end_vert, max_iters=10000):
         begin_loop(close_verts, far, geos, fixed_verts, stop_targets)
         iters += 1
 
-    # print("Algorithm finished at {} iterations".format(iters))
-    return geos, fixed_verts, close_verts, far
+    path_elements, path = gradient_descent(geos, end_vert, epsilon)
 
+    # Resulting path from grading descent
+    # goes from end_vert to start_vert,
+    # were interested in the opposite
+    path.reverse()
 
-def continue_geodesic_walk(geos, fixed_verts, close, far,
-                           target_vert, max_iters):
-
-    stop_targets = set()
-    if target_vert not in fixed_verts:
-        stop_targets.add(target_vert)
-
-    iters = 0
-
-    while (should_algorithm_continue(far, close, iters, max_iters,
-                                     stop_targets)):
-
-        begin_loop(close, far, geos, fixed_verts, stop_targets)
-        iters += 1
-
-    # print("Algorithm finished at {} iterations".format(iters))
-    return
+    return path
 
 
 def calc_T(v3, v2, v1, f, geos, ignore_obtuse=False):

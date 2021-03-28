@@ -6,8 +6,7 @@ from functools import reduce
 from enum import Enum
 
 from mathutils import Vector
-from ..algorithms.geodesic_vertices import \
-    geodesic_walk, gradient_descent
+from ..algorithms.geodesic_vertices import geodesic_walk
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
 
@@ -46,8 +45,6 @@ class GeoPath(object):
         self.line_thickness = 3
         self.debug_color = (1, 1, 0, 1)
 
-        self.epsilon = .0000001
-        self.max_iters = 100000
         self.distance_threshold = 0.006
 
         # geos, fixed, close, far
@@ -67,8 +64,6 @@ class GeoPath(object):
         if not hit:
             return
 
-        # print("Calling add point")
-
         hit_face = self.bme.faces[face_ind]
 
         vert = self.decide_vert_from_face(hit_location, hit_face,
@@ -82,26 +77,13 @@ class GeoPath(object):
         #  The elements just before the ones we just pushed
         start_vert = self.key_verts[-2]
 
-        geos, fixed, close, far = geodesic_walk(
-            self.bme.verts, start_vert, vert,
-            self.max_iters
+        path = geodesic_walk(
+            self.bme.verts, start_vert, vert
         )
-
-        path_elements, path = gradient_descent(
-            geos, vert, self.epsilon)
-
-        # Gradient goes from vert to start_vert
-        path.reverse()
 
         self.path_segments.append(path)
 
-        # print("Added segment with index {:} which goes from {} to {}"
-        #       .format(len(self.path_segments)-1, path[0], path[-1])
-        #       )
-
     def grab_mouse_move(self, context, x, y):
-
-        # print("grab move")
 
         # At least one segment
         if len(self.path_segments) == 0:
@@ -157,8 +139,6 @@ class GeoPath(object):
 
     def grab_start(self):
 
-        # print("grab start")
-
         if (self.hover_point_index is None):
             return
 
@@ -169,10 +149,7 @@ class GeoPath(object):
 
     def grab_cancel(self):
 
-        # print("grab cancel")
-
         self.hover_point_index = None
-
         self.selected_point_index = None
 
         return
@@ -405,25 +382,9 @@ class GeoPath(object):
     def redo_geodesic_segment(self, segment_pos,
                               start_vert, end_vert):
 
-        # print("Redoing segment {} from {} to {}"
-        #       .format(segment_pos, start_vert.co, end_vert.co))
-
-        # print("Currently from {} to {}"
-        #       .format(self.path_segments[segment_pos][0],
-        #               self.path_segments[segment_pos][-1]))
-
-        geos, fixed, close, far = geodesic_walk(
-                self.bme.verts, start_vert, end_vert, self.max_iters)
-
-        path_elements, path = gradient_descent(
-                geos, end_vert, self.epsilon)
-
-        if path[-1] == start_vert.co:
-            path.reverse()
+        path = geodesic_walk(self.bme.verts, start_vert, end_vert)
 
         self.path_segments[segment_pos] = path
-
-        # print("Result {} to {}".format(path[0], path[-1]))
 
     def draw(self, context, plugin_state):
 

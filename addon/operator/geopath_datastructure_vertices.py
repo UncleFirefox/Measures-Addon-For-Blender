@@ -6,7 +6,8 @@ from functools import reduce
 from enum import Enum
 
 from mathutils import Vector
-from ..algorithms.geodesic_vertices import geodesic_walk
+# from ..algorithms.geodesic_vertices import geodesic_walk
+from ..algorithms.geodesic_edge_flipping import geodesic_walk
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
 
@@ -78,7 +79,7 @@ class GeoPath(object):
         start_vert = self.key_verts[-2]
 
         path = geodesic_walk(
-            self.bme.verts, start_vert, vert
+            self.bme, start_vert, vert
         )
 
         self.path_segments.append(path)
@@ -382,7 +383,7 @@ class GeoPath(object):
     def redo_geodesic_segment(self, segment_pos,
                               start_vert, end_vert):
 
-        path = geodesic_walk(self.bme.verts, start_vert, end_vert)
+        path = geodesic_walk(self.bme, start_vert, end_vert)
 
         self.path_segments[segment_pos] = path
 

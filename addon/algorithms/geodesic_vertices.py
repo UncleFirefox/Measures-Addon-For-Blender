@@ -12,21 +12,24 @@ http://saturno.ge.imati.cnr.it/ima/personal-old/attene/PersonalPage/pdf/steepest
 
 # blender imports
 import bmesh
+from bmesh.types import BMesh
 from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
 
 
-def geodesic_walk(vertices, start_vert, end_vert,
+def geodesic_walk(bm : BMesh, start_vert, end_vert,
                   max_iters=100000, epsilon=.0000001):
 
     '''
-    vertices - list of vertices
+    bm - BMesh of the object
 
     start_vert - Starting Vertex -> BMVert
 
     end_vert - Ending Vertex -> BMVert
 
     max_iters - limits number of marching steps
+
+    epsilon - distance threshold for gradient descent
     '''
 
     # Copy the bmesh to do manipulations
@@ -40,7 +43,7 @@ def geodesic_walk(vertices, start_vert, end_vert,
     close_verts = set()
     stop_targets = set()
 
-    far = set(vertices)
+    far = set(bm.verts)
 
     geos[start_vert] = 0
 

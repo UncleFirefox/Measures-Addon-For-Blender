@@ -12,12 +12,11 @@ https://github.com/nmwsharp/flip-geodesics-demo
 '''
 
 from enum import Enum
-from functools import reduce
 from math import fabs, inf, degrees, pi
 from queue import PriorityQueue
 from typing import Tuple
 
-from bmesh.types import BMEdge, BMVert, BMesh
+from bmesh.types import BMEdge, BMFace, BMVert, BMesh
 from mathutils import Matrix, Vector
 
 EPS_ANGLE: float = 1e-5
@@ -76,14 +75,14 @@ def geodesic_walk(bm: BMesh, start_vert: BMVert, end_vert: BMVert,
     for e1, e2 in zip(edge_path[:-1], edge_path[1:]):
         queue.put((min(get_angles(e1, e2)), (e1, e2)))
 
-    iterative_shorten(queue, 50000)
+    iterative_shorten(bm_copy, queue, 50000)
 
     bm_copy.free()
 
     return None
 
 
-def iterative_shorten(queue: PriorityQueue, maxIterations: int):
+def iterative_shorten(bm: BMesh, queue: PriorityQueue, maxIterations: int):
 
     iterations = 0
 
@@ -105,7 +104,7 @@ def iterative_shorten(queue: PriorityQueue, maxIterations: int):
 
         # TODO: Determine if wedge_is_clear is really necessary
 
-        locally_shorten_at(path_segment, angle_type)
+        locally_shorten_at(bm, path_segment, angle_type)
 
         iterations += 1
 
@@ -124,7 +123,8 @@ def get_minwedge_angle(path_segment: Tuple[BMEdge, BMEdge]) \
     return (angle_type, min(left_angle, right_angle))
 
 
-def locally_shorten_at(path_segment: Tuple[BMEdge, BMEdge],
+def locally_shorten_at(bm: BMesh,
+                       path_segment: Tuple[BMEdge, BMEdge],
                        angle_type: Angle_Type):
 
     if angle_type == Angle_Type.SHORTEST:
@@ -157,7 +157,8 @@ def locally_shorten_at(path_segment: Tuple[BMEdge, BMEdge],
     edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
     s_curr: BMEdge = edges_in_wedge.pop(0)
     while s_curr != s_next:
-        if flip_edge_if_possible(s_curr, 1e-6):
+        if is_edge_flippable(s_curr):
+            flip_edge(bm, s_curr)
             # flips++
             # Flip happened! Update data and continue processing
             # Re-check previous edge
@@ -195,8 +196,57 @@ def locally_shorten_at(path_segment: Tuple[BMEdge, BMEdge],
     print(new_path)
 
 
-def flip_edge_if_possible(s_curr: BMEdge, possible_eps: float) -> bool:
-    return False
+def is_edge_flippable(e: BMEdge) -> bool:
+    # TODO: if (isFixed(e)) return false;
+
+    # According to the paper
+    # Definition. An edge ij is flippable if i and j have
+    # degree > 1, and the triangles containing ij form a
+    # convex quadrilateral when laid out in the plane.
+
+    # /!\ WARNING: is_convex won't work if the normals
+    # on the connected faces are not valid
+    # be careful when recreating geometry with BMesh
+    # alternatively we could use calc_face_angle_signed
+    if (len(e.verts[0].link_edges) < 2
+       or len(e.verts[1].link_edges) < 2
+       or not e.is_convex):
+        return False
+
+    # The code below corresponds to SurfaceMesh::flip(Edge eFlip)
+    # it didn't make sense to have a separate method
+    if e.is_boundary:
+        return False
+
+    # TODO: Edge and face orientation checks
+    # this might introduce side-effects reorienting faces
+
+    # Get Edges of first face
+    # e0_faces = e.link_faces[0].edges
+
+    # Get Edges of second face
+    # e1_faces = e.link_faces[1].edges
+    # [...]
+
+    return True
+
+
+def flip_edge(bm: BMesh, e: BMEdge) -> BMEdge:
+
+    new_faces: "list[BMFace]" = []
+    for face in list(e.link_faces):
+        opposite_vert: BMVert = [
+            v for v in face.verts
+            if v not in e.verts][0]
+        new_faces.append(bm.faces.new((e.verts[0], e.verts[1], opposite_vert)))
+        bm.faces.remove(face)
+
+    new_edge = [edge for edge in new_faces[0].edges
+                if edge.verts not in e.verts][0]
+
+    bm.edges.remove(e)
+
+    return new_edge
 
 
 def get_edges_in_wedge(s_prev: BMEdge, s_next: BMEdge) -> "list[BMEdge]":

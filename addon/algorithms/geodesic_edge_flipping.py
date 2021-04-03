@@ -12,12 +12,15 @@ https://github.com/nmwsharp/flip-geodesics-demo
 '''
 
 from enum import Enum
+from functools import reduce
 from math import fabs, inf, degrees, pi
 from queue import PriorityQueue
 from typing import Tuple
+from bl_operators.bmesh.find_adjacent import elems_depth_measure
 
 from bmesh.types import BMEdge, BMFace, BMVert, BMesh
 from mathutils import Matrix, Vector
+from mathutils.geometry import intersect_line_line
 
 EPS_ANGLE: float = 1e-5
 
@@ -131,11 +134,6 @@ def locally_shorten_at(bm: BMesh,
         # nothing to do here
         return
 
-    # TODO: This does not seem to be used...
-    # prev_vert, middle_vert, next_vert = get_path_segment_verts(path_segment)
-
-    # TODO: Special case for loop consisting of a single self-edge?
-
     # Compute the initial path length
     init_path_length = \
         path_segment[0].calc_length() + path_segment[1].calc_length()
@@ -155,28 +153,45 @@ def locally_shorten_at(bm: BMesh,
 
     # == Main logic: flip until a shorter path exists
     edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
-    s_curr: BMEdge = edges_in_wedge.pop(0)
-    while s_curr != s_next:
-        if is_edge_flippable(s_curr):
-            flip_edge(bm, s_curr)
-            # flips++
-            # Flip happened! Update data and continue processing
-            # Re-check previous edge
-            s_curr = None
-        else:
-            s_curr = None  # advance to next edge
+
+    # Should not happen if angle_type was SHORTEST but you never know
+    if edges_in_wedge == 2:
+        return
+
+    new_path: "list[BMEdge]" = []
+    pivot_vert: BMVert = get_common_vert(s_prev, s_next)
+    for i in range(1, len(edges_in_wedge)-1):
+
+        if not is_edge_flippable(edges_in_wedge[i],
+                                 edges_in_wedge[i-1],
+                                 edges_in_wedge[i+1]):
+
+            other_vert: BMVert = edges_in_wedge[i].other_vert(pivot_vert)
+
+            # For now we know we'll need to take the
+            # part on the outer arc
+            next_edge = [ed for ed in other_vert.link_edges
+                         if ed.other_vert(other_vert) ==
+                         edges_in_wedge[i-1].other_vert(pivot_vert)][0]
+
+            new_path.append(next_edge)
+            continue
+
+        e1, e2, updated_wedge = flip_edge(bm, edges_in_wedge[i], pivot_vert)
+        print("Edge was flipped!")
+        print("e1 is {} e2 is {} updated wedge is {}"
+              .format(e1, e2, updated_wedge))
+
+        # After altering the geometry, we'll add the path plus
+        # the new edge to compare against in next iterations
+        new_path.append(e1)
+        new_path.append(e2)
+        edges_in_wedge[i] = updated_wedge
 
     # Build the list of edges representing the new path
     # measure the length of the new path along the boundary
-    new_path_length: float = .0
-    s_curr = edges_in_wedge[0]
-    new_path: "list[BMEdge]" = []
-    while True:
-        new_path.append(s_curr)
-        new_path_length += s_curr.calc_length()
-        if (s_curr == s_next):
-            break
-        s_curr = None
+    new_path_length: float = reduce(lambda a, b: a + b.calc_length(),
+                                    new_path, .0)
 
     # Make sure the new path is actually shorter
     # (this would never happen in the Reals,
@@ -196,25 +211,45 @@ def locally_shorten_at(bm: BMesh,
     print(new_path)
 
 
-def is_edge_flippable(e: BMEdge) -> bool:
+def is_edge_flippable(e: BMEdge, prev_e: BMEdge, next_e: BMEdge) -> bool:
+
     # TODO: if (isFixed(e)) return false;
+
+    # Check Bi < pi
+    common_vert: BMVert = get_common_vert(e, prev_e)
+    v0: Vector = prev_e.other_vert(common_vert).co - common_vert.co
+    v1: Vector = next_e.other_vert(common_vert).co - common_vert.co
+
+    # Path is straightened enough
+    # nothing to do here
+    if v1.angle(v0) >= pi:
+        return False
 
     # According to the paper
     # Definition. An edge ij is flippable if i and j have
     # degree > 1, and the triangles containing ij form a
     # convex quadrilateral when laid out in the plane.
 
+    # Degree check
+    if len(e.verts[0].link_edges) < 2:
+        return False
+    if len(e.verts[1].link_edges) < 2:
+        return False
+
+    # Convexity check
     # /!\ WARNING: is_convex won't work if the normals
     # on the connected faces are not valid
     # be careful when recreating geometry with BMesh
     # alternatively we could use calc_face_angle_signed
-    if (len(e.verts[0].link_edges) < 2
-       or len(e.verts[1].link_edges) < 2
-       or not e.is_convex):
+    if not e.is_convex:
         return False
 
-    # The code below corresponds to SurfaceMesh::flip(Edge eFlip)
-    # it didn't make sense to have a separate method
+    # Manifold check
+    # TODO: Should we also check self-intersecion vertices?
+    if not e.is_manifold:
+        return False
+
+    # Boundary check
     if e.is_boundary:
         return False
 
@@ -231,22 +266,63 @@ def is_edge_flippable(e: BMEdge) -> bool:
     return True
 
 
-def flip_edge(bm: BMesh, e: BMEdge) -> BMEdge:
+def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
+              -> Tuple[BMEdge, BMEdge]:
 
-    new_faces: "list[BMFace]" = []
+    # TODO: If the angle is completely flat
+    # we could do a simpler edge flipping
+
+    # As we don't do the projection with the signpost datastructure
+    # what we'll do is simulate an edge flip performing an intersection
+    # and creating 4 faces
+    op_vert_1: BMVert = get_opposed_vert(e.link_faces[0], e)
+    op_vert_2: BMVert = get_opposed_vert(e.link_faces[1], e)
+
+    # Do the intersection, choosing p1 or p2 would result
+    # on same vector
+    p1, p2 = intersect_line_line(e.verts[0].co, e.verts[1].co,
+                                 op_vert_1.co, op_vert_2.co)
+
     for face in list(e.link_faces):
-        opposite_vert: BMVert = [
-            v for v in face.verts
-            if v not in e.verts][0]
-        new_faces.append(bm.faces.new((e.verts[0], e.verts[1], opposite_vert)))
         bm.faces.remove(face)
 
-    new_edge = [edge for edge in new_faces[0].edges
-                if edge.verts not in e.verts][0]
+    intersection_vert = bm.verts.new(p1)
+
+    create_face_with_ccw_normal(bm, op_vert_1, intersection_vert, e.verts[0])
+    create_face_with_ccw_normal(bm, op_vert_1, intersection_vert, e.verts[1])
+    create_face_with_ccw_normal(bm, op_vert_2, intersection_vert, e.verts[0])
+    create_face_with_ccw_normal(bm, op_vert_2, intersection_vert, e.verts[1])
+
+    e1 = [ed for ed in op_vert_1.link_edges
+          if intersection_vert in ed.verts][0]
+    e2 = [ed for ed in op_vert_1.link_edges
+          if intersection_vert in ed.verts][0]
 
     bm.edges.remove(e)
 
-    return new_edge
+    updated_edge: BMEdge = [ed for ed in pivot_vert.link_edges
+                            if ed.other_vert(pivot_vert)
+                            == intersection_vert][0]
+
+    # Ensure the order of edge follows the order to reach the path
+    # i.e ensure going from e1 to updated edge is CCW
+    if get_angles_signed(e1, updated_edge)[0] < 0:
+        return (e1, updated_edge)
+    else:
+        return (e2, updated_edge)
+
+
+def create_face_with_ccw_normal(bm: BMesh,
+                                v1: BMVert, v2: BMVert, v3: BMVert) -> BMFace:
+    # Detect ccw
+    if get_angle_signed((v1.co-v2.co), (v3.co-v2.co)) < 0:
+        return bm.faces.new((v3, v2, v1))
+    else:
+        return bm.faces.new((v1, v2, v3))
+
+
+def get_opposed_vert(face: BMFace, edge: BMEdge) -> BMVert:
+    return [v for v in face.verts if v not in edge.verts][0]
 
 
 def get_edges_in_wedge(s_prev: BMEdge, s_next: BMEdge) -> "list[BMEdge]":
@@ -258,21 +334,15 @@ def get_edges_in_wedge(s_prev: BMEdge, s_next: BMEdge) -> "list[BMEdge]":
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
 
     # We'll get only the left angle
-    edges_with_angle = map(lambda e: (get_angles_signed(s_prev, e)[0], e),
-                           pivot_vert.link_edges)
+    edges_with_angle = list(map(lambda e: (get_angles_signed(s_prev, e)[0], e),
+                            pivot_vert.link_edges))
 
-    edges = \
-        list(
-            map(lambda x: x[1],
-                sorted(
-                    filter(lambda x:
-                           # filter anti clockwise edges
-                           # check only the ones inside the wedge
-                           x[0] > 0 and x[0] < max_angle,
-                           edges_with_angle),
-                    key=lambda x: x[0])  # sort by angle
-                )
-        )
+    edges_filtered = list(filter(lambda x: x[0] >= 0 and x[0] <= max_angle,
+                          edges_with_angle))
+
+    edges_sorted = list(sorted(edges_filtered, key=lambda x: x[0]))
+
+    edges = list(map(lambda x: x[1], edges_sorted))
 
     return edges
 
@@ -345,7 +415,8 @@ def get_angle_signed(v1: Vector, v2: Vector) -> float:
     elif det < 0:  # anticlockwise
         return -angle
     else:
-        print("Why am I here?")
+        # print("Why am I here?")
+        # print("Angle was {}".format(angle))
         return angle
 
 

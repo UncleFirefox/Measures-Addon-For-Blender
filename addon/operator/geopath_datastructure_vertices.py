@@ -6,10 +6,11 @@ from functools import reduce
 from enum import Enum
 
 from mathutils import Vector
-# from ..algorithms.geodesic_vertices import geodesic_walk
-from ..algorithms.geodesic_edge_flipping import geodesic_walk
+from ..algorithms.geodesic_vertices import geodesic_walk
+# from ..algorithms.geodesic_edge_flipping import geodesic_walk
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
+from ..utility.geometry import create_face_with_ccw_normal
 
 
 class GeoPath(object):
@@ -504,7 +505,8 @@ class GeoPath(object):
                 opposed_vert = [v for v in f.verts if v not in edge.verts][0]
                 bm.faces.remove(f)
                 for vert in edge.verts:
-                    bm.faces.new((new_vert, vert, opposed_vert))
+                    create_face_with_ccw_normal(
+                        bm, new_vert, vert, opposed_vert)
 
             # Store undo of vertex
             self.sub_vert_undo[new_vert] = (
@@ -523,7 +525,8 @@ class GeoPath(object):
         # Create 3 faces out of the old one, all connecting to the collision
         new_vert = bm.verts.new(point)
         for e in face.edges:
-            bm.faces.new((e.verts[0], e.verts[1], new_vert))
+            create_face_with_ccw_normal(
+                bm, e.verts[0], e.verts[1], new_vert)
 
         bm.faces.remove(face)
 
@@ -565,7 +568,7 @@ class GeoPath(object):
             for edge in edges:
                 self.bme.edges.remove(edge)
             for vert in [v for v in verts if v not in {vert1, vert2}]:
-                self.bme.faces.new((vert1, vert2, vert))
+                create_face_with_ccw_normal(self.bme, vert1, vert2, vert)
 
         elif action is Geodesic_Subdivide.FACE:
             verts = [e.other_vert(in_vert) for e in in_vert.link_edges]
@@ -575,7 +578,8 @@ class GeoPath(object):
                 self.bme.faces.remove(face)
             for edge in edges:
                 self.bme.edges.remove(edge)
-            self.bme.faces.new((verts[0], verts[1], verts[2]))
+            create_face_with_ccw_normal(
+                self.bme, verts[0], verts[1], verts[2])
 
         self.sub_vert_undo.pop(in_vert)
         self.bme.verts.remove(in_vert)

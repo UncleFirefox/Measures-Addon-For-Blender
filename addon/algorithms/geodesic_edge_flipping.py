@@ -16,7 +16,6 @@ from functools import reduce
 from math import fabs, inf, degrees, pi
 from queue import PriorityQueue
 from typing import Tuple
-from bl_operators.bmesh.find_adjacent import elems_depth_measure
 
 from bmesh.types import BMEdge, BMFace, BMVert, BMesh
 from mathutils import Matrix, Vector
@@ -307,15 +306,15 @@ def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
     # Ensure the order of edge follows the order to reach the path
     # i.e ensure going from e1 to updated edge is CCW
     if get_angles_signed(e1, updated_edge)[0] < 0:
-        return (e1, updated_edge)
+        return (e1, e2, updated_edge)
     else:
-        return (e2, updated_edge)
+        return (e2, e1, updated_edge)
 
 
 def create_face_with_ccw_normal(bm: BMesh,
                                 v1: BMVert, v2: BMVert, v3: BMVert) -> BMFace:
     # Detect ccw
-    if get_angle_signed((v1.co-v2.co), (v3.co-v2.co)) < 0:
+    if get_angle_signed((v1.co-v2.co), (v3.co-v2.co), v2.normal) < 0:
         return bm.faces.new((v3, v2, v1))
     else:
         return bm.faces.new((v1, v2, v3))
@@ -334,7 +333,7 @@ def get_edges_in_wedge(s_prev: BMEdge, s_next: BMEdge) -> "list[BMEdge]":
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
 
     # We'll get only the left angle
-    edges_with_angle = list(map(lambda e: (get_angles_signed(s_prev, e)[0], e),
+    edges_with_angle = list(map(lambda e: (get_clockwise_angle(s_prev, e), e),
                             pivot_vert.link_edges))
 
     edges_filtered = list(filter(lambda x: x[0] >= 0 and x[0] <= max_angle,
@@ -384,12 +383,24 @@ def get_angles(start_edge: BMEdge, end_edge: BMEdge) \
     return result
 
 
+def get_clockwise_angle(start_edge: BMEdge, end_edge: BMEdge) -> float:
+    n = get_common_vert(start_edge, end_edge).normal
+    v1, v2 = get_vectors(start_edge, end_edge)
+    angle = get_angle_signed(v1, v2, n)
+
+    if angle < 0:
+        return 2*pi*fabs(angle)
+
+    return angle
+
+
 def get_angles_signed(start_edge: BMEdge, end_edge: BMEdge) \
                       -> Tuple[float, float]:
 
     v1, v2 = get_vectors(start_edge, end_edge)
+    n = get_common_vert(start_edge, end_edge).normal
 
-    left_angle = get_angle_signed(v1, v2)
+    left_angle = get_angle_signed(v1, v2, n)
     right_angle = -(2*pi-left_angle) if left_angle > 0 \
         else (2*pi-fabs(left_angle))
 
@@ -402,22 +413,20 @@ def get_angles_signed(start_edge: BMEdge, end_edge: BMEdge) \
     return result
 
 
-def get_angle_signed(v1: Vector, v2: Vector) -> float:
+def get_angle_signed(v1: Vector, v2: Vector, n: Vector) -> float:
     # Implementing this idea:
     # https://math.stackexchange.com/questions/1027476/calculating-clockwise-anti-clockwise-angles-from-a-point
-
-    matrix: Matrix = Matrix((v1, v2, v1.cross(v2)))
+    matrix: Matrix = Matrix((v1, v2, n))
+    matrix.transpose()
     det = matrix.determinant()
     angle = v1.angle(v2)
 
-    if det > 0:  # clockwise
+    if det < 0:  # clockwise
         return angle
-    elif det < 0:  # anticlockwise
+    elif det > 0:  # anticlockwise
         return -angle
     else:
-        # print("Why am I here?")
-        # print("Angle was {}".format(angle))
-        return angle
+        return 0
 
 
 def get_vectors(start_edge, end_edge):

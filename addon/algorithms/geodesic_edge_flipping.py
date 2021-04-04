@@ -75,7 +75,15 @@ def geodesic_walk(bm: BMesh, start_vert: BMVert, end_vert: BMVert,
     # Populate the priority queue
     queue = PriorityQueue()
     for e1, e2 in zip(edge_path[:-1], edge_path[1:]):
-        queue.put((min(get_angles(e1, e2)), (e1, e2)))
+        # queue.put(
+        #     (get_minwedge_angle((e1, e2))[1]), (e1, e2)
+        # )
+        queue.put(
+            (
+                (get_minwedge_angle((e1, e2))[0]),
+                (e1, e2)
+            )
+        )
 
     iterative_shorten(bm_copy, queue, 50000)
 
@@ -99,7 +107,7 @@ def iterative_shorten(bm: BMesh, queue: PriorityQueue, maxIterations: int):
         if not path_segment[0].is_valid or not path_segment[1].is_valid:
             continue
 
-        angle_type, curr_angle = get_minwedge_angle(path_segment)
+        curr_angle, angle_type = get_minwedge_angle(path_segment)
 
         if min_angle != curr_angle:
             continue  # angle has changed
@@ -117,12 +125,22 @@ def iterative_shorten(bm: BMesh, queue: PriorityQueue, maxIterations: int):
 def get_minwedge_angle(path_segment: Tuple[BMEdge, BMEdge]) \
                        -> Tuple[Angle_Type, float]:
 
-    left_angle, right_angle = get_angles(path_segment[0],
-                                         path_segment[1])
+    e1, e2 = path_segment
 
-    angle_type = get_angle_type(left_angle, right_angle)
+    common_vert = get_common_vert(e1, e2)
 
-    return (angle_type, min(left_angle, right_angle))
+    v1 = e1.other_vert(common_vert).co - common_vert.co
+    v2 = e2.other_vert(common_vert).co - common_vert.co
+
+    angle = get_angle_signed(v1, v2, common_vert.normal)
+
+    if fabs(angle) == pi:
+        return (pi, Angle_Type.SHORTEST)
+
+    if angle < 0:
+        return (fabs(angle), Angle_Type.RIGHT_TURN)
+
+    return (angle, Angle_Type.LEFT_TURN)
 
 
 def locally_shorten_at(bm: BMesh,
@@ -151,41 +169,36 @@ def locally_shorten_at(bm: BMesh,
         reversed = True
 
     # == Main logic: flip until a shorter path exists
-    edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
-
-    # Should not happen if angle_type was SHORTEST but you never know
-    if edges_in_wedge == 2:
-        return
-
-    new_path: "list[BMEdge]" = []
+    new_path: "list[Tuple[BMEdge, BMEdge]]" = [(s_prev, s_next)]
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
-    for i in range(1, len(edges_in_wedge)-1):
 
-        if not is_edge_flippable(edges_in_wedge[i],
-                                 edges_in_wedge[i-1],
-                                 edges_in_wedge[i+1]):
+    while not is_local_geodesic(new_path):
+        edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
+        for i in range(1, len(edges_in_wedge)-1):
 
-            other_vert: BMVert = edges_in_wedge[i].other_vert(pivot_vert)
+            if not is_edge_flippable(edges_in_wedge[i],
+                                     edges_in_wedge[i-1],
+                                     edges_in_wedge[i+1]):
 
-            # For now we know we'll need to take the
-            # part on the outer arc
-            next_edge = [ed for ed in other_vert.link_edges
-                         if ed.other_vert(other_vert) ==
-                         edges_in_wedge[i-1].other_vert(pivot_vert)][0]
+                other_vert: BMVert = edges_in_wedge[i].other_vert(pivot_vert)
 
-            new_path.append(next_edge)
-            continue
+                # For now we know we'll need to take the
+                # part on the outer arc
+                next_edge = [ed for ed in other_vert.link_edges
+                             if ed.other_vert(other_vert) ==
+                             edges_in_wedge[i-1].other_vert(pivot_vert)][0]
 
-        e1, e2, updated_wedge = flip_edge(bm, edges_in_wedge[i], pivot_vert)
-        print("Edge was flipped!")
-        print("e1 is {} e2 is {} updated wedge is {}"
-              .format(e1, e2, updated_wedge))
+                new_path.append(next_edge)
+                continue
 
-        # After altering the geometry, we'll add the path plus
-        # the new edge to compare against in next iterations
-        new_path.append(e1)
-        new_path.append(e2)
-        edges_in_wedge[i] = updated_wedge
+            e1, e2, updated_wedge = flip_edge(bm, edges_in_wedge[i],
+                                              pivot_vert)
+
+            # After altering the geometry, we'll add the path plus
+            # the new edge to compare against in next iterations
+            new_path.append(e1)
+            new_path.append(e2)
+            edges_in_wedge[i] = updated_wedge
 
     # Build the list of edges representing the new path
     # measure the length of the new path along the boundary
@@ -210,6 +223,20 @@ def locally_shorten_at(bm: BMesh,
     print(new_path)
 
 
+def is_local_geodesic(path: "list[Tuple[BMEdge, BMEdge]]") -> bool:
+
+    for e1, e2 in path:
+        v_center = get_common_vert(e1, e2)
+        v1 = e1.other_vert(v_center).co - v_center.co
+        v2 = e2.other_vert(v_center).co - v_center.co
+        angle = get_clockwise_angle_vector(v1, v2, v_center.normal)
+
+        if angle < pi:
+            return False
+
+    return True
+
+
 def is_edge_flippable(e: BMEdge, prev_e: BMEdge, next_e: BMEdge) -> bool:
 
     # TODO: if (isFixed(e)) return false;
@@ -221,7 +248,7 @@ def is_edge_flippable(e: BMEdge, prev_e: BMEdge, next_e: BMEdge) -> bool:
 
     # Path is straightened enough
     # nothing to do here
-    if v1.angle(v0) >= pi:
+    if get_ccw_angle_vector(v0, v1, common_vert.normal) >= pi:
         return False
 
     # According to the paper
@@ -266,7 +293,7 @@ def is_edge_flippable(e: BMEdge, prev_e: BMEdge, next_e: BMEdge) -> bool:
 
 
 def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
-              -> Tuple[BMEdge, BMEdge]:
+              -> Tuple[BMEdge, BMEdge, BMEdge]:
 
     # TODO: If the angle is completely flat
     # we could do a simpler edge flipping
@@ -328,7 +355,7 @@ def get_edges_in_wedge(s_prev: BMEdge, s_next: BMEdge) -> "list[BMEdge]":
 
     # We'll get the clock wise aka left angle
     # between the edges in the wedge
-    max_angle: float = get_angles_signed(s_prev, s_next)[0]
+    max_angle: float = get_clockwise_angle(s_prev, s_next)
 
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
 
@@ -370,28 +397,29 @@ def is_geodesic(edge_path) -> bool:
     return any(angle for angle in angles if angle < pi)
 
 
-def get_angles(start_edge: BMEdge, end_edge: BMEdge) \
-                      -> Tuple[float, float]:
-
-    v1, v2 = get_vectors(start_edge, end_edge)
-
-    left_angle = v1.angle(v2)
-    right_angle = 2*pi-left_angle
-
-    result = (left_angle, right_angle)
-
-    return result
-
-
 def get_clockwise_angle(start_edge: BMEdge, end_edge: BMEdge) -> float:
     n = get_common_vert(start_edge, end_edge).normal
     v1, v2 = get_vectors(start_edge, end_edge)
+
+    return get_clockwise_angle_vector(v1, v2, n)
+
+
+def get_clockwise_angle_vector(v1: Vector, v2: Vector, n: Vector) -> float:
     angle = get_angle_signed(v1, v2, n)
 
     if angle < 0:
-        return 2*pi*fabs(angle)
+        return 2*pi-fabs(angle)
 
     return angle
+
+
+def get_ccw_angle_vector(v1: Vector, v2: Vector, n: Vector) -> float:
+    angle = get_angle_signed(v1, v2, n)
+
+    if angle > 0:
+        return 2*pi-angle
+
+    return fabs(angle)
 
 
 def get_angles_signed(start_edge: BMEdge, end_edge: BMEdge) \

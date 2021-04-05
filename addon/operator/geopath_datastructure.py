@@ -525,19 +525,18 @@ class GeoPath(object):
                       self.path_segments, [])
 
     def raycast(self, context, x, y):
-        region = context.region
-        rv3d = context.region_data
-        coord = x, y
-        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
-        ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
-        ray_target = ray_origin + (view_vector * 1000)
-        mx = self.selected_obj.matrix_world
-        imx = mx.inverted()
 
-        res, loc, no, face_ind = self.selected_obj.ray_cast(
-            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
+        mouse_pos = (x, y)
 
-        return res, loc, face_ind
+        origin = view3d_utils.region_2d_to_origin_3d(
+            context.region, context.region_data, mouse_pos)
+        direction = view3d_utils.region_2d_to_vector_3d(
+            context.region, context.region_data, mouse_pos)
+
+        res, loc, normal, face_ind, object, matrix = context.scene.ray_cast(
+            context.view_layer.depsgraph, origin, direction)
+
+        return res, self.selected_obj.matrix_world.inverted() @ loc, face_ind
 
     def find_keypoint_hover(self, point):
 

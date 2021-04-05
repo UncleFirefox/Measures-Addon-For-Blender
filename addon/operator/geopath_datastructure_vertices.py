@@ -1,16 +1,18 @@
 import bmesh
 from bmesh.types import BMFace
+import bpy
 
 from bpy_extras import view3d_utils
 from functools import reduce
 from enum import Enum
 
 from mathutils import Vector
-# from ..algorithms.geodesic_vertices import geodesic_walk
-from ..algorithms.geodesic_edge_flipping import geodesic_walk
+from ..algorithms.geodesic_vertices import geodesic_walk
+# from ..algorithms.geodesic_edge_flipping import geodesic_walk
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
 from ..utility.geometry import create_face_with_ccw_normal
+from ..utility.ray import mouse_raycast_to_scene
 
 
 class GeoPath(object):
@@ -447,19 +449,29 @@ class GeoPath(object):
                       self.path_segments, [])
 
     def raycast(self, context, x, y):
-        region = context.region
-        rv3d = context.region_data
-        coord = x, y
-        view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
-        ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
-        ray_target = ray_origin + (view_vector * 1000)
-        mx = self.selected_obj.matrix_world
-        imx = mx.inverted()
+        # region = context.region
+        # rv3d = context.region_data
+        # coord = x, y
+        # view_vector = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
+        # ray_origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
+        # ray_target = ray_origin + (view_vector * 1000)
+        # mx = self.selected_obj.matrix_world
+        # imx = mx.inverted()
 
-        res, loc, no, face_ind = self.selected_obj.ray_cast(
-            imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
+        # res, loc, no, face_ind = self.selected_obj.ray_cast(
+        #     imx @ ray_origin, imx @ ray_target - imx @ ray_origin)
 
-        return res, loc, face_ind
+        mouse_pos = (x, y)
+
+        origin = view3d_utils.region_2d_to_origin_3d(
+            context.region, context.region_data, mouse_pos)
+        direction = view3d_utils.region_2d_to_vector_3d(
+            context.region, context.region_data, mouse_pos)
+
+        res, loc, normal, face_ind, object, matrix = context.scene.ray_cast(
+            context.view_layer.depsgraph, origin, direction)
+
+        return res, self.selected_obj.matrix_world.inverted() @ loc, face_ind
 
     def find_keypoint_hover(self, point):
 
@@ -547,8 +559,11 @@ class GeoPath(object):
         self.bme.faces.ensure_lookup_table()
 
         # Update objects back
+        current_mode = bpy.context.object.mode
+        bpy.ops.object.mode_set(mode='OBJECT')
         self.bme.to_mesh(self.selected_obj.data)
         self.selected_obj.data.update()
+        bpy.ops.object.mode_set(mode=current_mode)
 
     def try_undo_subdivision(self, in_vert):
 

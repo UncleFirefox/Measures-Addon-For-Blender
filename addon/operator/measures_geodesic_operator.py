@@ -18,8 +18,8 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     def poll(cls, context):
         # If you want to verify the conditions of your operator
         # before it launches, put your code here
-        if context.mode != 'OBJECT':
-            return False
+        # if context.mode != 'OBJECT':
+        #     return False
 
         if context.object is None or context.object.type != 'MESH':
             return False

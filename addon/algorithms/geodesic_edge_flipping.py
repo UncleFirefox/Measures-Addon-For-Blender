@@ -18,7 +18,7 @@ from math import fabs, inf, degrees, pi
 from queue import PriorityQueue
 from typing import Tuple
 
-from bmesh.types import BMEdge, BMFace, BMVert, BMesh
+from bmesh.types import BMEdge, BMFace, BMLoop, BMVert, BMesh
 from mathutils import Vector
 from mathutils.geometry import intersect_line_line
 
@@ -170,36 +170,40 @@ def locally_shorten_at(bm: BMesh,
         reversed = True
 
     # == Main logic: flip until a shorter path exists
-    new_path: "list[Tuple[BMEdge, BMEdge]]" = [(s_prev, s_next)]
+    new_path: "list[BMEdge]" = [s_prev, s_next]
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
 
     while not is_local_geodesic(new_path):
-        edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
-        for i in range(1, len(edges_in_wedge)-1):
+        # edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
+        # for i in range(1, len(edges_in_wedge)-1):
 
-            if not is_edge_flippable(edges_in_wedge[i],
-                                     edges_in_wedge[i-1],
-                                     edges_in_wedge[i+1]):
+        #     if not is_edge_flippable(edges_in_wedge[i],
+        #                              edges_in_wedge[i-1],
+        #                              edges_in_wedge[i+1]):
+        #         continue
 
-                other_vert: BMVert = edges_in_wedge[i].other_vert(pivot_vert)
+        #     e1, e2, updated_wedge = flip_edge(bm, edges_in_wedge[i],
+        #                                       pivot_vert)
 
-                # For now we know we'll need to take the
-                # part on the outer arc
-                next_edge = [ed for ed in other_vert.link_edges
-                             if ed.other_vert(other_vert) ==
-                             edges_in_wedge[i-1].other_vert(pivot_vert)][0]
+        #     edges_in_wedge[i] = updated_wedge
+        current_edge: BMEdge = get_next_edge(
+            s_prev, s_prev.other_vert(pivot_vert))
 
-                new_path.append(next_edge)
-                continue
+        while current_edge != s_next:
 
-            e1, e2, updated_wedge = flip_edge(bm, edges_in_wedge[i],
-                                              pivot_vert)
+            if is_edge_flippable(current_edge, pivot_vert):
+                e1, e2, current_edge = \
+                    flip_edge(bm, current_edge, pivot_vert)
 
-            # After altering the geometry, we'll add the path plus
-            # the new edge to compare against in next iterations
-            new_path.append(e1)
-            new_path.append(e2)
-            edges_in_wedge[i] = updated_wedge
+            current_edge = get_next_edge(
+                current_edge, current_edge.other_vert(pivot_vert))
+
+        # bm.verts.ensure_lookup_table()
+        # bm.edges.ensure_lookup_table()
+        # bm.faces.ensure_lookup_table()
+
+        new_path = get_new_path(
+            s_prev, pivot_vert, s_next.other_vert(pivot_vert))
 
     # Build the list of edges representing the new path
     # measure the length of the new path along the boundary
@@ -224,9 +228,30 @@ def locally_shorten_at(bm: BMesh,
     print(new_path)
 
 
-def is_local_geodesic(path: "list[Tuple[BMEdge, BMEdge]]") -> bool:
+def get_new_path(start_edge: BMEdge, pivot_vert: BMVert, end_vert: BMVert) \
+                 -> "list[BMEdge]":
 
-    for e1, e2 in path:
+    result: "list[BMEdge]" = []
+    cur_loop: BMLoop = [loop for loop in start_edge.link_loops
+                        if loop.vert == start_edge.other_vert(pivot_vert)][0]
+    e = start_edge
+
+    while end_vert not in e.verts:
+        cur_loop = cur_loop.link_loop_prev
+        e = cur_loop.edge
+        result.append(e)
+
+    return result
+
+
+def get_next_edge(e: BMEdge, v: BMVert) -> BMEdge:
+    return [loop for loop in e.link_loops if loop.vert == v][0] \
+        .link_loop_next.edge
+
+
+def is_local_geodesic(path: "list[BMEdge]") -> bool:
+
+    for e1, e2 in zip(path[:-1], path[1:]):
         v_center = get_common_vert(e1, e2)
         v1 = e1.other_vert(v_center).co - v_center.co
         v2 = e2.other_vert(v_center).co - v_center.co
@@ -238,18 +263,27 @@ def is_local_geodesic(path: "list[Tuple[BMEdge, BMEdge]]") -> bool:
     return True
 
 
-def is_edge_flippable(e: BMEdge, prev_e: BMEdge, next_e: BMEdge) -> bool:
+def is_edge_flippable(e: BMEdge, pivot_vert: BMVert) -> bool:
 
     # TODO: if (isFixed(e)) return false;
 
+    prev_e = [loop for loop in e.link_loops
+              if loop.vert == pivot_vert][0] \
+        .link_loop_prev.edge
+
+    next_e = [loop for loop in e.link_loops
+              if loop.vert == e.other_vert(pivot_vert)][0] \
+        .link_loop_next.edge
+
     # Check Bi < pi
     common_vert: BMVert = get_common_vert(e, prev_e)
-    v0: Vector = prev_e.other_vert(common_vert).co - common_vert.co
-    v1: Vector = next_e.other_vert(common_vert).co - common_vert.co
+    other_vert = e.other_vert(common_vert)
+    v1: Vector = prev_e.other_vert(common_vert).co - other_vert.co
+    v2: Vector = next_e.other_vert(common_vert).co - other_vert.co
 
     # Path is straightened enough
     # nothing to do here
-    if get_ccw_angle_vector(v0, v1, common_vert.normal) >= pi:
+    if get_ccw_angle_vector(v1, v2, other_vert.normal) >= pi:
         return False
 
     # According to the paper
@@ -268,8 +302,11 @@ def is_edge_flippable(e: BMEdge, prev_e: BMEdge, next_e: BMEdge) -> bool:
     # on the connected faces are not valid
     # be careful when recreating geometry with BMesh
     # alternatively we could use calc_face_angle_signed
-    if not e.is_convex:
-        return False
+    # NB: Strictly speaking we're interested in having the "straightest"
+    # path possible if there is a short concavity it might be worth
+    # to flip it anyway, so disabling for now
+    # if not e.is_convex:
+    #     return False
 
     # Manifold check
     # TODO: Should we also check self-intersecion vertices?

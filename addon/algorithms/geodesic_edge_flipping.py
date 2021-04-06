@@ -20,7 +20,7 @@ from typing import Tuple
 
 from bmesh.types import BMEdge, BMFace, BMLoop, BMVert, BMesh
 from mathutils import Vector
-from mathutils.geometry import intersect_point_line
+from mathutils.geometry import intersect_line_plane
 
 EPS_ANGLE: float = 1e-5
 
@@ -191,6 +191,9 @@ def locally_shorten_at(bm: BMesh,
     new_path: "list[BMEdge]" = [s_prev, s_next]
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
 
+    # Reverse path so that we just need to check ccw angles
+    new_path.reverse()
+
     while not is_local_geodesic(new_path):
 
         loop: BMLoop = [lo for lo in s_prev.link_loops
@@ -255,8 +258,8 @@ def is_local_geodesic(path: "list[BMEdge]") -> bool:
         v_center = get_common_vert(e1, e2)
         v1 = e1.other_vert(v_center).co - v_center.co
         v2 = e2.other_vert(v_center).co - v_center.co
-        angle = get_clockwise_angle_vector(v1, v2, v_center.normal)
-
+        angle = get_ccw_angle_vector(v1, v2, v_center.normal)
+        print(degrees(angle))
         if angle < pi:
             return False
 
@@ -333,6 +336,8 @@ def is_edge_flippable(e: BMEdge, pivot_vert: BMVert) -> bool:
 def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
               -> BMLoop:
 
+    print("Flipping edge {}".format(e))
+
     # TODO: If the angle is completely flat
     # we could do a simpler edge flipping
 
@@ -345,7 +350,15 @@ def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
     start_v = [loop for loop in e.link_loops if loop.vert == pivot_vert][0] \
         .link_loop_next.edge.other_vert(e.other_vert(pivot_vert))
 
-    p = intersect_point_line(start_v.co, e.verts[0].co, e.verts[1].co)[0]
+    # end_v = [loop for loop in e.link_loops if loop.vert == pivot_vert][0] \
+    #     .link_loop_radial_next.link_loop_next.edge.other_vert(pivot_vert)
+
+    plane_no = e.verts[0].co - e.verts[1].co
+
+    p = intersect_line_plane(e.verts[0].co, e.verts[1].co,
+                             start_v.co, plane_no)
+
+    print("New intersection point was {}".format(p))
 
     for face in list(e.link_faces):
         bm.faces.remove(face)
@@ -359,6 +372,7 @@ def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
 
     intersection_vert.normal = (start_v.co - p).cross(pivot_vert.co - p)
 
+    print("Removing edge {}".format(e))
     bm.edges.remove(e)
 
     bm.verts.ensure_lookup_table()

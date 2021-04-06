@@ -5,11 +5,17 @@ from mathutils import Matrix, Vector
 
 def create_face_with_ccw_normal(bm: BMesh,
                                 v1: BMVert, v2: BMVert, v3: BMVert) -> BMFace:
+    result: BMFace = None
+
     # Detect ccw
     if get_angle_signed((v1.co-v2.co), (v3.co-v2.co), v2.normal) < 0:
-        return bm.faces.new((v3, v2, v1))
+        result = bm.faces.new((v3, v2, v1))
     else:
-        return bm.faces.new((v1, v2, v3))
+        result = bm.faces.new((v1, v2, v3))
+
+    result.loops.index_update()
+
+    return result
 
 
 def get_angle_signed(v1: Vector, v2: Vector, n: Vector) -> float:

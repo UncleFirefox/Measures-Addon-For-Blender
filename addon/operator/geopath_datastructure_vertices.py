@@ -7,12 +7,11 @@ from functools import reduce
 from enum import Enum
 
 from mathutils import Vector
-from ..algorithms.geodesic_vertices import geodesic_walk
-# from ..algorithms.geodesic_edge_flipping import geodesic_walk
+#from ..algorithms.geodesic_vertices import geodesic_walk
+from ..algorithms.geodesic_edge_flipping import geodesic_walk
 from mathutils.geometry import intersect_point_line
 from ..utility import draw
 from ..utility.geometry import create_face_with_ccw_normal
-from ..utility.ray import mouse_raycast_to_scene
 
 
 class GeoPath(object):

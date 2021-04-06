@@ -20,7 +20,7 @@ from typing import Tuple
 
 from bmesh.types import BMEdge, BMFace, BMLoop, BMVert, BMesh
 from mathutils import Vector
-from mathutils.geometry import intersect_line_line
+from mathutils.geometry import intersect_point_line
 
 EPS_ANGLE: float = 1e-5
 
@@ -54,55 +54,48 @@ def geodesic_walk(bm: BMesh, start_vert: BMVert, end_vert: BMVert,
     end_copy = bm_copy.verts[end_vert.index]
 
     # Part 1: Perform a path as a reference
-    node = dijkstra(bm_copy,
-                    start_copy,
-                    end_copy)
+    edge_path: "list[BMEdge]" = dijkstra(bm_copy, start_copy, end_copy)
 
-    # if is_geodesic(node.shortest_path) is False:
-    #     print("Path is not geodesic")
+    # Populate the priority queue
+    # queue = PriorityQueue()
+    # for e1, e2 in zip(edge_path[:-1], edge_path[1:]):
+    #     queue.put(
+    #         (
+    #             (get_minwedge_angle((e1, e2))[0]),
+    #             (e1, e2)
+    #         )
+    #     )
 
-    # path = reduce(lambda a, b:
-    #               a + [b.other_vert(a[-1])],
-    #               node.shortest_path,
-    #               [start_copy])
+    short_path: "list[BMEdge]" = iterative_shorten(
+        bm_copy, edge_path, max_iters)
+
+    path = reduce(lambda a, b:
+                  a + [b.other_vert(a[-1])],
+                  short_path,
+                  [start_copy])
 
     # Yes, we need to copy positions as the
     # structure will be freed
-    # result = list([v.co.copy() for v in path])
-    # return result
-
-    edge_path = node.shortest_path
-
-    # Populate the priority queue
-    queue = PriorityQueue()
-    for e1, e2 in zip(edge_path[:-1], edge_path[1:]):
-        # queue.put(
-        #     (get_minwedge_angle((e1, e2))[1]), (e1, e2)
-        # )
-        queue.put(
-            (
-                (get_minwedge_angle((e1, e2))[0]),
-                (e1, e2)
-            )
-        )
-
-    iterative_shorten(bm_copy, queue, 50000)
+    result = list([v.co.copy() for v in path])
 
     bm_copy.free()
 
-    return None
+    return result
 
 
-def iterative_shorten(bm: BMesh, queue: PriorityQueue, maxIterations: int):
+def iterative_shorten(bm: BMesh,
+                      path: "list[BMEdge]",
+                      maxIterations: int) -> "list[BMEdge]":
 
     iterations = 0
 
-    while queue.qsize() and iterations < maxIterations:
+    wedges: "list[float, tuple[BMEdge, BMEdge]]" = build_wedge_list(path)
 
-        min_angle: float
-        path_segment: Tuple[BMEdge, BMEdge]
+    min_angle: float
+    path_segment: Tuple[BMEdge, BMEdge]
+    min_angle, path_segment = wedges.pop()
 
-        min_angle, path_segment = queue.get()
+    while min_angle < pi and iterations < maxIterations:
 
         # Check if its a stale entry
         if not path_segment[0].is_valid or not path_segment[1].is_valid:
@@ -110,17 +103,40 @@ def iterative_shorten(bm: BMesh, queue: PriorityQueue, maxIterations: int):
 
         curr_angle, angle_type = get_minwedge_angle(path_segment)
 
-        if min_angle != curr_angle:
-            continue  # angle has changed
+        insert_idx: int = path.index(path_segment[0])
+        shortened_path = locally_shorten_at(bm, path_segment, angle_type)
 
-        # TODO: Determine if wedge_is_clear is really necessary
+        # We'll insert elements at a certain position, to keep order
+        # we'll reverse
+        shortened_path.reverse()
 
-        locally_shorten_at(bm, path_segment, angle_type)
+        # Replace the path segment with the new path
+        path.pop(insert_idx)
+        path.pop(insert_idx)
+        for e in shortened_path:
+            path.insert(insert_idx, e)
+
+        wedges: "list[float, tuple[BMEdge, BMEdge]]" = build_wedge_list(path)
+        min_angle, path_segment = wedges.pop()
 
         iterations += 1
 
-        # TODO: Purge stale entries?
-        # TODO: Stop on length threshold?
+    return path
+
+    # TODO: Purge stale entries?
+    # TODO: Stop on length threshold?
+
+
+def build_wedge_list(path):
+
+    wedges = list(
+        map(lambda x: (get_minwedge_angle(x)[0], x),
+            zip(path[:-1], path[1:]))
+    )
+
+    wedges.sort(key=lambda x: x[0])
+
+    return wedges
 
 
 def get_minwedge_angle(path_segment: Tuple[BMEdge, BMEdge]) \
@@ -146,11 +162,13 @@ def get_minwedge_angle(path_segment: Tuple[BMEdge, BMEdge]) \
 
 def locally_shorten_at(bm: BMesh,
                        path_segment: Tuple[BMEdge, BMEdge],
-                       angle_type: Angle_Type):
+                       angle_type: Angle_Type) \
+                       -> "list[BMEdge]":
 
     if angle_type == Angle_Type.SHORTEST:
-        # nothing to do here
-        return
+        # Should now happen, you never know though
+        print("Path was shortest")
+        # return None
 
     # Compute the initial path length
     init_path_length = \
@@ -174,36 +192,28 @@ def locally_shorten_at(bm: BMesh,
     pivot_vert: BMVert = get_common_vert(s_prev, s_next)
 
     while not is_local_geodesic(new_path):
-        # edges_in_wedge: "list[BMEdge]" = get_edges_in_wedge(s_prev, s_next)
-        # for i in range(1, len(edges_in_wedge)-1):
 
-        #     if not is_edge_flippable(edges_in_wedge[i],
-        #                              edges_in_wedge[i-1],
-        #                              edges_in_wedge[i+1]):
-        #         continue
+        loop: BMLoop = [lo for lo in s_prev.link_loops
+                        if lo.vert == s_prev.other_vert(pivot_vert)][0]
 
-        #     e1, e2, updated_wedge = flip_edge(bm, edges_in_wedge[i],
-        #                                       pivot_vert)
+        loop = loop.link_loop_next
 
-        #     edges_in_wedge[i] = updated_wedge
-        current_edge: BMEdge = get_next_edge(
-            s_prev, s_prev.other_vert(pivot_vert))
+        while loop.edge != s_next:
 
-        while current_edge != s_next:
+            current_edge = loop.edge
 
             if is_edge_flippable(current_edge, pivot_vert):
-                e1, e2, current_edge = \
-                    flip_edge(bm, current_edge, pivot_vert)
+                loop = flip_edge(bm, current_edge, pivot_vert)
+            else:
+                loop = loop.link_loop_radial_next
 
-            current_edge = get_next_edge(
-                current_edge, current_edge.other_vert(pivot_vert))
-
-        # bm.verts.ensure_lookup_table()
-        # bm.edges.ensure_lookup_table()
-        # bm.faces.ensure_lookup_table()
+            loop = loop.link_loop_next
 
         new_path = get_new_path(
-            s_prev, pivot_vert, s_next.other_vert(pivot_vert))
+            [lo for lo in s_prev.link_loops
+             if lo.vert == s_prev.other_vert(pivot_vert)][0],
+            s_next.other_vert(pivot_vert)
+        )
 
     # Build the list of edges representing the new path
     # measure the length of the new path along the boundary
@@ -215,38 +225,28 @@ def locally_shorten_at(bm: BMesh,
     # but can rarely happen if an edge is numerically
     # unflippable for floating point reasons)
     if new_path_length > init_path_length:
-        return
+        print("New length was greater")
+        # return None
 
     # Make sure the new path orientation matches
     # the orientation of the input edges
     if reversed:
         new_path.reverse()
 
-    # TODO: Replace the path segment with the new path
-    # (most of the bookkeeping to update data structures happens in here)
-
-    print(new_path)
+    return new_path
 
 
-def get_new_path(start_edge: BMEdge, pivot_vert: BMVert, end_vert: BMVert) \
+def get_new_path(loop: BMLoop, end_vert: BMVert) \
                  -> "list[BMEdge]":
 
     result: "list[BMEdge]" = []
-    cur_loop: BMLoop = [loop for loop in start_edge.link_loops
-                        if loop.vert == start_edge.other_vert(pivot_vert)][0]
-    e = start_edge
 
-    while end_vert not in e.verts:
-        cur_loop = cur_loop.link_loop_prev
-        e = cur_loop.edge
-        result.append(e)
+    while end_vert not in loop.edge.verts:
+        loop = loop.link_loop_prev
+        result.append(loop.edge)
+        loop = loop.link_loop_prev.link_loop_radial_next
 
     return result
-
-
-def get_next_edge(e: BMEdge, v: BMVert) -> BMEdge:
-    return [loop for loop in e.link_loops if loop.vert == v][0] \
-        .link_loop_next.edge
 
 
 def is_local_geodesic(path: "list[BMEdge]") -> bool:
@@ -331,7 +331,7 @@ def is_edge_flippable(e: BMEdge, pivot_vert: BMVert) -> bool:
 
 
 def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
-              -> Tuple[BMEdge, BMEdge, BMEdge]:
+              -> BMLoop:
 
     # TODO: If the angle is completely flat
     # we could do a simpler edge flipping
@@ -342,38 +342,37 @@ def flip_edge(bm: BMesh, e: BMEdge, pivot_vert: BMVert) \
     op_vert_1: BMVert = get_opposed_vert(e.link_faces[0], e)
     op_vert_2: BMVert = get_opposed_vert(e.link_faces[1], e)
 
-    # Do the intersection, choosing p1 or p2 would result
-    # on same vector
-    p1, p2 = intersect_line_line(e.verts[0].co, e.verts[1].co,
-                                 op_vert_1.co, op_vert_2.co)
+    start_v = [loop for loop in e.link_loops if loop.vert == pivot_vert][0] \
+        .link_loop_next.edge.other_vert(e.other_vert(pivot_vert))
+
+    p = intersect_point_line(start_v.co, e.verts[0].co, e.verts[1].co)[0]
 
     for face in list(e.link_faces):
         bm.faces.remove(face)
 
-    intersection_vert = bm.verts.new(p1)
+    intersection_vert = bm.verts.new(p)
 
-    create_face_with_ccw_normal(bm, op_vert_1, intersection_vert, e.verts[0])
-    create_face_with_ccw_normal(bm, op_vert_1, intersection_vert, e.verts[1])
-    create_face_with_ccw_normal(bm, op_vert_2, intersection_vert, e.verts[0])
-    create_face_with_ccw_normal(bm, op_vert_2, intersection_vert, e.verts[1])
+    create_face_with_ccw_normal(bm, intersection_vert, op_vert_1, e.verts[0])
+    create_face_with_ccw_normal(bm, intersection_vert, op_vert_1, e.verts[1])
+    create_face_with_ccw_normal(bm, intersection_vert, op_vert_2, e.verts[0])
+    create_face_with_ccw_normal(bm, intersection_vert, op_vert_2, e.verts[1])
 
-    e1 = [ed for ed in op_vert_1.link_edges
-          if intersection_vert in ed.verts][0]
-    e2 = [ed for ed in op_vert_1.link_edges
-          if intersection_vert in ed.verts][0]
+    intersection_vert.normal = (start_v.co - p).cross(pivot_vert.co - p)
 
     bm.edges.remove(e)
 
-    updated_edge: BMEdge = [ed for ed in pivot_vert.link_edges
-                            if ed.other_vert(pivot_vert)
-                            == intersection_vert][0]
+    bm.verts.ensure_lookup_table()
+    bm.verts.index_update()
+    bm.edges.ensure_lookup_table()
+    bm.edges.index_update()
+    bm.faces.ensure_lookup_table()
+    bm.faces.index_update()
 
-    # Ensure the order of edge follows the order to reach the path
-    # i.e ensure going from e1 to updated edge is CCW
-    if get_angles_signed(e1, updated_edge)[0] < 0:
-        return (e1, e2, updated_edge)
-    else:
-        return (e2, e1, updated_edge)
+    loop = [lo for lo in intersection_vert.link_loops
+            if lo.edge.other_vert(intersection_vert)
+            == pivot_vert][0]
+
+    return loop
 
 
 def get_opposed_vert(face: BMFace, edge: BMEdge) -> BMVert:
@@ -518,7 +517,7 @@ class Node:
         self.shortest_path: "list[BMEdge]" = []
 
 
-def dijkstra(bm, v_start, v_target):
+def dijkstra(bm, v_start, v_target) -> "list[BMEdge]":
     for e in bm.edges:
         e.tag = False
 
@@ -533,7 +532,7 @@ def dijkstra(bm, v_start, v_target):
         node = visiting.pop(0)
 
         if node.vert is v_target:
-            return d[v_target]
+            return d[v_target].shortest_path
 
         for e in node.edges:
             e.tag = True
@@ -548,4 +547,4 @@ def dijkstra(bm, v_start, v_target):
 
         visiting.sort(key=lambda n: n.length)
 
-    return d[v_target]
+    return d[v_target].shortest_path

@@ -15,6 +15,7 @@ the intrisic world operations, does not work but illustrates how the algoritm wo
 
 '''
 
+from bpy.types import Mesh
 from ..utility.geometry import create_face_with_ccw_normal, get_angle_signed
 from enum import Enum
 from functools import reduce
@@ -35,16 +36,22 @@ class Angle_Type(Enum):
     RIGHT_TURN = 2
 
 
-def geodesic_walk(bm: BMesh, start_vert: BMVert, end_vert: BMVert,
-                  max_iters=100000):
+def geodesic_walk(bm: BMesh,
+                  start_vert_idx: int,
+                  end_vert_idx: int,
+                  m: Mesh = None,
+                  max_iters: int = 100000):
     '''
-    bm - geometry holder
+    bm - BMesh of the object
 
-    start_vert - Starting Vertex -> BMVert
+    start_vert_idx - Starting Vertex Id -> int
 
-    end_vert - Ending Vertex -> BMVert
+    end_vert_idx - Ending Vertex Id -> int
 
-    max_iters - limits number of marching steps
+    m - (optional) selected mesh in the scene -> Mesh
+
+    max_iters - (optional) limits number of marching steps
+
     '''
 
     # As the algoritm will modify the underlying structures
@@ -54,8 +61,8 @@ def geodesic_walk(bm: BMesh, start_vert: BMVert, end_vert: BMVert,
     bm_copy.edges.ensure_lookup_table()
     bm_copy.faces.ensure_lookup_table()
 
-    start_copy = bm_copy.verts[start_vert.index]
-    end_copy = bm_copy.verts[end_vert.index]
+    start_copy = bm_copy.verts[start_vert_idx]
+    end_copy = bm_copy.verts[end_vert_idx]
 
     # Part 1: Perform a path as a reference
     edge_path: "list[BMEdge]" = dijkstra(bm_copy, start_copy, end_copy)

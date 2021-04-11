@@ -15,9 +15,10 @@ import bmesh
 from bmesh.types import BMesh
 from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
+import time
 
 
-def geodesic_walk(bm: BMesh, start_vert, end_vert,
+def geodesic_walk(bm: BMesh, start_vert_idx, end_vert_idx,
                   max_iters=100000, epsilon=.0000001):
 
     '''
@@ -32,6 +33,8 @@ def geodesic_walk(bm: BMesh, start_vert, end_vert,
     epsilon - distance threshold for gradient descent
     '''
 
+    start = time.time()
+
     # Copy the bmesh to do manipulations
     # on the object without affecting the caller
     # TODO: Clone only if necessary
@@ -44,6 +47,9 @@ def geodesic_walk(bm: BMesh, start_vert, end_vert,
     stop_targets = set()
 
     far = set(bm.verts)
+
+    start_vert = bm.verts[start_vert_idx]
+    end_vert = bm.verts[end_vert_idx]
 
     geos[start_vert] = 0
 
@@ -97,6 +103,10 @@ def geodesic_walk(bm: BMesh, start_vert, end_vert,
     # goes from end_vert to start_vert,
     # were interested in the opposite
     path.reverse()
+
+    end = time.time()
+
+    print(f"Total time taken: {end-start}")
 
     return path
 

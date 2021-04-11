@@ -81,7 +81,7 @@ class GeoPath(object):
         start_vert = self.key_verts[-2]
 
         path = geodesic_walk(
-            self.bme, start_vert, vert
+            self.bme, start_vert.index, vert.index
         )
 
         self.path_segments.append(path)
@@ -385,7 +385,7 @@ class GeoPath(object):
     def redo_geodesic_segment(self, segment_pos,
                               start_vert, end_vert):
 
-        path = geodesic_walk(self.bme, start_vert, end_vert)
+        path = geodesic_walk(self.bme, start_vert.index, end_vert.index)
 
         self.path_segments[segment_pos] = path
 

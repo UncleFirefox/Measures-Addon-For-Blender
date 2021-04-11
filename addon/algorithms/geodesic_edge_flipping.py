@@ -15,68 +15,55 @@ This version uses the Python bindings exposed by the same authors
 '''
 
 from bmesh.types import BMesh
+from bpy.types import Mesh
 from mathutils import Vector
 import potpourri3d as pp3d
 import numpy as np
-import time
+# import time
 
 
-def geodesic_walk(bm: BMesh, start_vert_idx: int, end_vert_idx: int,
-                  max_iters=100000) -> "list[Vector]":
+def geodesic_walk(bm: BMesh,
+                  start_vert_idx: int,
+                  end_vert_idx: int,
+                  m: Mesh = None,
+                  max_iters: int = 100000):
+    '''
+    bm - BMesh of the object
+
+    start_vert_idx - Starting Vertex Id -> int
+
+    end_vert_idx - Ending Vertex Id -> int
+
+    m - (optional) selected mesh in the scene -> Mesh
+
+    max_iters - (optional) limits number of marching steps
+
+    '''
 
     # print("Calling geodesic walk with start: {} end: {}".format(
     #     start_vert_idx, end_vert_idx))
 
-    total_start = time.time()
+    # total_start = time.time()
 
-    start = time.time()
+    # Fast allocation of data structures
+    # https://developer.blender.org/rBae9d61e7fea25535803e92298f44b184c9190f76
+    V = np.zeros((len(m.vertices), 3), dtype=np.float)
+    m.vertices.foreach_get("co", V.ravel())
 
-    V = np.ndarray(shape=(len(bm.verts), 3), dtype=np.float64)
-    F = np.ndarray(shape=(len(bm.faces), 3), dtype=np.int64)
-
-    end = time.time()
-
-    print(f"Allocating the numpy array took {end-start}")
-
-    start = time.time()
-
-    for i in range(len(bm.verts)):
-        coordinates = bm.verts[i].co
-        V[i] = np.array((coordinates.x, coordinates.y, coordinates.z))
-
-    for i in range(len(bm.faces)):
-        # We'll asume the mesh was triangulated
-        F[i] = np.array((bm.faces[i].verts[0].index,
-                         bm.faces[i].verts[1].index,
-                         bm.faces[i].verts[2].index))
-
-    end = time.time()
-
-    print(f"Mapping from bmesh to numpy took {end-start}")
-
-    start = time.time()
+    F = np.zeros((len(m.polygons), 3), dtype=np.int)
+    m.polygons.foreach_get("vertices", F.ravel())
 
     path_solver = pp3d.EdgeFlipGeodesicSolver(V, F)
 
     path_ptsA = path_solver.find_geodesic_path(v_start=start_vert_idx,
                                                v_end=end_vert_idx)
 
-    end = time.time()
-
-    print(f"Executing the algorithm took {end-start}")
-
-    start = time.time()
-
     result: "list[Vector]" = list(
         map(lambda x: Vector((x[0], x[1], x[2])), path_ptsA)
     )
 
-    end = time.time()
+    # total_end = time.time()
 
-    print(f"Projecting results back took {end-start}")
-
-    total_end = time.time()
-
-    print(f"Total time taken: {total_end-total_start}")
+    # print(f"Total time taken: {total_end-total_start}")
 
     return result

@@ -1,11 +1,10 @@
 '''
 Created on April 11, 2021
 
-@author: Patrick
+@author: Albert Rodriguez Franco
 
-based on work by
-https://math.berkeley.edu/~sethian/2006/Papers/sethian.kimmel.geodesics.pdf
-http://saturno.ge.imati.cnr.it/ima/personal-old/attene/PersonalPage/pdf/steepest-descent-paper.pdf
+Base on the original idea from Patrick Moore: https://github.com/patmo141/cut_mesh
+
 '''
 # python imports
 # import time
@@ -13,24 +12,28 @@ http://saturno.ge.imati.cnr.it/ima/personal-old/attene/PersonalPage/pdf/steepest
 # blender imports
 import bmesh
 from bmesh.types import BMesh
+from bpy.types import Object
 from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
 import time
 
 
-def geodesic_walk(bm: BMesh, start_vert_idx, end_vert_idx,
-                  max_iters=100000, epsilon=.0000001):
-
+def geodesic_walk(bm: BMesh,
+                  start_vert_idx: int,
+                  end_vert_idx: int,
+                  m: Object = None,
+                  max_iters: int = 100000):
     '''
     bm - BMesh of the object
 
-    start_vert - Starting Vertex -> BMVert
+    start_vert_idx - Starting Vertex Id -> int
 
-    end_vert - Ending Vertex -> BMVert
+    end_vert_idx - Ending Vertex Id -> int
 
-    max_iters - limits number of marching steps
+    m - (optional) object representing the mesh in the scene -> Object
 
-    epsilon - distance threshold for gradient descent
+    max_iters - (optional) limits number of marching steps
+
     '''
 
     start = time.time()
@@ -47,6 +50,9 @@ def geodesic_walk(bm: BMesh, start_vert_idx, end_vert_idx,
     stop_targets = set()
 
     far = set(bm.verts)
+
+    # Threshold value for gradient descent
+    epsilon = .0000001
 
     start_vert = bm.verts[start_vert_idx]
     end_vert = bm.verts[end_vert_idx]

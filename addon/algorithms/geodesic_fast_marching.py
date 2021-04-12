@@ -12,7 +12,7 @@ Base on the original idea from Patrick Moore: https://github.com/patmo141/cut_me
 # blender imports
 import bmesh
 from bmesh.types import BMesh
-from bpy.types import Object
+from bpy.types import Mesh
 from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
 import time
@@ -21,7 +21,7 @@ import time
 def geodesic_walk(bm: BMesh,
                   start_vert_idx: int,
                   end_vert_idx: int,
-                  m: Object = None,
+                  m: Mesh = None,
                   max_iters: int = 100000):
     '''
     bm - BMesh of the object
@@ -30,7 +30,7 @@ def geodesic_walk(bm: BMesh,
 
     end_vert_idx - Ending Vertex Id -> int
 
-    m - (optional) object representing the mesh in the scene -> Object
+    m - (optional) object representing the mesh in the scene -> Mesh
 
     max_iters - (optional) limits number of marching steps
 

@@ -3,7 +3,7 @@ Created on April 11, 2021
 
 @author: Albert Rodriguez Franco
 
-Base on the original idea from Patrick Moore: https://github.com/patmo141/cut_mesh
+Based on the original idea from Patrick Moore: https://github.com/patmo141/cut_mesh
 
 '''
 # python imports

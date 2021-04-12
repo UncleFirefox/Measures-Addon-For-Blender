@@ -15,7 +15,7 @@ from bmesh.types import BMesh
 from bpy.types import Mesh
 from mathutils import Vector, Quaternion, Matrix
 from mathutils.geometry import intersect_point_line, intersect_line_line
-import time
+# import time
 
 
 def geodesic_walk(bm: BMesh,
@@ -36,7 +36,7 @@ def geodesic_walk(bm: BMesh,
 
     '''
 
-    start = time.time()
+    # start = time.time()
 
     # Copy the bmesh to do manipulations
     # on the object without affecting the caller
@@ -110,9 +110,9 @@ def geodesic_walk(bm: BMesh,
     # were interested in the opposite
     path.reverse()
 
-    end = time.time()
+    # end = time.time()
 
-    print(f"Total time taken: {end-start}")
+    # print(f"Total time taken: {end-start}")
 
     return path
 

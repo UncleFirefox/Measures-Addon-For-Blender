@@ -1,3 +1,4 @@
+from ..register.dependency_handling import MEASURES_OT_Install_Dependencies
 import bpy
 from ..utility.addon import addon_name, get_prefs
 from bpy.props import PointerProperty
@@ -25,3 +26,6 @@ class MEASURES_Props(bpy.types.AddonPreferences):
         # Drawing settings
         box = layout.box()
         draw_settings(prefs, box)
+
+        # Dependencies
+        layout.operator(MEASURES_OT_Install_Dependencies.bl_idname, icon="CONSOLE")

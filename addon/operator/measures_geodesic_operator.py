@@ -5,8 +5,7 @@ import traceback
 
 from ..utility.draw import draw_messages
 from ..utility.ray import mouse_raycast_to_scene
-# from .geopath_datastructure import GeoPath, Geodesic_State
-from .geopath_datastructure_vertices import GeoPath, Geodesic_State
+from .geopath_datastructure import GeoPath, Geodesic_State
 
 
 class MEASURES_GEODESIC_OT(bpy.types.Operator):
@@ -18,8 +17,8 @@ class MEASURES_GEODESIC_OT(bpy.types.Operator):
     def poll(cls, context):
         # If you want to verify the conditions of your operator
         # before it launches, put your code here
-        if context.mode != 'OBJECT':
-            return False
+        # if context.mode != 'OBJECT':
+        #     return False
 
         if context.object is None or context.object.type != 'MESH':
             return False

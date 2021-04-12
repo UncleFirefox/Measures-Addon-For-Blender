@@ -33,6 +33,8 @@ Now at the top of the section in the search box if you type `Measures` the plugi
   <img src="screenshots/plugininstalled.jpg" width="80%">
 </div>
 
+Once the plugin is installed you'll see an "Install dependencies" button at the bottom. This addon uses dependencies not included with the standard built in set of libraries. That button automates that process. Make sure you run with elevated privileges before attempting the install. Once successful the button will be greyed out.
+
 You can install different versions of the plugin and activate the one you want to try.
 
 <div style="text-align: center">

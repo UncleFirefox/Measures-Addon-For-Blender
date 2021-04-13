@@ -1,4 +1,6 @@
-from ..register.dependency_handling import MEASURES_OT_Install_Dependencies
+from ..preferences.install_dependencies_operator import \
+    MEASURES_OT_Install_Dependencies
+
 from .addon import MEASURES_Props
 from .color import MEASURES_Color
 from .settings import MEASURES_Settings

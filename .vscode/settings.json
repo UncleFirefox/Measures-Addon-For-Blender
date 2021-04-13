@@ -12,4 +12,5 @@
     "python.analysis.extraPaths": [
         "blender_autocomplete"
     ],
+    "python.pythonPath": "/home/albert/anaconda3/bin/python",
 }

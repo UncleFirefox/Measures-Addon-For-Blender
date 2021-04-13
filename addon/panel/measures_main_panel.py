@@ -1,3 +1,6 @@
+from ..register.dependency_handling import \
+    are_dependencies_installed, show_no_dependencies_warning
+
 import bpy
 
 
@@ -14,6 +17,9 @@ class MEASURES_PT_MAINPANEL(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         layout.scale_y = 1.2
+
+        if not are_dependencies_installed():
+            show_no_dependencies_warning(layout)
 
         # row = layout.row()
         # row.label(text="Adjust the plane to the Avatar", icon="MOD_TINT")

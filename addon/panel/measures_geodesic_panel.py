@@ -18,12 +18,6 @@ class MEASURES_PT_GEODESIC_PANEL(bpy.types.Panel):
         layout = self.layout
         layout.scale_y = 1.2
 
-        if are_dependencies_installed():
-            self.show_operator(layout)
-        else:
-            show_no_dependencies_warning(layout)
-
-    def show_operator(self, layout):
         row = layout.row()
         row.label(
             text="Select a origin and destiny to generate a path",

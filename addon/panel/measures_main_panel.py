@@ -1,4 +1,6 @@
-from addon.register.dependency_handling import are_dependencies_installed, show_no_dependencies_warning
+from ..register.dependency_handling import \
+    are_dependencies_installed, show_no_dependencies_warning
+
 import bpy
 
 

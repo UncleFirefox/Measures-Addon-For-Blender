@@ -3,6 +3,8 @@ from ..register.dependency_handling import \
     are_dependencies_installed, get_dependencies,\
     install_and_import_module, install_pip, set_dependency_installed_flag
 
+from ..register import register_dependent_objects
+
 import bpy
 
 
@@ -31,5 +33,8 @@ class MEASURES_OT_Install_Dependencies(bpy.types.Operator):
             return {"CANCELLED"}
 
         set_dependency_installed_flag(True)
+
+        # Register the panels, operators, etc. since dependencies are installed
+        register_dependent_objects()
 
         return {"FINISHED"}

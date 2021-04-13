@@ -1,5 +1,8 @@
-from ..register.dependency_handling import MEASURES_OT_Install_Dependencies
 import bpy
+
+from .install_dependencies_operator import \
+    MEASURES_OT_Install_Dependencies
+
 from ..utility.addon import addon_name, get_prefs
 from bpy.props import PointerProperty
 

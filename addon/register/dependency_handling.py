@@ -1,7 +1,5 @@
-from .dependency_flag import are_dependencies_installed, set_dependency_installed_flag
 from collections import namedtuple
 from typing import Tuple
-import bpy
 import subprocess
 import sys
 import os
@@ -17,34 +15,21 @@ Dependency = namedtuple("Dependency", ["module", "package", "name"])
 dependencies: Tuple[Dependency] = (Dependency(module="potpourri3d",
                                    package=None, name=None),)
 
+global dependencies_installed
 
-class MEASURES_OT_Install_Dependencies(bpy.types.Operator):
-    bl_idname = "measures.install_dependencies"
-    bl_label = "Install dependencies"
-    bl_description = ("Downloads and installs the required python packages for this add-on. "
-                      "Internet connection is required. Blender may have to be started with "
-                      "elevated permissions in order to install the package")
-    bl_options = {"REGISTER", "INTERNAL"}
 
-    @classmethod
-    def poll(self, context):
-        # Deactivate when dependencies have been installed
-        return not are_dependencies_installed()
+def set_dependency_installed_flag(flag: bool):
+    global dependencies_installed
+    dependencies_installed = flag
 
-    def execute(self, context):
-        try:
-            install_pip()
-            for dependency in dependencies:
-                install_and_import_module(module_name=dependency.module,
-                                          package_name=dependency.package,
-                                          global_name=dependency.name)
-        except (subprocess.CalledProcessError, ImportError) as err:
-            self.report({"ERROR"}, str(err))
-            return {"CANCELLED"}
 
-        set_dependency_installed_flag(True)
+def are_dependencies_installed() -> bool:
+    global dependencies_installed
+    return dependencies_installed
 
-        return {"FINISHED"}
+
+def get_dependencies():
+    return dependencies
 
 
 def import_dependencies():

@@ -1,4 +1,5 @@
 from ..register.dependency_handling import \
+    are_dependencies_installed, \
     import_dependencies, \
     set_dependency_installed_flag
 
@@ -16,6 +17,7 @@ def register_addon():
         set_dependency_installed_flag(True)
     except ModuleNotFoundError:
         print("Dependencies were not installed...")
+        return
 
     # Menus
     # from ..menu import register_menus
@@ -39,6 +41,9 @@ def unregister_addon():
     # Preferences
     from ..preferences import unregister_preferences
     unregister_preferences()
+
+    if not are_dependencies_installed():
+        return
 
     # Menus
     # from ..menu import unregister_menus

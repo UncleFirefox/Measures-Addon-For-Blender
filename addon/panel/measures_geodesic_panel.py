@@ -1,4 +1,4 @@
-from ..register.dependency_flag import are_dependencies_installed
+from addon.register.dependency_handling import are_dependencies_installed
 import bpy
 
 
